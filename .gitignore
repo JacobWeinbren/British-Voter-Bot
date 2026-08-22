@@ -1,0 +1,19 @@
+# Secrets
+.env
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Raw BES data and documentation (2 GB; download from britishelectionstudy.com)
+data/raw/
+data/processed/
+
+# Rendered cards are produced at post time; keep a few previews only
+outputs/cards/
+outputs/previews/*.html
+
+# OS
+.DS_Store

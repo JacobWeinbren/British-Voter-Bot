@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>British Voter Bot - how to read a card</title>
+<style>
+  {% for weight in [400, 500, 600, 700, 800] %}
+  @font-face { font-family: "Archivo"; font-style: normal; font-weight: {{ weight }}; src: url("file://{{ font_dir }}/Archivo-{{ weight }}.ttf") format("truetype"); }
+  {% endfor %}
+  html, body { margin: 0; padding: 0; background: #ffffff; }
+  body { font-family: "Archivo", sans-serif; color: {{ ink }}; -webkit-font-smoothing: antialiased; }
+  strong { font-weight: 700; color: {{ ink }}; }
+
+  #card { width: {{ width }}px; height: {{ height }}px; background: #ffffff; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; }
+  .content { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 22px; padding: 50px 56px 30px; box-sizing: border-box; }
+  .rule { height: 2px; background: {{ ink }}; }
+
+  .masthead { display: flex; flex-direction: column; gap: 20px; }
+  .brand { display: flex; align-items: center; gap: 12px; font: 700 20px/1 "Archivo", sans-serif; }
+  .brand .dot { width: 15px; height: 15px; border-radius: 50%; background: {{ accent }}; }
+  h1 { margin: 0; font: 800 56px/1.1 "Archivo", sans-serif; letter-spacing: -0.015em; text-wrap: pretty; }
+  .lead { font: 400 23px/1.45 "Archivo", sans-serif; color: {{ body }}; text-wrap: pretty; }
+
+  .key h2 { margin: 0; font: 700 26px/1 "Archivo", sans-serif; padding: 2px 0 18px; }
+  .row { display: flex; gap: 36px; align-items: center; padding: 15px 0; }
+  .row .graphic { width: 180px; flex: none; display: flex; justify-content: flex-start; }
+  .row .text { flex: 1; font: 400 21.5px/1.45 "Archivo", sans-serif; color: {{ body }}; text-wrap: pretty; }
+  .row .source { display: block; margin-top: 6px; font-weight: 600; color: {{ accent }}; }
+
+  .mini-bubble { position: relative; background: {{ bubble_fill }}; border: 2px solid {{ ink }}; padding: 13px 15px; width: 158px; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; }
+  .mini-bubble::after { content: ""; position: absolute; left: 18px; bottom: -8px; width: 12px; height: 12px; background: {{ bubble_fill }}; border-right: 2px solid {{ ink }}; border-bottom: 2px solid {{ ink }}; transform: rotate(45deg); }
+  .mini-bubble div { height: 6px; background: {{ middle_band }}; }
+
+  .mini-scale { position: relative; width: 170px; height: 30px; }
+  .mini-scale .line { position: absolute; left: 0; right: 0; top: 13px; height: 6px; background: {{ track }}; }
+  .mini-scale .band { position: absolute; left: 24%; width: 50%; top: 13px; height: 6px; background: {{ scale_band }}; }
+  .mini-scale .median { position: absolute; left: 50%; top: 4px; width: 3px; height: 23px; background: {{ ink }}; }
+  .mini-scale .me { position: absolute; left: 28%; top: 7px; width: 18px; height: 18px; border-radius: 50%; background: {{ accent }}; border: 3px solid #ffffff; transform: translateX(-50%); box-sizing: border-box; }
+
+  .mini-band { width: 158px; background: {{ accent }}; padding: 11px 13px; font: 800 16px/1.3 "Archivo", sans-serif; color: #ffffff; box-sizing: border-box; }
+
+  .dots { display: grid; grid-template-columns: repeat(8, 13px); gap: 9px; }
+  .dots span { width: 13px; height: 13px; border-radius: 50%; background: {{ middle_band }}; display: block; }
+  .dots span.me { background: {{ accent }}; }
+
+  .close { margin-top: auto; background: {{ accent }}; color: #ffffff; padding: 28px 32px; display: flex; flex-direction: column; gap: 8px; }
+  .close .top { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; }
+  .close .line { font: 800 38px/1.15 "Archivo", sans-serif; letter-spacing: -0.01em; }
+  .close .cadence { flex: none; font: 600 21px/1.3 "Archivo", sans-serif; }
+  .close .sub { font: 500 20px/1.4 "Archivo", sans-serif; opacity: 0.92; text-wrap: pretty; }
+  .credits { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; font: 500 15px/1.45 "Archivo", sans-serif; color: {{ ink }}; padding-top: 14px; }
+  .credits span { color: {{ accent }}; }
+</style>
+</head>
+<body>
+<div id="card">
+  <div class="content">
+    <div class="masthead">
+      <div class="brand"><div class="dot"></div><div>British Voter Bot</div></div>
+      <div class="rule"></div>
+      <h1>Real British voters, one at a time.</h1>
+      <div class="lead">Every card on this account is one real, anonymous respondent to the <strong>British Election Study</strong>, Britain's largest survey of voters. Each card says who they are, what they think, and how they'd vote, in their own survey answers.</div>
+    </div>
+    <div class="key">
+      <h2>How to read a card</h2>
+      <div class="rule"></div>
+      <div class="row">
+        <div class="graphic">{{ map_svg | safe }}</div>
+        <div class="text"><strong>The dot is where they live.</strong> Each voter is drawn over their home nation, marked at their constituency.</div>
+      </div>
+      <div class="rule"></div>
+      <div class="row">
+        <div class="graphic"><div class="mini-bubble"><div style="width:100%"></div><div style="width:78%"></div><div style="width:52%"></div></div></div>
+        <div class="text"><strong>The bubbles are their views.</strong> Favourite and least favourite leader, the issues they care about, how they see their nation - all from their survey answers.</div>
+      </div>
+      <div class="rule"></div>
+      <div class="row">
+        <div class="graphic"><div class="mini-scale"><div class="line"></div><div class="band"></div><div class="median"></div><div class="me"></div></div></div>
+        <div class="text"><strong>The scales show where they sit.</strong> Two BES 0-10 scales: economic left-right, cultural liberal-authoritarian. The tick is the centre of the scale (5); the lilac band is the voters' interquartile range.</div>
+      </div>
+      <div class="rule"></div>
+      <div class="row">
+        <div class="graphic"><div class="mini-band">2024 &rarr; today</div></div>
+        <div class="text"><strong>The band is their vote.</strong> How they voted in 2024, who they'd vote for now - coloured by the party they're backing today, grey if undecided.</div>
+      </div>
+      <div class="rule"></div>
+      <div class="row">
+        <div class="graphic"><div class="dots">{% for i in range(24) %}<span{% if i == 10 %} class="me"{% endif %}></span>{% endfor %}</div></div>
+        <div class="text"><strong>Together, they are Britain in miniature.</strong> Voters are drawn from the wave's {{ respondents }} real respondents in proportion to BES survey weights, so the feed reflects the British adult population by age, gender, region, past vote and more. {{ cadence_sentence }} <span class="source">BES Wave {{ wave }} &middot; YouGov &middot; {{ fieldwork }}</span></div>
+      </div>
+    </div>
+    <div class="close">
+      <div class="line">No one is the average voter.</div>
+      <div class="sub">{{ subtitle }}</div>
+    </div>
+    <div class="credits">{% for name, handle in credits %}<div>{{ name }}<br><span>{{ handle }}</span></div>{% endfor %}</div>
+  </div>
+</div>
+</body>
+</html>

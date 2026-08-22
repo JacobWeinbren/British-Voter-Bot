@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/modernist-48ce0175-3a2e-4a8e-94b4-96b3ae943a15/styles.css">
+<script src="_ds/modernist-48ce0175-3a2e-4a8e-94b4-96b3ae943a15/_ds_bundle.js"></script>
+<script src="https://unpkg.com/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous"></script>
+<style>body{margin:0;background:#f0eee9;font-family:'Archivo',system-ui,sans-serif}a{color:#201e1d}a:hover{color:#ec3013}.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(0,0,0,.08);scroll-margin-top:16px}.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 20px}.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none}.dv-tname{font:600 13px/1.2 system-ui,sans-serif;color:#1a1a1a}.dv-opts{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;text-decoration:none}.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 system-ui,sans-serif;color:rgba(0,0,0,.55)}.dv-card{max-width:100%;background:#fff;border:1px solid rgba(0,0,0,.08);box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden}.dv-opt:target .dv-oid{background:#2a78d6;color:#fff}.dv-next{margin:22px 0 0;font:12px/1.5 system-ui,sans-serif;color:rgba(0,0,0,.5)}</style>
+</helmet>
+<section class="dv-turn" id="t4">
+<div class="dv-thd"><a class="dv-tid" href="#t4">4</a><span class="dv-tname">Pinned intro poster - what the bot is and how to read a card</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="4a">
+<div class="dv-olabel"><a class="dv-oid" href="#4a">4a</a>Intro poster · 1080×1350</div>
+<div class="dv-card" id="intro-poster" style="width:1080px;height:1350px;background:#ffffff;display:flex;flex-direction:column;box-sizing:border-box">
+  <div style="flex:1;min-height:0;display:flex;flex-direction:column;gap:24px;padding:50px 56px 30px;box-sizing:border-box">
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:15px;height:15px;border-radius:50%;background:#c2255c"></div>
+        <div style="font:700 20px/1 'Archivo',sans-serif;color:#201e1d">British Voter Bot</div>
+      </div>
+      <div style="height:2px;background:#201e1d"></div>
+      <div style="font:800 56px/1.1 'Archivo',sans-serif;color:#201e1d;letter-spacing:-0.015em;text-wrap:pretty">Real British voters, one at a time.</div>
+      <div style="font:400 23px/1.45 'Archivo',sans-serif;color:#3c3744;text-wrap:pretty">Every card on this account is one real, anonymous respondent to the <strong style="font-weight:700;color:#201e1d">British Election Study</strong>, Britain’s largest survey of voters. Each card says who they are, what they think, and how they’d vote, in their own survey answers.</div>
+    </div>
+    <div style="display:flex;flex-direction:column">
+      <div style="font:700 26px/1 'Archivo',sans-serif;color:#201e1d;padding:2px 0 18px">How to read a card</div>
+      <div style="height:2px;background:#201e1d"></div>
+      <div style="display:flex;gap:36px;align-items:center;padding:16px 0">
+        <div style="width:180px;flex:none;display:flex;justify-content:flex-start">
+          <x-import component-from-global-scope="persona-map" from="./persona-map.js" width="106" height="158" lon="-4.289" lat="55.889" fill="#84a883" stroke="#41603f" dot="#c2255c" hint-size="106px,158px"></x-import>
+        </div>
+        <div style="flex:1;font:400 21.5px/1.45 'Archivo',sans-serif;color:#3c3744;text-wrap:pretty"><strong style="font-weight:700;color:#201e1d">The dot is where they live.</strong> Each voter is drawn over their home nation, marked at their constituency.</div>
+      </div>
+      <div style="height:2px;background:#201e1d"></div>
+      <div style="display:flex;gap:36px;align-items:center;padding:16px 0">
+        <div style="width:180px;flex:none;display:flex;justify-content:flex-start">
+          <div style="position:relative;background:#f4eef6;border:2px solid #201e1d;padding:12px 14px;width:150px;box-sizing:border-box;display:flex;flex-direction:column;gap:7px" style-after="content:'';position:absolute;left:18px;bottom:-8px;width:12px;height:12px;background:#f4eef6;border-right:2px solid #201e1d;border-bottom:2px solid #201e1d;transform:rotate(45deg)">
+            <div style="height:5px;background:#cfc5d6;width:100%"></div>
+            <div style="height:5px;background:#cfc5d6;width:78%"></div>
+            <div style="height:5px;background:#cfc5d6;width:52%"></div>
+          </div>
+        </div>
+        <div style="flex:1;font:400 21.5px/1.45 'Archivo',sans-serif;color:#3c3744;text-wrap:pretty"><strong style="font-weight:700;color:#201e1d">The bubbles are their views.</strong> Favourite and least favourite leader, the issues they care about, how they see their nation - all from their survey answers.</div>
+      </div>
+      <div style="height:2px;background:#201e1d"></div>
+      <div style="display:flex;gap:36px;align-items:center;padding:16px 0">
+        <div style="width:180px;flex:none;display:flex;justify-content:flex-start">
+          <div style="position:relative;width:160px;height:28px">
+            <div style="position:absolute;left:0;right:0;top:12px;height:5px;background:#e9e3ec"></div>
+            <div style="position:absolute;left:25%;width:50%;top:12px;height:5px;background:#cfc5d6"></div>
+            <div style="position:absolute;left:50%;top:4px;width:3px;height:21px;background:#201e1d"></div>
+            <div style="position:absolute;left:27%;top:6px;width:17px;height:17px;border-radius:50%;background:#c2255c;border:3px solid #ffffff;transform:translateX(-50%);box-sizing:border-box"></div>
+          </div>
+        </div>
+        <div style="flex:1;font:400 21.5px/1.45 'Archivo',sans-serif;color:#3c3744;text-wrap:pretty"><strong style="font-weight:700;color:#201e1d">The scales show where they sit.</strong> BES 0-10 value scales: economic left-right and liberal-authoritarian. The tick marks the scale midpoint (5 on the 0-10 scale); the darker band is the interquartile range of voters (25th-75th percentile).</div>
+      </div>
+      <div style="height:2px;background:#201e1d"></div>
+      <div style="display:flex;gap:36px;align-items:center;padding:16px 0">
+        <div style="width:180px;flex:none;display:flex;justify-content:flex-start">
+          <div style="width:160px;background:#c2255c;padding:11px 13px;font:800 16px/1.3 'Archivo',sans-serif;color:#ffffff">2024 → today</div>
+        </div>
+        <div style="flex:1;font:400 21.5px/1.45 'Archivo',sans-serif;color:#3c3744;text-wrap:pretty"><strong style="font-weight:700;color:#201e1d">The band is their vote.</strong> How they voted in 2024, who they’d vote for now - coloured by the party they’re backing today.</div>
+      </div>
+      <div style="height:2px;background:#201e1d"></div>
+      <div style="display:flex;gap:36px;align-items:center;padding:16px 0">
+        <div style="width:180px;flex:none;display:flex;justify-content:flex-start">
+          <div style="display:grid;grid-template-columns:repeat(8,13px);gap:9px">
+            <div style="width:13px;height:13px;border-radius:50%;background:#cfc5d6"></div><div style="width:13px;height:13px;border-radius:50%;background:#cfc5d6"></div><div style="width:13px;height:13px;border-radius:50%;background:#cfc5d6"></div><div style="width:13px;height:13px;border-radius:50%;background:#cfc5d6"></div><div style="width:13px;height:13px;border-radius:50%;background:#cfc5d6"></div><div style="width:13px;height:13px;border-radius:50%;background:#cfc5d6"></div><div style="width:13px;height:13px;border-radius:50%;background:#cfc5d6"></div><div style="width:13px;height:13px;border-radius:50%;background:#cfc5d6"></div>
+            <div style="width:13px;height:13px;border-radius:50%;background:#cfc5d6"></div><div style="width:13px;height:13px;border-radius:50%;background:#cfc5d6"></div><div style="width:13px;height:13px;border-radius:50%;background:#c2255c"></div><div style="width:13px;height:13px;border-radius:50%;background:#cfc5d6"></div><div style="width:13px;height:13px;border-radius:50%;background:#cfc5d6"></div><div style="width:13px;height:13px;border-radius:50%;background:#cfc5d6"></div><div style="width:13px;height:13px;border-radius:50%;background:#cfc5d6"></div><div style="width:13px;height:13px;border-radius:50%;background:#cfc5d6"></div>
+            <div style="width:13px;height:13px;border-radius:50%;background:#cfc5d6"></div><div style="width:13px;height:13px;border-radius:50%;background:#cfc5d6"></div><div style="width:13px;height:13px;border-radius:50%;background:#cfc5d6"></div><div style="width:13px;height:13px;border-radius:50%;background:#cfc5d6"></div><div style="width:13px;height:13px;border-radius:50%;background:#cfc5d6"></div><div style="width:13px;height:13px;border-radius:50%;background:#cfc5d6"></div><div style="width:13px;height:13px;border-radius:50%;background:#cfc5d6"></div><div style="width:13px;height:13px;border-radius:50%;background:#cfc5d6"></div>
+          </div>
+        </div>
+        <div style="flex:1;font:400 21.5px/1.45 'Archivo',sans-serif;color:#3c3744;text-wrap:pretty"><strong style="font-weight:700;color:#201e1d">Together, they are Britain in miniature.</strong> Voters are drawn from the wave’s 31,392 respondents in proportion to BES survey weights, so the feed reflects the British adult population by age, gender, region, past vote and more. <span style="font-weight:600;color:#c2255c">BES Wave 31 · YouGov · May-June 2026</span></div>
+      </div>
+    </div>
+    <div style="margin-top:auto;background:#c2255c;color:#ffffff;padding:28px 32px;display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:24px">
+        <div style="font:800 38px/1.15 'Archivo',sans-serif;letter-spacing:-0.01em">No one is the average voter.</div>
+        <div style="flex:none;font:600 21px/1.3 'Archivo',sans-serif">Three voters a day</div>
+      </div>
+      <div style="font:500 20px/1.4 'Archivo',sans-serif;opacity:0.92;text-wrap:pretty">Taken one at a time, voters are messier - and more interesting - than any stereotype.</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;font:500 15px/1.45 'Archivo',sans-serif;color:#201e1d;padding-top:14px">
+      <div>Jacob Weinbren<br><span style="color:#c2255c">@jacobweinbren.bsky.social</span></div>
+      <div>Lawrence McKay<br><span style="color:#c2255c">@lawrencemckay.bsky.social</span></div>
+      <div>Chris Terry-Enescu<br><span style="color:#c2255c">@cjterry.bsky.social</span></div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">Copy tweaks welcome - the row order and closing line are easy to swap.</p>
+</section>
+<section class="dv-turn" id="t3">
+<div class="dv-thd"><a class="dv-tid" href="#t3">3</a><span class="dv-tname">Bluesky profile assets - Union Jack + the persona marker</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="3a">
+<div class="dv-olabel"><a class="dv-oid" href="#3a">3a</a>Header banner · 1500×500 (avatar overlaps bottom-left, kept clear)</div>
+<div class="dv-card" id="bsky-banner" style="width:1500px;height:500px;position:relative;overflow:hidden;background:#012169">
+  <svg viewBox="0 0 60 30" preserveAspectRatio="xMidYMid slice" width="1500" height="500" style="position:absolute;inset:0">
+    <clipPath id="ukT1"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"></path></clipPath>
+    <rect width="60" height="30" fill="#012169"></rect>
+    <path d="M0,0 L60,30 M60,0 L0,30" stroke="#ffffff" stroke-width="6"></path>
+    <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#ukT1)" stroke="#C8102E" stroke-width="4"></path>
+    <path d="M30,0 v30 M0,15 h60" stroke="#ffffff" stroke-width="10"></path>
+    <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"></path>
+  </svg>
+</div>
+</div>
+
+<div class="dv-opt" id="3b">
+<div class="dv-olabel"><a class="dv-oid" href="#3b">3b</a>Profile picture · 1000×1000 (Bluesky crops to a circle)</div>
+<div class="dv-card" id="bsky-avatar" style="width:1000px;height:1000px;position:relative;overflow:hidden;background:#012169">
+  <svg viewBox="0 0 60 30" preserveAspectRatio="xMidYMid slice" width="1000" height="1000" style="position:absolute;inset:0">
+    <clipPath id="ukT2"><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z"></path></clipPath>
+    <rect width="60" height="30" fill="#012169"></rect>
+    <path d="M0,0 L60,30 M60,0 L0,30" stroke="#ffffff" stroke-width="6"></path>
+    <path d="M0,0 L60,30 M60,0 L0,30" clip-path="url(#ukT2)" stroke="#C8102E" stroke-width="4"></path>
+    <path d="M30,0 v30 M0,15 h60" stroke="#ffffff" stroke-width="10"></path>
+    <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6"></path>
+  </svg>
+  <div style="position:absolute;left:50%;top:50%;width:230px;height:230px;border-radius:50%;background:#c2255c;border:22px solid #ffffff;transform:translate(-50%,-50%);box-sizing:border-box"></div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">The magenta dot = the persona marker from the posts; banner motif = the two spectrums.</p>
+</section>
+<section class="dv-turn" id="t2">
+<div class="dv-thd"><a class="dv-tid" href="#t2">2</a><span class="dv-tname">Refined from <a class="dv-oid" href="#1b">1b</a> — white ground, plain dot, median-centred spectrums, intention-coloured band</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="2a">
+<div class="dv-olabel"><a class="dv-oid" href="#2a">2a</a>Feed post · 1080×1350</div>
+<div class="dv-card" style="width:1080px;height:1350px;background:#ffffff;display:flex;flex-direction:column;box-sizing:border-box">
+  <div style="flex:1;min-height:0;display:flex;flex-direction:column;justify-content:space-between;gap:24px;padding:56px 60px 32px;box-sizing:border-box">
+    <div style="display:flex;gap:44px">
+      <div style="width:372px;flex:none;display:flex;align-items:center">
+        <x-import component-from-global-scope="persona-map" from="./persona-map.js" width="372" height="620" lon="-4.289" lat="55.889" fill="{{ mapFill }}" stroke="#41603f" dot="#c2255c" hint-size="372px,620px"></x-import>
+      </div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:19px">
+        <div style="font:600 36px/1.28 'Archivo',sans-serif;color:#201e1d;letter-spacing:-0.01em;text-wrap:pretty">I’m a <strong style="font-weight:800">White Scottish</strong> <strong style="font-weight:800">atheist</strong> <strong style="font-weight:800">woman</strong> from <strong style="font-weight:800;color:#c2255c">Glasgow North</strong>, aged <strong style="font-weight:800">34</strong>.</div>
+        <div style="font:400 21px/1.45 'Archivo',sans-serif;color:#3c3744;text-wrap:pretty">I’m privately renting and finding it quite difficult on my current income. I’m currently working as a <strong style="font-weight:700;color:#201e1d">care worker</strong>, and I identify as <strong style="font-weight:700;color:#201e1d">working class</strong>.</div>
+        <div style="font:400 18.5px/1.45 'Archivo',sans-serif;color:#6b6371;text-wrap:pretty">I don’t read the news much - my top source is the news on BBC One. My favourite websites are <strong style="font-weight:700;color:#201e1d">the BBC</strong>, <strong style="font-weight:700;color:#201e1d">Facebook</strong>, and <strong style="font-weight:700;color:#201e1d">RightMove</strong>.</div>
+        <div style="font:600 25px/1.3 'Archivo',sans-serif;color:#201e1d">My top issue is <strong style="font-weight:800;border-bottom:4px solid #c2255c;padding-bottom:1px">the cost of living</strong>.</div>
+        <div style="display:flex;flex-direction:column;gap:22px;margin-top:4px">
+          <div style="position:relative;background:#f4eef6;border:2px solid #201e1d;padding:16px 20px;font:500 20.5px/1.4 'Archivo',sans-serif;color:#201e1d;text-wrap:pretty" style-after="content:'';position:absolute;left:26px;bottom:-9px;width:14px;height:14px;background:#f4eef6;border-right:2px solid #201e1d;border-bottom:2px solid #201e1d;transform:rotate(45deg)">My favourite leader is <strong>John Swinney</strong>. My least favourite is <strong>Nigel Farage</strong>.</div>
+          <div style="position:relative;background:#f4eef6;border:2px solid #201e1d;padding:16px 20px;font:500 20.5px/1.4 'Archivo',sans-serif;color:#201e1d;text-wrap:pretty" style-after="content:'';position:absolute;left:26px;bottom:-9px;width:14px;height:14px;background:#f4eef6;border-right:2px solid #201e1d;border-bottom:2px solid #201e1d;transform:rotate(45deg)">Ordinary working people don’t get their fair share of the nation’s wealth.</div>
+          <div style="position:relative;background:#f4eef6;border:2px solid #201e1d;padding:16px 20px;font:500 20.5px/1.4 'Archivo',sans-serif;color:#201e1d;text-wrap:pretty" style-after="content:'';position:absolute;left:26px;bottom:-9px;width:14px;height:14px;background:#f4eef6;border-right:2px solid #201e1d;border-bottom:2px solid #201e1d;transform:rotate(45deg)">NHS waiting times matter more to me than cutting taxes.</div>
+          <div style="position:relative;background:#f4eef6;border:2px solid #201e1d;padding:16px 20px;font:500 20.5px/1.4 'Archivo',sans-serif;color:#201e1d;text-wrap:pretty" style-after="content:'';position:absolute;left:26px;bottom:-9px;width:14px;height:14px;background:#f4eef6;border-right:2px solid #201e1d;border-bottom:2px solid #201e1d;transform:rotate(45deg)">I’m more Scottish than British - Holyrood should decide more of what happens here.</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <div style="font:700 20px/1 'Archivo',sans-serif;color:#201e1d">Where I sit</div>
+        <div style="font:500 16px/1 'Archivo',sans-serif;color:#6b6371"><span style="display:inline-block;width:13px;height:13px;border-radius:50%;background:#c2255c;vertical-align:-1px"></span> = me &nbsp;·&nbsp; <span style="display:inline-block;width:3px;height:14px;background:#201e1d;vertical-align:-2px"></span> = scale midpoint &nbsp;·&nbsp; <span style="display:inline-block;width:16px;height:5px;background:#cfc5d6;vertical-align:2px"></span> = middle half of voters</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="position:relative;height:46px">
+          <div style="position:absolute;left:0;right:0;top:29px;height:5px;background:#e9e3ec"></div>
+          <div style="position:absolute;left:25%;width:50%;top:29px;height:5px;background:#cfc5d6"></div>
+          <div style="position:absolute;left:50%;top:17px;width:3px;height:26px;background:#201e1d"></div>
+          <div style="position:absolute;left:26%;top:20px;width:20px;height:20px;border-radius:50%;background:#c2255c;border:3px solid #ffffff;transform:translateX(-50%);box-sizing:border-box"></div>
+        </div>
+        <div style="position:relative;display:flex;justify-content:space-between;font:600 16px/1 'Archivo',sans-serif;color:#6b6371"><span>← More left</span><span style="position:absolute;left:50%;transform:translateX(-50%);color:#3c3744;font-weight:700">Economic</span><span>More right →</span></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="position:relative;height:46px">
+          <div style="position:absolute;left:0;right:0;top:29px;height:5px;background:#e9e3ec"></div>
+          <div style="position:absolute;left:25%;width:50%;top:29px;height:5px;background:#cfc5d6"></div>
+          <div style="position:absolute;left:50%;top:17px;width:3px;height:26px;background:#201e1d"></div>
+          <div style="position:absolute;left:33%;top:20px;width:20px;height:20px;border-radius:50%;background:#c2255c;border:3px solid #ffffff;transform:translateX(-50%);box-sizing:border-box"></div>
+        </div>
+        <div style="position:relative;display:flex;justify-content:space-between;font:600 16px/1 'Archivo',sans-serif;color:#6b6371"><span>← More liberal</span><span style="position:absolute;left:50%;transform:translateX(-50%);color:#3c3744;font-weight:700">Cultural</span><span>More authoritarian →</span></div>
+      </div>
+    </div>
+  </div>
+  <div style="background:{{ bandBg }};color:{{ bandInk }};padding:24px 60px;display:flex;flex-direction:column;gap:8px">
+    <div style="font:800 32px/1.2 'Archivo',sans-serif;letter-spacing:-0.01em">In 2024 I voted Labour. Today I’d vote SNP*</div>
+    <div style="font:500 15px/1 'Archivo',sans-serif;opacity:0.8">* Voting intention, British Election Study, May-June 2026</div>
+  </div>
+</div>
+</div>
+
+<div class="dv-opt" id="2b">
+<div class="dv-olabel"><a class="dv-oid" href="#2b">2b</a>Mobile vertical · 1080×1350</div>
+<div class="dv-card" style="width:1080px;height:1350px;background:#ffffff;display:flex;flex-direction:column;box-sizing:border-box">
+  <div style="flex:1;min-height:0;display:flex;flex-direction:column;justify-content:space-between;gap:20px;padding:46px 56px 26px;box-sizing:border-box">
+    <div style="font:600 40px/1.28 'Archivo',sans-serif;color:#201e1d;letter-spacing:-0.01em;text-wrap:pretty">I’m a <strong style="font-weight:800">White Scottish</strong> <strong style="font-weight:800">atheist</strong> <strong style="font-weight:800">woman</strong> from <strong style="font-weight:800;color:#c2255c">Glasgow North</strong>, aged <strong style="font-weight:800">34</strong>.</div>
+    <div style="font:400 23px/1.45 'Archivo',sans-serif;color:#3c3744;text-wrap:pretty">I’m privately renting and finding it quite difficult on my current income. I’m currently working as a <strong style="font-weight:700;color:#201e1d">care worker</strong>, and I identify as <strong style="font-weight:700;color:#201e1d">working class</strong>.</div>
+    <div style="font:400 20px/1.45 'Archivo',sans-serif;color:#6b6371;text-wrap:pretty">I don’t read the news much - my top source is the news on BBC One. My favourite websites are <strong style="font-weight:700;color:#201e1d">the BBC</strong>, <strong style="font-weight:700;color:#201e1d">Facebook</strong>, and <strong style="font-weight:700;color:#201e1d">RightMove</strong>.</div>
+    <div style="font:600 28px/1.3 'Archivo',sans-serif;color:#201e1d">My top issue is <strong style="font-weight:800;border-bottom:5px solid #c2255c;padding-bottom:1px">the cost of living</strong>.</div>
+    <div style="display:flex;gap:32px;align-items:stretch">
+      <div style="width:360px;flex:none;display:flex;align-items:center">
+        <x-import component-from-global-scope="persona-map" from="./persona-map.js" width="360" height="540" lon="-4.289" lat="55.889" fill="{{ mapFill }}" stroke="#41603f" dot="#c2255c" hint-size="360px,540px"></x-import>
+      </div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:20px;justify-content:center">
+        <div style="position:relative;background:#f4eef6;border:2px solid #201e1d;padding:16px 20px;font:500 23px/1.35 'Archivo',sans-serif;color:#201e1d;text-wrap:pretty" style-after="content:'';position:absolute;left:26px;bottom:-9px;width:14px;height:14px;background:#f4eef6;border-right:2px solid #201e1d;border-bottom:2px solid #201e1d;transform:rotate(45deg)">My favourite leader is <strong>John Swinney</strong>. My least favourite is <strong>Nigel Farage</strong>.</div>
+        <div style="position:relative;background:#f4eef6;border:2px solid #201e1d;padding:16px 20px;font:500 23px/1.35 'Archivo',sans-serif;color:#201e1d;text-wrap:pretty" style-after="content:'';position:absolute;left:26px;bottom:-9px;width:14px;height:14px;background:#f4eef6;border-right:2px solid #201e1d;border-bottom:2px solid #201e1d;transform:rotate(45deg)">Ordinary working people don’t get their fair share of the nation’s wealth.</div>
+        <div style="position:relative;background:#f4eef6;border:2px solid #201e1d;padding:16px 20px;font:500 23px/1.35 'Archivo',sans-serif;color:#201e1d;text-wrap:pretty" style-after="content:'';position:absolute;left:26px;bottom:-9px;width:14px;height:14px;background:#f4eef6;border-right:2px solid #201e1d;border-bottom:2px solid #201e1d;transform:rotate(45deg)">NHS waiting times matter more to me than cutting taxes.</div>
+        <div style="position:relative;background:#f4eef6;border:2px solid #201e1d;padding:16px 20px;font:500 23px/1.35 'Archivo',sans-serif;color:#201e1d;text-wrap:pretty" style-after="content:'';position:absolute;left:26px;bottom:-9px;width:14px;height:14px;background:#f4eef6;border-right:2px solid #201e1d;border-bottom:2px solid #201e1d;transform:rotate(45deg)">I’m more Scottish than British - Holyrood should decide more of what happens here.</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <div style="font:700 22px/1 'Archivo',sans-serif;color:#201e1d">Where I sit</div>
+        <div style="font:500 18px/1 'Archivo',sans-serif;color:#6b6371"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#c2255c;vertical-align:-1px"></span> = me &nbsp;·&nbsp; <span style="display:inline-block;width:3px;height:16px;background:#201e1d;vertical-align:-2px"></span> = scale midpoint &nbsp;·&nbsp; <span style="display:inline-block;width:18px;height:5px;background:#cfc5d6;vertical-align:2px"></span> = middle half of voters</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="position:relative;height:48px">
+          <div style="position:absolute;left:0;right:0;top:30px;height:5px;background:#e9e3ec"></div>
+          <div style="position:absolute;left:25%;width:50%;top:30px;height:5px;background:#cfc5d6"></div>
+          <div style="position:absolute;left:50%;top:18px;width:3px;height:27px;background:#201e1d"></div>
+          <div style="position:absolute;left:26%;top:22px;width:22px;height:22px;border-radius:50%;background:#c2255c;border:3px solid #ffffff;transform:translateX(-50%);box-sizing:border-box"></div>
+        </div>
+        <div style="position:relative;display:flex;justify-content:space-between;font:600 19px/1 'Archivo',sans-serif;color:#6b6371"><span>← More left</span><span style="position:absolute;left:50%;transform:translateX(-50%);color:#3c3744;font-weight:700">Economic</span><span>More right →</span></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="position:relative;height:48px">
+          <div style="position:absolute;left:0;right:0;top:30px;height:5px;background:#e9e3ec"></div>
+          <div style="position:absolute;left:25%;width:50%;top:30px;height:5px;background:#cfc5d6"></div>
+          <div style="position:absolute;left:50%;top:18px;width:3px;height:27px;background:#201e1d"></div>
+          <div style="position:absolute;left:33%;top:22px;width:22px;height:22px;border-radius:50%;background:#c2255c;border:3px solid #ffffff;transform:translateX(-50%);box-sizing:border-box"></div>
+        </div>
+        <div style="position:relative;display:flex;justify-content:space-between;font:600 19px/1 'Archivo',sans-serif;color:#6b6371"><span>← More liberal</span><span style="position:absolute;left:50%;transform:translateX(-50%);color:#3c3744;font-weight:700">Cultural</span><span>More authoritarian →</span></div>
+      </div>
+    </div>
+  </div>
+  <div style="background:{{ bandBg }};color:{{ bandInk }};padding:22px 56px;display:flex;flex-direction:column;gap:8px">
+    <div style="font:800 32px/1.2 'Archivo',sans-serif;letter-spacing:-0.01em">In 2024 I voted Labour. Today I’d vote SNP*</div>
+    <div style="font:500 16px/1 'Archivo',sans-serif;opacity:0.8">* Voting intention, British Election Study, May-June 2026</div>
+  </div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">Try next: “band colour by 2024 vote instead” · “swap a bubble” · “tighter 9:16 crop”</p>
+</section>
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">BES persona post — example: Glasgow North (1080×1350)</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="1a">
+<div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Light-blue tinted panel, white bubbles</div>
+<div class="dv-card" style="width:1080px;height:1350px;background:#e9eff5;display:flex;flex-direction:column;gap:22px;padding:52px 60px;box-sizing:border-box">
+  <div style="display:flex;justify-content:space-between;align-items:baseline">
+    <div style="display:flex;align-items:center;gap:12px"><div style="width:13px;height:13px;background:#ec3013"></div><div style="font:700 16px/1 'Archivo',sans-serif;letter-spacing:0.14em;color:#201e1d">PORTRAIT OF A VOTER</div></div>
+    <div style="font:600 13px/1 'Archivo',sans-serif;letter-spacing:0.1em;color:#5b6770">BRITISH ELECTION STUDY</div>
+  </div>
+  <div style="height:2px;background:#201e1d"></div>
+  <div style="display:flex;gap:40px;flex:1;min-height:0">
+    <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:20px">
+      <div style="font:600 31px/1.32 'Archivo',sans-serif;color:#201e1d;letter-spacing:-0.01em;text-wrap:pretty">I’m a <strong style="font-weight:800">White Scottish</strong>, <strong style="font-weight:800">no-religion</strong> <strong style="font-weight:800">woman</strong> from <strong style="font-weight:800;color:#ec3013">Glasgow North</strong>, aged <strong style="font-weight:800">34</strong>.</div>
+      <div style="font:400 18.5px/1.5 'Archivo',sans-serif;color:#35404a;text-wrap:pretty">I’m privately renting and finding it quite difficult on my current income. I’m currently working — I’m a <strong style="font-weight:700;color:#201e1d">care worker</strong>, and I identify as <strong style="font-weight:700;color:#201e1d">working class</strong>.</div>
+      <div style="font:400 16.5px/1.5 'Archivo',sans-serif;color:#5b6770;text-wrap:pretty">I don’t read the news much — my top source is <strong style="font-weight:700;color:#35404a">BBC One news</strong>. My favourite websites: bbc.co.uk, facebook.com, rightmove.co.uk.</div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="font:700 12px/1 'Archivo',sans-serif;letter-spacing:0.12em;color:#ec3013;border:2px solid #ec3013;padding:8px 10px">MY TOP ISSUE</div>
+        <div style="font:700 21px/1 'Archivo',sans-serif;color:#201e1d">The cost of living</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:24px;margin-top:4px">
+        <div style="position:relative;background:#ffffff;border:2px solid #201e1d;padding:16px 20px;font:500 19px/1.42 'Archivo',sans-serif;color:#201e1d;max-width:540px;text-wrap:pretty" style-after="content:'';position:absolute;left:26px;bottom:-9px;width:14px;height:14px;background:#ffffff;border-right:2px solid #201e1d;border-bottom:2px solid #201e1d;transform:rotate(45deg)">My favourite leader is <strong>John Swinney</strong>. My least favourite is <strong>Nigel Farage</strong>.</div>
+        <div style="position:relative;background:#ffffff;border:2px solid #201e1d;padding:16px 20px;font:500 19px/1.42 'Archivo',sans-serif;color:#201e1d;max-width:540px;text-wrap:pretty" style-after="content:'';position:absolute;left:26px;bottom:-9px;width:14px;height:14px;background:#ffffff;border-right:2px solid #201e1d;border-bottom:2px solid #201e1d;transform:rotate(45deg)">Ordinary working people don’t get their fair share of the nation’s wealth.</div>
+        <div style="position:relative;background:#ffffff;border:2px solid #201e1d;padding:16px 20px;font:500 19px/1.42 'Archivo',sans-serif;color:#201e1d;max-width:540px;text-wrap:pretty" style-after="content:'';position:absolute;left:26px;bottom:-9px;width:14px;height:14px;background:#ffffff;border-right:2px solid #201e1d;border-bottom:2px solid #201e1d;transform:rotate(45deg)">NHS waiting times matter more to me than cutting taxes.</div>
+        <div style="position:relative;background:#ffffff;border:2px solid #201e1d;padding:16px 20px;font:500 19px/1.42 'Archivo',sans-serif;color:#201e1d;max-width:540px;text-wrap:pretty" style-after="content:'';position:absolute;left:26px;bottom:-9px;width:14px;height:14px;background:#ffffff;border-right:2px solid #201e1d;border-bottom:2px solid #201e1d;transform:rotate(45deg)">I’m more Scottish than British — Holyrood should decide more of what happens here.</div>
+      </div>
+    </div>
+    <div style="width:372px;flex:none;display:flex;flex-direction:column;justify-content:flex-start">
+      <x-import component-from-global-scope="persona-map" from="./persona-map.js" width="372" height="680" lon="-4.289" lat="55.889" label="GLASGOW NORTH" fill="{{ mapFill }}" stroke="#41603f" dot="#ec3013" ink="#201e1d" hint-size="372px,680px"></x-import>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <div style="font:700 13px/1 'Archivo',sans-serif;letter-spacing:0.12em;color:#201e1d">WHERE I SIT · BES SCALES</div>
+      <div style="display:flex;align-items:center;gap:18px;font:600 12px/1 'Archivo',sans-serif;color:#5b6770"><span style="display:inline-flex;align-items:center;gap:7px"><span style="width:12px;height:12px;background:#ec3013;display:inline-block"></span>ME</span><span style="display:inline-flex;align-items:center;gap:7px"><span style="width:2px;height:14px;background:#5b6770;display:inline-block"></span>MEDIAN VOTER</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div style="display:flex;justify-content:space-between;font:700 12.5px/1 'Archivo',sans-serif;letter-spacing:0.08em;color:#35404a"><span>LEFT</span><span style="color:#8b97a1">ECONOMIC</span><span>RIGHT</span></div>
+      <div style="position:relative;height:20px">
+        <div style="position:absolute;left:0;right:0;top:8px;height:4px;background:#c5d2de"></div>
+        <sc-if value="{{ showMedian }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;left:53%;top:0;width:2px;height:20px;background:#5b6770"></div></sc-if>
+        <div style="position:absolute;left:24%;top:2px;width:16px;height:16px;background:#ec3013;border:2px solid #ffffff;transform:translateX(-50%);box-sizing:border-box"></div>
+      </div>
+      <div style="font:600 12px/1 'Archivo',sans-serif;color:#8b97a1">More left than the median voter</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div style="display:flex;justify-content:space-between;font:700 12.5px/1 'Archivo',sans-serif;letter-spacing:0.08em;color:#35404a"><span>LIBERAL</span><span style="color:#8b97a1">CULTURAL</span><span>AUTHORITARIAN</span></div>
+      <div style="position:relative;height:20px">
+        <div style="position:absolute;left:0;right:0;top:8px;height:4px;background:#c5d2de"></div>
+        <sc-if value="{{ showMedian }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;left:56%;top:0;width:2px;height:20px;background:#5b6770"></div></sc-if>
+        <div style="position:absolute;left:31%;top:2px;width:16px;height:16px;background:#ec3013;border:2px solid #ffffff;transform:translateX(-50%);box-sizing:border-box"></div>
+      </div>
+      <div style="font:600 12px/1 'Archivo',sans-serif;color:#8b97a1">More culturally liberal than the median voter</div>
+    </div>
+  </div>
+  <div style="height:2px;background:#201e1d"></div>
+  <div style="display:flex;justify-content:space-between;align-items:baseline">
+    <div style="display:flex;align-items:baseline;gap:14px">
+      <span style="font:600 14px/1 'Archivo',sans-serif;letter-spacing:0.1em;color:#5b6770">IN 2024 I VOTED</span>
+      <span style="font:800 26px/1 'Archivo',sans-serif;color:#201e1d">LABOUR</span>
+      <span style="font:800 26px/1 'Archivo',sans-serif;color:#5b6770">→</span>
+      <span style="font:600 14px/1 'Archivo',sans-serif;letter-spacing:0.1em;color:#5b6770">TODAY I’D VOTE</span>
+      <span style="font:800 26px/1 'Archivo',sans-serif;color:#ec3013">SNP*</span>
+    </div>
+    <div style="font:500 12px/1 'Archivo',sans-serif;color:#8b97a1">* Voting intention, May 2025</div>
+  </div>
+</div>
+</div>
+
+<div class="dv-opt" id="1b">
+<div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>White ground, tinted bubbles, mirrored + red vote band</div>
+<div class="dv-card" style="width:1080px;height:1350px;background:#ffffff;display:flex;flex-direction:column;box-sizing:border-box">
+  <div style="flex:1;min-height:0;display:flex;flex-direction:column;gap:22px;padding:52px 60px 28px;box-sizing:border-box">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <div style="display:flex;align-items:center;gap:12px"><div style="width:13px;height:13px;background:#ec3013"></div><div style="font:700 16px/1 'Archivo',sans-serif;letter-spacing:0.14em;color:#201e1d">PORTRAIT OF A VOTER</div></div>
+      <div style="font:600 13px/1 'Archivo',sans-serif;letter-spacing:0.1em;color:#5b6770">BRITISH ELECTION STUDY</div>
+    </div>
+    <div style="height:2px;background:#201e1d"></div>
+    <div style="display:flex;gap:40px;flex:1;min-height:0">
+      <div style="width:372px;flex:none">
+        <x-import component-from-global-scope="persona-map" from="./persona-map.js" width="372" height="680" lon="-4.289" lat="55.889" label="GLASGOW NORTH" fill="{{ mapFill }}" stroke="#41603f" dot="#ec3013" ink="#201e1d" hint-size="372px,680px"></x-import>
+      </div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:20px">
+        <div style="font:600 31px/1.32 'Archivo',sans-serif;color:#201e1d;letter-spacing:-0.01em;text-wrap:pretty">I’m a <strong style="font-weight:800">White Scottish</strong>, <strong style="font-weight:800">no-religion</strong> <strong style="font-weight:800">woman</strong> from <strong style="font-weight:800;color:#ec3013">Glasgow North</strong>, aged <strong style="font-weight:800">34</strong>.</div>
+        <div style="font:400 18.5px/1.5 'Archivo',sans-serif;color:#35404a;text-wrap:pretty">I’m privately renting and finding it quite difficult on my current income. I’m currently working — I’m a <strong style="font-weight:700;color:#201e1d">care worker</strong>, and I identify as <strong style="font-weight:700;color:#201e1d">working class</strong>.</div>
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="font:700 12px/1 'Archivo',sans-serif;letter-spacing:0.12em;color:#ec3013;border:2px solid #ec3013;padding:8px 10px">MY TOP ISSUE</div>
+          <div style="font:700 21px/1 'Archivo',sans-serif;color:#201e1d">The cost of living</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:24px;margin-top:4px">
+          <div style="position:relative;background:#e9eff5;border:2px solid #201e1d;padding:16px 20px;font:500 19px/1.42 'Archivo',sans-serif;color:#201e1d;text-wrap:pretty" style-after="content:'';position:absolute;left:26px;bottom:-9px;width:14px;height:14px;background:#e9eff5;border-right:2px solid #201e1d;border-bottom:2px solid #201e1d;transform:rotate(45deg)">My favourite leader is <strong>John Swinney</strong>. My least favourite is <strong>Nigel Farage</strong>.</div>
+          <div style="position:relative;background:#e9eff5;border:2px solid #201e1d;padding:16px 20px;font:500 19px/1.42 'Archivo',sans-serif;color:#201e1d;text-wrap:pretty" style-after="content:'';position:absolute;left:26px;bottom:-9px;width:14px;height:14px;background:#e9eff5;border-right:2px solid #201e1d;border-bottom:2px solid #201e1d;transform:rotate(45deg)">Ordinary working people don’t get their fair share of the nation’s wealth.</div>
+          <div style="position:relative;background:#e9eff5;border:2px solid #201e1d;padding:16px 20px;font:500 19px/1.42 'Archivo',sans-serif;color:#201e1d;text-wrap:pretty" style-after="content:'';position:absolute;left:26px;bottom:-9px;width:14px;height:14px;background:#e9eff5;border-right:2px solid #201e1d;border-bottom:2px solid #201e1d;transform:rotate(45deg)">NHS waiting times matter more to me than cutting taxes.</div>
+          <div style="position:relative;background:#e9eff5;border:2px solid #201e1d;padding:16px 20px;font:500 19px/1.42 'Archivo',sans-serif;color:#201e1d;text-wrap:pretty" style-after="content:'';position:absolute;left:26px;bottom:-9px;width:14px;height:14px;background:#e9eff5;border-right:2px solid #201e1d;border-bottom:2px solid #201e1d;transform:rotate(45deg)">I’m more Scottish than British — Holyrood should decide more of what happens here.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;margin-top:auto">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <div style="font:700 13px/1 'Archivo',sans-serif;letter-spacing:0.12em;color:#201e1d">WHERE I SIT · BES SCALES</div>
+            <div style="display:flex;align-items:center;gap:18px;font:600 12px/1 'Archivo',sans-serif;color:#5b6770"><span style="display:inline-flex;align-items:center;gap:7px"><span style="width:12px;height:12px;background:#ec3013;display:inline-block"></span>ME</span><span style="display:inline-flex;align-items:center;gap:7px"><span style="width:2px;height:14px;background:#5b6770;display:inline-block"></span>MEDIAN VOTER</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;justify-content:space-between;font:700 12.5px/1 'Archivo',sans-serif;letter-spacing:0.08em;color:#35404a"><span>LEFT</span><span style="color:#8b97a1">ECONOMIC</span><span>RIGHT</span></div>
+            <div style="position:relative;height:20px">
+              <div style="position:absolute;left:0;right:0;top:8px;height:4px;background:#dfe7ee"></div>
+              <sc-if value="{{ showMedian }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;left:53%;top:0;width:2px;height:20px;background:#5b6770"></div></sc-if>
+              <div style="position:absolute;left:24%;top:2px;width:16px;height:16px;background:#ec3013;border:2px solid #ffffff;transform:translateX(-50%);box-sizing:border-box"></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;justify-content:space-between;font:700 12.5px/1 'Archivo',sans-serif;letter-spacing:0.08em;color:#35404a"><span>LIBERAL</span><span style="color:#8b97a1">CULTURAL</span><span>AUTHORITARIAN</span></div>
+            <div style="position:relative;height:20px">
+              <div style="position:absolute;left:0;right:0;top:8px;height:4px;background:#dfe7ee"></div>
+              <sc-if value="{{ showMedian }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;left:56%;top:0;width:2px;height:20px;background:#5b6770"></div></sc-if>
+              <div style="position:absolute;left:31%;top:2px;width:16px;height:16px;background:#ec3013;border:2px solid #ffffff;transform:translateX(-50%);box-sizing:border-box"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="background:#ec3013;color:#ffffff;padding:24px 60px;display:flex;flex-direction:column;gap:10px">
+    <div style="font:800 29px/1.15 'Archivo',sans-serif;letter-spacing:-0.01em">IN 2024 I VOTED LABOUR → TODAY I’D VOTE SNP*</div>
+    <div style="font:500 12.5px/1 'Archivo',sans-serif;opacity:0.85">* Voting intention, May 2025</div>
+  </div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">Try next: “more like <a class="dv-oid" href="#1a">1a</a> but with the red band from <a class="dv-oid" href="#1b">1b</a>” · “bigger map, fewer bubbles” · “make a Welsh / English example”</p>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;intentionParty&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;SNP&quot;,&quot;options&quot;:[&quot;SNP&quot;,&quot;Labour&quot;,&quot;Conservative&quot;,&quot;Reform UK&quot;,&quot;Lib Dem&quot;,&quot;Green&quot;,&quot;Plaid Cymru&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Vote band&quot;},&quot;mapFill&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#84a883&quot;,&quot;options&quot;:[&quot;#84a883&quot;,&quot;#6f9c7a&quot;,&quot;#a3bf8f&quot;,&quot;#8fae9d&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Map&quot;},&quot;showMedian&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Spectrums (turn 1)&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const partyColors = {
+      'SNP': ['#fdf38e', '#201e1d'],
+      'Labour': ['#e4003b', '#ffffff'],
+      'Conservative': ['#0087dc', '#ffffff'],
+      'Reform UK': ['#12b6cf', '#201e1d'],
+      'Lib Dem': ['#faa61a', '#201e1d'],
+      'Green': ['#02a95b', '#ffffff'],
+      'Plaid Cymru': ['#005b54', '#ffffff']
+    };
+    const party = this.props.intentionParty ?? 'SNP';
+    const [bandBg, bandInk] = partyColors[party] || ['#201e1d', '#ffffff'];
+    return {
+      showMedian: this.props.showMedian ?? true,
+      mapFill: this.props.mapFill ?? '#84a883',
+      bandBg, bandInk
+    };
+  }
+}
+</script>
+</body>
+</html>

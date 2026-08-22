@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>{{ alt_title }}</title>
+<style>
+  {% for weight in [400, 500, 600, 700, 800] %}
+  @font-face {
+    font-family: "Archivo";
+    font-style: normal;
+    font-weight: {{ weight }};
+    src: url("file://{{ font_dir }}/Archivo-{{ weight }}.ttf") format("truetype");
+  }
+  {% endfor %}
+  html, body { margin: 0; padding: 0; background: #ffffff; }
+  body { font-family: "Archivo", sans-serif; color: {{ ink }}; -webkit-font-smoothing: antialiased; }
+  strong { font-weight: 700; }
+
+  .card { width: {{ width }}px; height: {{ height }}px; background: #ffffff; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; }
+  /* Handoff turn 5: the blocks share the column evenly, so there is no dead zone above the map row. */
+  .content { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 22px; padding: 46px 56px 30px; box-sizing: border-box; }
+
+  .intro { display: flex; flex-direction: column; gap: 12px; }
+  .headline { font: 600 40px/1.28 "Archivo", sans-serif; color: {{ ink }}; letter-spacing: -0.01em; text-wrap: pretty; margin-bottom: 8px; }
+  .headline strong { font-weight: 800; }
+  .headline .place { font-weight: 800; color: {{ accent }}; }
+
+  .life { font: 400 22px/1.45 "Archivo", sans-serif; color: {{ body }}; text-wrap: pretty; }
+  .life strong { font-weight: 700; color: {{ ink }}; }
+
+  .media { font: 400 19px/1.45 "Archivo", sans-serif; color: {{ secondary }}; text-wrap: pretty; }
+  .media strong { font-weight: 700; color: {{ ink }}; }
+
+  .issue { font: 600 28px/1.3 "Archivo", sans-serif; color: {{ ink }}; }
+  .issue strong { font-weight: 800; border-bottom: 5px solid {{ accent }}; padding-bottom: 1px; }
+
+  .middle { display: flex; gap: 36px; align-items: center; }
+  .map { width: {{ map_width }}px; flex: none; display: flex; justify-content: flex-start; }
+  .map svg { display: block; }
+  .bubbles { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
+  .views-heading { font: 700 17px/1 "Archivo", sans-serif; color: {{ secondary }}; }  /* attributes every bubble to the respondent (handoff turn 5, v5) */
+  .bubble { position: relative; background: {{ bubble_fill }}; border: 2px solid {{ ink }}; padding: 16px 20px; font: 500 22px/1.35 "Archivo", sans-serif; color: {{ ink }}; text-wrap: pretty; }
+  .bubble::after { content: ""; position: absolute; left: 26px; bottom: -9px; width: 14px; height: 14px; background: {{ bubble_fill }}; border-right: 2px solid {{ ink }}; border-bottom: 2px solid {{ ink }}; transform: rotate(45deg); }
+
+  .spectrums { display: flex; flex-direction: column; gap: 14px; }
+  .spectrums header { display: flex; justify-content: space-between; align-items: baseline; }
+  .spectrums h2 { margin: 0; font: 700 22px/1 "Archivo", sans-serif; color: {{ ink }}; }
+  .legend { display: flex; align-items: center; gap: 20px; font: 500 17px/1 "Archivo", sans-serif; color: {{ secondary }}; }
+  .chip { display: inline-flex; align-items: center; gap: 7px; }
+  .key-dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: {{ accent }}; }
+  .key-tick { display: inline-block; width: 3px; height: 16px; background: {{ ink }}; }
+  .key-band { display: inline-block; width: 18px; height: 6px; background: {{ scale_band }}; }
+  .scale { display: flex; flex-direction: column; gap: 6px; }
+  .track { position: relative; height: 44px; }
+  .track .line { position: absolute; left: 0; right: 0; top: 26px; height: 6px; background: {{ track }}; }
+  .track .middle-half { position: absolute; top: 26px; height: 6px; background: {{ scale_band }}; }
+  .track .median { position: absolute; left: 50%; top: 14px; width: 3px; height: 28px; background: {{ ink }}; }
+  .track .me { position: absolute; top: 18px; width: 22px; height: 22px; border-radius: 50%; background: {{ accent }}; border: 3px solid #ffffff; transform: translateX(-50%); box-sizing: border-box; }
+  .labels { position: relative; display: flex; justify-content: space-between; font: 600 19px/1 "Archivo", sans-serif; color: {{ secondary }}; }
+  .labels .mid { position: absolute; left: 50%; transform: translateX(-50%); color: {{ ink }}; font-weight: 700; }
+
+  .band { background: {{ band_bg }}; color: {{ band_ink }}; padding: 24px 56px; display: flex; flex-direction: column; gap: 8px; }
+  .band .vote { font: 800 32px/1.2 "Archivo", sans-serif; letter-spacing: -0.01em; }
+  .band .note { font: 500 15px/1 "Archivo", sans-serif; }  /* full opacity: the footnote must reach 4.5:1 on every band colour */
+</style>
+</head>
+<body>
+<div class="card" id="card">
+  <div class="content" id="content">
+    <div class="intro">
+      <div class="headline">{{ headline_html | safe }}</div>
+      <div class="life">{{ life_html | safe }}</div>
+      {% if media_html %}<div class="media">{{ media_html | safe }}</div>{% endif %}
+    </div>
+    {% if top_issue %}<div class="issue">My top issue is <strong>{{ top_issue }}</strong>.</div>
+    {% elif no_single_issue %}<div class="issue">I couldn't pick a single top issue.</div>{% endif %}
+    <div class="middle">
+      <div class="map">{{ map_svg | safe }}</div>
+      <div class="bubbles" id="bubbles">
+        <div class="views-heading">{{ views_heading }}</div>
+        {% for bubble in bubbles_html %}<div class="bubble">{{ bubble | safe }}</div>{% endfor %}
+      </div>
+    </div>
+    {% if econ_pct is not none and cultural_pct is not none %}
+    <div class="spectrums">
+      <header><h2>Where I sit</h2><div class="legend"><span class="chip"><span class="key-dot"></span>me</span><span class="chip"><span class="key-tick"></span>centre of the scale</span><span class="chip"><span class="key-band"></span>middle half of voters</span></div></header>
+      <div class="scale">
+        <div class="track"><div class="line"></div><div class="middle-half" style="left: {{ econ_iqr[0] }}%; width: {{ econ_iqr[1] - econ_iqr[0] }}%"></div><div class="median"></div><div class="me" style="left: {{ econ_pct }}%"></div></div>
+        <div class="labels"><span>&larr; More left</span><span class="mid">Economic</span><span>More right &rarr;</span></div>
+      </div>
+      <div class="scale">
+        <div class="track"><div class="line"></div><div class="middle-half" style="left: {{ cultural_iqr[0] }}%; width: {{ cultural_iqr[1] - cultural_iqr[0] }}%"></div><div class="median"></div><div class="me" style="left: {{ cultural_pct }}%"></div></div>
+        <div class="labels"><span>&larr; More liberal</span><span class="mid">Cultural</span><span>More authoritarian &rarr;</span></div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  <div class="band">
+    <div class="vote">{{ band_text }}</div>
+    <div class="note">* {{ footnote }}, British Election Study, {{ fieldwork }}</div>
+  </div>
+</div>
+<script>
+  // Keep everything inside the fixed canvas: shrink the bubble copy first, then
+  // the paragraphs, a pixel at a time, until nothing overflows.
+  (function fit() {
+    const content = document.getElementById("content");
+    const bubbles = document.getElementById("bubbles");
+    const map = document.querySelector(".map");
+    const shrink = (selector, min) => {
+      let changed = false;
+      document.querySelectorAll(selector).forEach(el => {
+        const size = parseFloat(getComputedStyle(el).fontSize);
+        if (size > min) { el.style.fontSize = (size - 1) + "px"; changed = true; }
+      });
+      return changed;
+    };
+    const vote = document.querySelector(".band .vote");
+    for (let i = 0; i < 8; i++) {  // a long vote line shrinks a little (to 24px) rather than wrapping
+      const size = parseFloat(getComputedStyle(vote).fontSize);
+      if (vote.clientHeight <= size * 1.5 || size <= 24) break;
+      vote.style.fontSize = (size - 1) + "px";
+    }
+    for (let i = 0; i < 12 && bubbles.scrollHeight > map.clientHeight + 60; i++) {
+      if (!shrink(".bubble", 17)) break;
+    }
+    for (let i = 0; i < 12 && content.scrollHeight > content.clientHeight; i++) {
+      if (!shrink(".life, .media, .headline", 16)) break;
+    }
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+name: Post the next voter card
+
+on:
+  schedule:
+    # 08:00, 12:30 and 18:00 UK time (cron runs in UTC; adjust for BST if you mind the hour)
+    - cron: "0 7,11,17 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: post-card
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          python -m playwright install --with-deps chromium
+
+      - name: Render and post
+        env:
+          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+          BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
+        run: python -m voterbot post
+
+      - name: Save the queue position
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add outputs/position.txt
+          git commit -m "Advance the posting queue" || echo "nothing to commit"
+          git pull --rebase origin ${{ github.ref_name }}
+          git push
