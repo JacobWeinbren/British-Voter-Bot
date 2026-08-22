@@ -78,3 +78,16 @@ def test_every_queued_card_has_alt_text_within_the_limit():
     for profile in profiles:
         assert profile["alt_text"].strip() and len(profile["alt_text"]) <= ALT_TEXT_LIMIT
         assert "Cultural" not in profile["alt_text"] and "cultural, liberal" not in profile["alt_text"]  # the scale is the social one
+
+
+def test_handle_pasted_with_an_at_sign_or_spaces_is_tidied(monkeypatch):
+    monkeypatch.setenv("BLUESKY_HANDLE", " @britishvoterbot.bsky.social ")
+    monkeypatch.setenv("BLUESKY_PASSWORD", " abcd-efgh-ijkl-mnop\n")
+    assert bluesky.credentials() == ("britishvoterbot.bsky.social", "abcd-efgh-ijkl-mnop")
+
+
+def test_missing_credentials_stop_before_login(monkeypatch):
+    monkeypatch.delenv("BLUESKY_HANDLE", raising=False)
+    monkeypatch.setenv("BLUESKY_PASSWORD", "x")
+    with pytest.raises(SystemExit, match="BLUESKY_HANDLE"):
+        bluesky.credentials()

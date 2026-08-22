@@ -278,7 +278,7 @@ def job_clause(row, rng: random.Random) -> str | None:
             return one_of(rng, "I'm retired and never had a paid job", "I'm retired, and I was never in paid work", "I'm retired now and never had a paid job in my life")
         if not job:
             return one_of(rng, "I'm retired", "I've retired", "I'm retired now")
-        frame = rng.choice((one_of(rng, "I'm retired - before that I {past}", "I'm retired - in my working days I {past}", "Before I retired, I {past}"), one_of(rng, "I'm retired now. In my working life I {past}", "I'm retired now. Back when I was working, I {past}", "These days I'm retired, but when I was working I {past}")))
+        frame = rng.choice((one_of(rng, "I'm retired - before that I {past}", "I'm retired - in my working days I {past}", "Before I retired, I {past}"), one_of(rng, "I'm retired now. In my working life I {past}", "I'm retired now. Back when I was working, I {past}", "These days, I'm retired, but when I was working I {past}")))
         return frame.format(past=describe(job, tense_past=True))
     if status == 4:
         if nssec == codes.NSSEC_NEVER_WORKED:
@@ -288,7 +288,7 @@ def job_clause(row, rng: random.Random) -> str | None:
     if status == 8:
         if nssec == codes.NSSEC_NEVER_WORKED:
             return one_of(rng, "I'm not in paid work and never have been", "I've never been in paid work", "I don't do paid work and never have done")
-        return one_of(rng, f"I'm not in paid work at the moment - before that I {describe(job, tense_past=True)}", f"These days I'm not in paid work - previously I {describe(job, tense_past=True)}", f"I'm not doing paid work right now. Before this I {describe(job, tense_past=True)}") if job \
+        return one_of(rng, f"I'm not in paid work at the moment - before that I {describe(job, tense_past=True)}", f"These days, I'm not in paid work - previously I {describe(job, tense_past=True)}", f"I'm not doing paid work right now. Before this I {describe(job, tense_past=True)}") if job \
             else one_of(rng, "I'm not in paid work at the moment", "I'm not doing paid work right now", "I'm not in a paid job just now")
     if status == 10:
         return one_of(rng, "I'm on furlough", "I've been furloughed", "I'm furloughed from my job")
@@ -381,6 +381,8 @@ def extra_clause(row, country: int, rng: random.Random) -> tuple[str, str] | Non
         options.append(("other", one_of(rng, "one of my children has a long-term health condition or disability",
                                       "I've a child with a long-term health condition or disability",
                                       "one of my kids has a long-term illness or disability")))
+    if value(row, "eligibleUKGEW31") == 0:
+        options.append(("other", one_of(rng, "I'm not eligible to vote in general elections", "I can't vote in general elections", "general elections are one vote I'm not eligible to cast")))
     if lv(row, "privScndSchl") == 1:
         options.append(("other", one_of(rng, "I went to a private school", "I was privately educated at secondary level", "My secondary school was a private one")))
     welsh = lv(row, "speakWelsh")
@@ -396,7 +398,7 @@ def extra_clause(row, country: int, rng: random.Random) -> tuple[str, str] | Non
     done = [codes.ACTIVITIES[c] for c in codes.ACTIVITIES if value(row, c) == 1]
     if len(done) >= 2:
         picks = rng.sample(done, k=min(3, len(done)))
-        options.append(("other", one_of(rng, f"in the past year, I've {join_and(picks)}", f"over the last twelve months I've {join_and(picks)}", f"since this time last year, I've {join_and(picks)}")))
+        options.append(("other", one_of(rng, f"in the past year, I've {join_and(picks)}", f"over the last twelve months, I've {join_and(picks)}", f"since this time last year, I've {join_and(picks)}")))
     if not options:
         return None
     theme, text = rng.choice(options)
@@ -486,8 +488,8 @@ def circumstance_details(row, country: int, rng: random.Random) -> list[tuple[st
     elif value(row, "careDuty_3_3W28") == 1:
         options.append(("other", one_of(rng, "I help my parents out financially", "I've got financial responsibilities for my parents", "My parents get financial help from me")))
 
-    for col, text in (("participation_3W29", one_of(rng, "I had a poster up for the 2024 election", "I put an election poster up in 2024", "During the 2024 campaign I displayed a poster")),
-                      ("participation_2W29", one_of(rng, "I gave money to a party during the 2024 campaign", "I donated to a political party during the 2024 election campaign", "In the 2024 campaign I put some money towards a party")),
+    for col, text in (("participation_3W29", one_of(rng, "I had a poster up for the 2024 election", "I put an election poster up in 2024", "During the 2024 campaign, I displayed a poster")),
+                      ("participation_2W29", one_of(rng, "I gave money to a party during the 2024 campaign", "I donated to a political party during the 2024 election campaign", "In the 2024 campaign, I put some money towards a party")),
                       ("participation_1W29", one_of(rng, "I did some campaigning for a party in 2024", "I did some work for a party or campaign group during the 2024 election", "In 2024 I helped out with a party's campaign"))):
         if value(row, col) == 1:
             options.append(("other", text))
@@ -749,9 +751,53 @@ def media_paragraph(row, country: int, rng: random.Random | None = None) -> Span
     social = social_media(row, bold, rng)
     if social:
         sentences.append(social)
+    talk = talking_politics(row, rng)
+    if talk:
+        sentences.append(talk + ".")
+    shared = shared_content(row, bold, rng)
+    if shared and sum(len(s) for s in sentences) < 200:  # keep the paragraph to a few lines
+        sentences.append(shared)
     if not sentences:
         return None
     return Span(" ".join(sentences), bold)
+
+
+def talking_politics(row, rng: random.Random | None = None) -> str | None:
+    """Wave 28: on how many days in the past week they discussed politics with others."""
+    days = value(row, "discussPolDaysW28")
+    if days is None:
+        return None
+    n = int(days)
+    if n == 0:
+        return one_of(rng, "I don't talk politics with people", "Politics isn't something I talk about with people", "I never get into politics with people")
+    if n <= 2:
+        return one_of(rng, "I talk politics with people now and then", "Politics comes up with people once or twice a week", "I get into politics with people a day or two a week")
+    if n <= 4:
+        return one_of(rng, "I talk politics a few days a week", "Politics comes up in conversation a few days a week", "I get into politics with people several days a week")
+    return one_of(rng, "I talk politics most days", "Politics comes up in conversation nearly every day", "I get into politics with people almost daily")
+
+
+SHARED_PLATFORMS = (("sharedContentOnline_1W28", "Facebook"), ("sharedContentOnline_2W28", "X"), ("sharedContentOnline_6W28", "YouTube"),
+                    ("sharedContentOnline_7W28", "Instagram"), ("sharedContentOnline_8W28", "TikTok"))
+SHARED_OTHER = (("sharedContentOnline_3W28", "by email"), ("sharedContentOnline_4W28", "over messaging apps"))
+
+
+def shared_content(row, bold: dict[str, str], rng: random.Random | None = None) -> str | None:
+    """Wave 28: where they shared political content during the 2024 campaign (platform names in bold)."""
+    names = [name for col, name in SHARED_PLATFORMS if value(row, col) == 1]
+    other = [how for col, how in SHARED_OTHER if value(row, col) == 1]
+    if not names and not other:
+        return None
+    slots = []
+    for name in names:
+        key = f"shared{len(bold)}"
+        bold[key] = name
+        slots.append("{" + key + "}")
+    if names:
+        where = "on " + join_and(slots) + (", and " + join_and(other) if other else "")
+        return one_of(rng, f"During the 2024 campaign, I shared political posts {where}.", f"I shared political content {where} during the 2024 election.",
+                      f"In the 2024 campaign, I passed political posts on {where}.")
+    return one_of(rng, f"During the 2024 campaign, I passed political content on {join_and(other)}.", f"I shared political content {join_and(other)} during the 2024 election.")
 
 
 # ---------------------------------------------------------------------------

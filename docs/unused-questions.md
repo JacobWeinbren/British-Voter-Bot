@@ -1,8 +1,8 @@
 # BES questions from wave 20 onwards: what the bot uses and what it leaves out
 
-1617 variable stems with at least one fielding from wave 20. 443 are used somewhere on the cards; the rest are grouped by the reason they are left out. Profile (p_*), weights, timing and admin variables are not listed. 'Answers' shows the scale ends or the first few response options so short labels make sense. Regenerate with `python -m voterbot audit`.
+1617 variable stems with at least one fielding from wave 20. 472 are used somewhere on the cards; the rest are grouped by the reason they are left out. Profile (p_*), weights, timing and admin variables are not listed. 'Answers' shows the scale ends or the first few response options so short labels make sense. Regenerate with `python -m voterbot audit`.
 
-## Used (443)
+## Used (472)
 
 | Variable | Waves | Label | Answers |
 |---|---|---|---|
@@ -85,6 +85,7 @@
 | discrimTrans | 25,27,30,31 | How much discrimination for or against: Transgender people | A lot of discrimination in favour / A lot of discrimination against |
 | discrimWhite | 25,27,30,31 | How much discrimination for or against: White | A lot of discrimination in favour / A lot of discrimination against |
 | discrimWomen | 25,27,30,31 | How much discrimination for or against: Women | A lot of discrimination in favour / A lot of discrimination against |
+| discussPolDays | 27,28 | Days respondent discusses politics | 0 days / 1 day |
 | dutyToVote2 | 26,27 | It is every citizen's duty to vote in an election | Strongly disagree; Disagree; Neither agree nor disagree; Agree; Strongly agree |
 | econGenProsp | 20,21,23,25,29,31 | Expected general economic situation in this country (12 months) | Get a lot worse; Get a little worse; Stay the same; Get a little better; Get a lot better |
 | econGenRetro | 20,21,22,23,24,25,26,27,29,30,31 | General economic retrospective evaluation: country | Got a lot worse; Got a little worse; Stayed the same; Got a little better; Got a lot better |
@@ -92,13 +93,22 @@
 | econPersonalRetro | 20,21,22,23,24,25,26,27,29,30,31 | Personal economic retrospective evaluation: household | Got a lot worse; Got a little worse; Stayed the same; Got a little better; Got a lot better |
 | EconSecurityFuture | 23,25 | Do you think your economic circumstances will be better, worse, or about the sa | A lot better; A little better; About the same; A little worse; A lot worse |
 | effectsEUEconRetro | 27 | Brexit effect: General economic situation in UK better/worse | Much worse; Worse; About the same; Better; Much better |
+| effectsEUEconScotRetro | 27 | Brexit effect: General economic situation in Scotland better/worse | Much worse; Worse; About the same; Better; Much better |
+| effectsEUEconWalesRetro | 27 | Brexit effect: General economic situation in Wales better/worse | Much worse; Worse; About the same; Better; Much better |
 | effectsEUFinanceRetro | 27 | Brexit effect: My personal financial situation better/worse | Much worse; Worse; About the same; Better; Much better |
 | effectsEUImmigrationRetro | 27 | Brexit effect: Immigration to UK better/worse | Much worse; Worse; About the same; Better; Much better |
+| effectsEUTradeRetro | 27 | Brexit effect: International Trade better/worse | Much worse; Worse; About the same; Better; Much better |
+| effectsEUUnemploymentRetro | 27 | Brexit effect: Unemployment better/worse | Much worse; Worse; About the same; Better; Much better |
+| effectsEUWorkersRetro | 27 | Brexit effect: Working conditions for British workers better/worse | Much worse; Worse; About the same; Better; Much better |
 | effectsNHSRetro | 27 | Brexit effect: the NHS better/worse | Much worse; Worse; About the same; Better; Much better |
+| effectsRemainEcon | 21,22,23 | Effects of remaining EU: general economic situation in the UK | Much worse; Worse; About the same; Better; Much better |
+| effectsRemainFinance | 21,22,23 | Effects of remaining EU: my personal economic situation | Much worse; Worse; About the same; Better; Much better |
+| effectsRemainTrade | 21 | Effects of remaining EU: international trade | Much worse; Worse; About the same; Better; Much better |
 | efficacyNoMatter | 21,23,25,26,27,30,31 | It doesn't matter which political party is in power | Strongly disagree; Disagree; Neither agree nor disagree; Agree; Strongly agree |
 | efficacyPolCare | 21,23,25,26,27,30,31 | Politicians don't care what people like me think | Strongly disagree; Disagree; Neither agree nor disagree; Agree; Strongly agree |
 | efficacyTooMuchEffort | 25,26,27,30,31 | It takes too much time and effort to be active in politics | Strongly disagree; Disagree; Neither agree nor disagree; Agree; Strongly agree |
 | efficacyUnderstand | 25,26,27,30,31 | Understands the important political issues facing our country | Strongly disagree; Disagree; Neither agree nor disagree; Agree; Strongly agree |
+| eligibleUKGE | 21,22,23,24,25,26,27,28,29,30,31 | Eligible for UK general elections? | Not eligible for UK general elections; Eligible for UK general elections |
 | empathy2 | 20 | I can usually realise quickly when a friend is angry | Strongly disagree; Disagree; Agree; Strongly agree |
 | empathy8 | 20 | Other people's feelings don't bother me at all | Strongly disagree; Disagree; Agree; Strongly agree |
 | engFairShare | 21,30,31 | Does England get fair share from Union? | Much less than its fair share; A little less than its fair share; More or less its fair share; A little more than its fair share; Much more than its fair share |
@@ -147,8 +157,17 @@
 | generalElectionRanked_9 | 30,31 | General Election Ranking: Other | Ranked First / Ranked Second |
 | generalElectionVote | 20,21,22,23,24,25,26,27,28,29,30,31 | General election vote intention (recalled vote in post-election waves) | I would/did not vote / Conservative |
 | genTrust | 20,21,23,27 | Dealing with people: generally trust or generally careful | Most people can be trusted; Can't be too careful |
+| globalBanks | 20,21 | Globalisation International Banking: Good/Bad? | Mainly bad; Slightly more bad than good; Equally good and bad; Slightly more good than bad; Mainly good |
+| globalBrands | 20,21 | Globalisation Multinational brands: Good/Bad? | Mainly bad; Slightly more bad than good; Equally good and bad; Slightly more good than bad; Mainly good |
 | globalEconomyEconImpact | 23,25,27,30,31 | How much impact on Britain's economy? Global economy | Skipped; Not Asked |
+| globalFilms | 20,21 | Globalisation Access to Film, TV, Music, Sport: Good/Bad? | Mainly bad; Slightly more bad than good; Equally good and bad; Slightly more good than bad; Mainly good |
 | globalGoodOverall | 20,21 | Globalisation General: Good/Bad? | Mainly bad; Slightly more bad than good; Equally good and bad; Slightly more good than bad; Mainly good |
+| globalMigration | 20,21 | Globalisation International Migration: Good/Bad? | Mainly bad; Slightly more bad than good; Equally good and bad; Slightly more good than bad; Mainly good |
+| globalOrgs | 20,21 | Globalisation Influence of International Orgs (e.g. UN): Good/Bad? | Mainly bad; Slightly more bad than good; Equally good and bad; Slightly more good than bad; Mainly good |
+| globalPlanes | 20,21 | Globalisation International Air Travel: Good/Bad? | Mainly bad; Slightly more bad than good; Equally good and bad; Slightly more good than bad; Mainly good |
+| globalTalk | 20,21 | Globalisation Fast & Cheap Communication: Good/Bad? | Mainly bad; Slightly more bad than good; Equally good and bad; Slightly more good than bad; Mainly good |
+| globalTourism | 20,21 | Globalisation Global Tourism: Good/Bad? | Mainly bad; Slightly more bad than good; Equally good and bad; Slightly more good than bad; Mainly good |
+| globalTrade | 20,21 | Globalisation International Trade: Good/Bad? | Mainly bad; Slightly more bad than good; Equally good and bad; Slightly more good than bad; Mainly good |
 | govtEnergy | 27 | Creating a government-owned renewable energy company | Strongly oppose; Oppose; Neither support nor oppose; Support; Strongly support |
 | govtHandleEcon | 24,25,26,27,30 | How well government handling economy | Very badly; Fairly badly; Neither well nor badly; Fairly well; Very well |
 | govtHandleEconA | 31 | How well government handling economy | Very badly; Fairly badly; Neither well nor badly; Fairly well; Very well |
@@ -318,10 +337,19 @@
 | scottishness | 20,21,22,23,25,26,27,29,30,31 | Scotland Q only: Scottish identity scale | Not at all Scottish / Very strongly Scottish |
 | scotTurnout | 21,31 | Likelihood of turnout:  Scottish Parl elections (May 5th) | Very unlikely that I will vote; Fairly unlikely; Neither likely nor unlikely; Fairly likely; Very likely that I will vote |
 | sector | 20,21,22,23,25,26,27,29,30,31 | Type of Organisation Current/Most Recent Job? | Private sector firm of company Including, for example, limited companies and PLCs / Nationalised industry or public corporation *Including, for example, the Post Office and the BBC |
+| selfEUCertain | 30 | Certainty about own position on EU | Not at all certain; Somewhat certain; Very certain |
 | selfOccOrgSize | 20,21,22,23,25,26,27,29,30,31 | How many people work for your employer at the place where you work? (W16-18 top | 1 to 24 employees; 25 to 499 employees; 500 or more employees |
 | selfOccSupervise | 20,21,22,23,25,26,27,29,30,31 | Do you supervise or are you responsible for the work of any other people? (W16- | No; Yes |
 | selfUSTie1 | 30 | US Relationship: Closer Economic Ties/Protect Independence | Much closer economic ties to the US / Protect our independence from the US |
 | senvote | 31 | In the Senedd/Welsh Parliament election held on May 7th which party did you vot | Didn't vote / The Welsh Conservatives |
+| sharedContentOnline_1 | 28 | Shared political content on Facebook | No; Yes |
+| sharedContentOnline_2 | 28 | Shared political content on Twitter | No; Yes |
+| sharedContentOnline_3 | 28 | Shared political content through email | No; Yes |
+| sharedContentOnline_4 | 28 | Shared political content through instant messaging | No; Yes |
+| sharedContentOnline_5 | 28 | Shared political content on another website/online platform | No; Yes |
+| sharedContentOnline_6 | 28 | Shared political content on YouTube | No; Yes |
+| sharedContentOnline_7 | 28 | Shared political content on Instagram | No; Yes |
+| sharedContentOnline_8 | 28 | Shared political content on TikTok | No; Yes |
 | sickElderlyInHouse | 20,21,23,25,26,29,30,31 | Sick or elderly in household? | No; Yes |
 | smallEmergency2_2 | 23,25,26,27,30,31 | Cope Â£300 small emergency: take out loan | No; Yes |
 | smallEmergency2_3 | 23,25,26,27,30,31 | Cope Â£300 small emergency: sell something | No; Yes |
@@ -428,6 +456,7 @@
 | ukLastGovtEconImpactScot | 30,31 | How much impact on Scotland's economy? The last UK government | Large negative impact / Large positive impact |
 | ukLastGovtEconImpactWales | 30,31 | How much impact on Wales's economy? The last UK government | Large negative impact / Large positive impact |
 | ukraineEconImpact | 23,25,27,30 | How much impact on Britain's economy? Invasion of Ukraine | Large negative impact / Large positive impact |
+| voteMakesDifference | 27 | How likely that vote makes difference in constituency | 0- Very unlikely / 10 - Very likely |
 | voteMethodb | 25,26,30,31 | How did you vote? | I voted by post; I visited the polling station on my own; Someone else voted for me (proxy voting) |
 | voterIDDifficult | 25 | Voter ID makes voting more difficult | Strongly disagree; Disagree; Neither agree nor disagree; Agree; Strongly agree |
 | voterIDFraud | 25 | Voter ID prevents fraud | Strongly disagree; Disagree; Neither agree nor disagree; Agree; Strongly agree |
@@ -450,7 +479,7 @@
 | worryEconSecurity | 23,24,25,26,27,30,31 | How worried are you about your and your family's economic security? | Not at all worried / Very Worried |
 | zeroHourContract | 27 | Employers should be allowed to hire workers on zero-hour contracts | Should definitely be illegal; Should probably be illegal; Should probably be legal; Should definitely be legal |
 
-## A 2020-23 Brexit or globalisation sub-question; the card uses the overall versions and the wave-31 economic-impact items (41)
+## A 2020-23 Brexit or globalisation sub-question; the card uses the overall versions and the wave-31 economic-impact items (23)
 
 | Variable | Waves | Label | Answers |
 |---|---|---|---|
@@ -460,24 +489,7 @@
 | dealPriorityNIUKBorder | 20 | Deal priority: Keeping open border between NI and UK | Not important at all; Not very important; Somewhat important; Very important; Extremely important |
 | dealPriorityRedTape | 20 | Deal priority: Not having to follow EU rules/regulations | Not important at all; Not very important; Somewhat important; Very important; Extremely important |
 | dealPriorityTradeDeal | 20 | Deal priority: Allowing Britain to make trade deals with other countries | Not important at all; Not very important; Somewhat important; Very important; Extremely important |
-| effectsEUEconScotRetro | 27 | Brexit effect: General economic situation in Scotland better/worse | Much worse; Worse; About the same; Better; Much better |
-| effectsEUEconWalesRetro | 27 | Brexit effect: General economic situation in Wales better/worse | Much worse; Worse; About the same; Better; Much better |
-| effectsEUTradeRetro | 27 | Brexit effect: International Trade better/worse | Much worse; Worse; About the same; Better; Much better |
-| effectsEUUnemploymentRetro | 27 | Brexit effect: Unemployment better/worse | Much worse; Worse; About the same; Better; Much better |
-| effectsEUWorkersRetro | 27 | Brexit effect: Working conditions for British workers better/worse | Much worse; Worse; About the same; Better; Much better |
-| effectsRemainEcon | 21,22,23 | Effects of remaining EU: general economic situation in the UK | Much worse; Worse; About the same; Better; Much better |
-| effectsRemainFinance | 21,22,23 | Effects of remaining EU: my personal economic situation | Much worse; Worse; About the same; Better; Much better |
-| effectsRemainTrade | 21 | Effects of remaining EU: international trade | Much worse; Worse; About the same; Better; Much better |
 | euPriorityBalance | 20 | Brexit priority: access to single market versus controlling immigration | Access to the single market / Control immigration |
-| globalBanks | 20,21 | Globalisation International Banking: Good/Bad? | Mainly bad; Slightly more bad than good; Equally good and bad; Slightly more good than bad; Mainly good |
-| globalBrands | 20,21 | Globalisation Multinational brands: Good/Bad? | Mainly bad; Slightly more bad than good; Equally good and bad; Slightly more good than bad; Mainly good |
-| globalFilms | 20,21 | Globalisation Access to Film, TV, Music, Sport: Good/Bad? | Mainly bad; Slightly more bad than good; Equally good and bad; Slightly more good than bad; Mainly good |
-| globalMigration | 20,21 | Globalisation International Migration: Good/Bad? | Mainly bad; Slightly more bad than good; Equally good and bad; Slightly more good than bad; Mainly good |
-| globalOrgs | 20,21 | Globalisation Influence of International Orgs (e.g. UN): Good/Bad? | Mainly bad; Slightly more bad than good; Equally good and bad; Slightly more good than bad; Mainly good |
-| globalPlanes | 20,21 | Globalisation International Air Travel: Good/Bad? | Mainly bad; Slightly more bad than good; Equally good and bad; Slightly more good than bad; Mainly good |
-| globalTalk | 20,21 | Globalisation Fast & Cheap Communication: Good/Bad? | Mainly bad; Slightly more bad than good; Equally good and bad; Slightly more good than bad; Mainly good |
-| globalTourism | 20,21 | Globalisation Global Tourism: Good/Bad? | Mainly bad; Slightly more bad than good; Equally good and bad; Slightly more good than bad; Mainly good |
-| globalTrade | 20,21 | Globalisation International Trade: Good/Bad? | Mainly bad; Slightly more bad than good; Equally good and bad; Slightly more good than bad; Mainly good |
 | responsibleEconBrexit | 21 | Responsible for economy: Brexit | No; Yes |
 | responsibleEconBusiness | 21 | Responsible for economy: British businesses | No; Yes |
 | responsibleEconC_1 | 20 | The UK Government | No; Yes |
@@ -494,7 +506,6 @@
 | responsibleEconOther | 21 | Responsible for economy: Other | No; Yes |
 | responsibleEconScottishGovt | 21 | Responsible for economy: Scottish government | No; Yes |
 | responsibleEconWelshGovt | 21 | Responsible for economy: Welsh government | No; Yes |
-| selfEUCertain | 30 | Certainty about own position on EU | Not at all certain; Somewhat certain; Very certain |
 
 ## A per-line 'spend much less ... much more of its budget' grid from 2023; tried as bubbles and dropped, since it is about specific lines rather than the budget (14)
 
@@ -688,7 +699,7 @@
 | ukraineEconImpactScot | 27,30 | How much impact on Scotland's economy? Ukraine | Large negative impact / Large positive impact |
 | ukraineEconImpactWales | 27,30 | How much impact on Wales's economy? Ukraine | Large negative impact / Large positive impact |
 
-## About the mechanics of the 2024 campaign or eligibility, rather than the person (256)
+## About the mechanics of the 2024 campaign or eligibility, rather than the person (245)
 
 | Variable | Waves | Label | Answers |
 |---|---|---|---|
@@ -753,10 +764,8 @@
 | debateThreeWatch | 28 | Watched third debate | No; Yes |
 | debateTwoWatch | 28 | Watched second debate | No; Yes |
 | decidedVote | 27,28 | Decided on General Election vote | Yes, decided / No, not decided yet |
-| discussPolDays | 27,28 | Days respondent discusses politics | 0 days / 1 day |
 | electionInterest | 27,28 | Interest in General Election | Not at all interested; Not very interested; Somewhat interested; Very interested |
 | eligibleLocalEngland2025 | 21,22,23,24,25,26,27,28,29,30,31 | Eligible for local elections in England | Not eligible for local elections in England; Eligible for local elections in England |
-| eligibleUKGE | 21,22,23,24,25,26,27,28,29,30,31 | Eligible for UK general elections? | Not eligible for UK general elections; Eligible for UK general elections |
 | generalElecCertainty2squeeze | 27 | General Election Vote Certainty (Squeeze) | Not at all certain / Completely certain |
 | generalElectionCertainty | 26,27,28 | Certainty of vote intention in general election | Not at all certain / Completely certain |
 | generalElectionCertaintySq | 28 | Certainty of vote intention in general election (squeezed) | Not at all certain / Completely certain |
@@ -933,20 +942,11 @@
 | regretsIHaveAFewEUNotVote | 26 | Do you have any regrets about not voting in the EU referendum? | No; Yes |
 | regretsIHaveAFewNotVote | 26 | Do you have any regrets about not voting in the general election in 2019? | No; Yes |
 | respdate | 20,28 | Response date |  |
-| sharedContentOnline_1 | 28 | Shared political content on Facebook | No; Yes |
-| sharedContentOnline_2 | 28 | Shared political content on Twitter | No; Yes |
-| sharedContentOnline_3 | 28 | Shared political content through email | No; Yes |
-| sharedContentOnline_4 | 28 | Shared political content through instant messaging | No; Yes |
-| sharedContentOnline_5 | 28 | Shared political content on another website/online platform | No; Yes |
-| sharedContentOnline_6 | 28 | Shared political content on YouTube | No; Yes |
-| sharedContentOnline_7 | 28 | Shared political content on Instagram | No; Yes |
-| sharedContentOnline_8 | 28 | Shared political content on TikTok | No; Yes |
 | tryConvince_1 | 28 | Friends Tried to Convince You How to Vote | No; Yes |
 | tryConvince_2 | 28 | Family Tried to Convince You How to Vote | No; Yes |
 | tryConvince_3 | 28 | People at Work Tried to Convince You How to Vote | No; Yes |
 | tryConvince_4 | 28 | Others Tried to Convince You How to Vote | No; Yes |
 | tryConvince_5 | 28 | None Tried to Convince You How to Vote | No; Yes |
-| voteMakesDifference | 27 | How likely that vote makes difference in constituency | 0- Very unlikely / 10 - Very likely |
 | voteMethoda | 29 | How did you vote? | I voted by post; I visited the polling station on my own; I visited the polling station with someone else; Someone else voted for me (proxy voting) |
 
 ## Covid-era question (2020-22), tied to the pandemic (133)

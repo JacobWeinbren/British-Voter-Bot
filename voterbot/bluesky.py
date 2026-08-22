@@ -19,14 +19,21 @@ from .profile import ALT_TEXT_LIMIT
 POST_TEXT_LIMIT = 300
 
 
-def _client() -> Client:
-    handle = os.environ.get("BLUESKY_HANDLE")
-    password = os.environ.get("BLUESKY_PASSWORD")
+def credentials() -> tuple[str, str]:
+    """The handle and app password from the environment, tidied: a handle pasted as '@name.bsky.social'
+    or with stray whitespace would otherwise be taken for an email address by the PDS ('InvalidEmail')."""
+    handle = (os.environ.get("BLUESKY_HANDLE") or "").strip().lstrip("@").strip()
+    password = (os.environ.get("BLUESKY_PASSWORD") or "").strip()
     if not handle or not password:
         raise SystemExit("BLUESKY_HANDLE and BLUESKY_PASSWORD are not set. On GitHub add them under Settings > Secrets and variables > Actions; "
                          "locally, export them before running `python -m voterbot post`.")
+    return handle, password
+
+
+def _client() -> Client:
+    handle, password = credentials()
     client = Client()
-    client.login(handle, password)
+    client.login(handle, password)  # note: the PDS allows only a handful of failed logins a day, so a bad secret stays bad for a while
     return client
 
 

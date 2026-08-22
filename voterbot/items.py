@@ -153,7 +153,7 @@ def discrimination11(group: str, plural: bool = True) -> Phraser:
     cap = f"{group[0].upper()}{group[1:]}"
     return scale11(
         (f"If anything, {group} {get} favoured in Britain these days.", f"{cap} {get} special treatment in Britain these days, if anything.",
-         f"These days {group} {get} the easier ride in Britain, if anything."),
+         f"These days, {group} {get} the easier ride in Britain, if anything."),
         (f"{cap} {get} a slightly easier ride than most in Britain.", f"{cap} {are} a little better treated than most in Britain.",
          f"If anything, {group} {get} slightly favoured in Britain."),
         (f"{cap} still {face} some discrimination in Britain.", f"There's still some discrimination against {group} in Britain.",
@@ -248,7 +248,7 @@ def local_vote(row, country: int) -> str | None:
             return None
         name = "another party" if int(party) == 9 else codes.PARTIES[int(party)]
         by_post = " by post" if value(row, "voteMethodbW31") == 1 else ""
-        return (f"In May's local elections I voted {name}{by_post}.", f"I voted {name}{by_post} in May's local elections.", f"At the local elections in May I voted {name}{by_post}.")
+        return (f"In May's local elections I voted {name}{by_post}.", f"I voted {name}{by_post} in May's local elections.", f"At the local elections in May, I voted {name}{by_post}.")
     if turnout == 0:
         reason = value(row, "reasonNonVoterW31")
         if reason is not None and int(reason) in codes.NONVOTE_REASON:
@@ -268,11 +268,11 @@ def holyrood_vote(row, country: int) -> str | None:
     c = codes.SCOTTISH_PARTY.get(int(const)) if const is not None else None
     l = codes.SCOTTISH_PARTY.get(int(lst)) if lst is not None else None
     if c and l and c == l:
-        return (f"In May's Holyrood election I voted {c} on both ballots.", f"I voted {c} on both ballots in May's Scottish Parliament election.", f"At the Holyrood election in May I voted {c} on both the constituency and the list ballot.")
+        return (f"In May's Holyrood election I voted {c} on both ballots.", f"I voted {c} on both ballots in May's Scottish Parliament election.", f"At the Holyrood election in May, I voted {c} on both the constituency and the list ballot.")
     if c and l:
-        return (f"In May's Holyrood election I voted {c} on the constituency ballot and {l} on the list.", f"I voted {c} for my constituency MSP and {l} on the regional list in May's Holyrood election.", f"At the Scottish Parliament election in May I went {c} on the constituency ballot and {l} on the list.")
+        return (f"In May's Holyrood election I voted {c} on the constituency ballot and {l} on the list.", f"I voted {c} for my constituency MSP and {l} on the regional list in May's Holyrood election.", f"At the Scottish Parliament election in May, I went {c} on the constituency ballot and {l} on the list.")
     if c or l:
-        return (f"In May's Holyrood election I voted {c or l}.", f"I voted {c or l} in May's Scottish Parliament election.", f"At the Holyrood election in May I voted {c or l}.")
+        return (f"In May's Holyrood election I voted {c or l}.", f"I voted {c or l} in May's Scottish Parliament election.", f"At the Holyrood election in May, I voted {c or l}.")
     return None
 
 
@@ -283,13 +283,13 @@ def senedd_vote(row, country: int) -> str | None:
     if turnout == 0 or vote == 0:
         return ("I didn't vote in May's Senedd election.", "I didn't turn out for the Senedd election in May.", "I gave May's Senedd election a miss.")
     if turnout == 1 and vote is not None and int(vote) in codes.SENEDD_PARTY:
-        return (f"In May's Senedd election I voted {codes.SENEDD_PARTY[int(vote)]}.", f"I voted {codes.SENEDD_PARTY[int(vote)]} in May's Senedd election.", f"At the Senedd election in May I voted {codes.SENEDD_PARTY[int(vote)]}.")
+        return (f"In May's Senedd election I voted {codes.SENEDD_PARTY[int(vote)]}.", f"I voted {codes.SENEDD_PARTY[int(vote)]} in May's Senedd election.", f"At the Senedd election in May, I voted {codes.SENEDD_PARTY[int(vote)]}.")
     return None
 
 
 def trust_mps(answer: float) -> str | None:
     return {1: ("I don't trust MPs one bit.", "I have no trust in MPs at all.", "I don't trust MPs in the slightest."), 2: ("I trust MPs very little.", "I've got very little trust in MPs.", "I hardly trust MPs at all."), 3: ("I don't have much trust in MPs.", "I don't trust MPs all that much.", "My trust in MPs is fairly low."),
-            5: ("I trust MPs a fair amount.", "I have a fair amount of trust in MPs.", "On the whole I've a reasonable amount of trust in MPs."), 6: ("I trust MPs a good deal.", "I've got a good deal of trust in MPs.", "I trust MPs quite a lot."), 7: ("I trust MPs a great deal.", "I have a great deal of trust in MPs.", "I trust MPs very much indeed.")}.get(int(answer))
+            5: ("I trust MPs a fair amount.", "I have a fair amount of trust in MPs.", "On the whole, I've a reasonable amount of trust in MPs."), 6: ("I trust MPs a good deal.", "I've got a good deal of trust in MPs.", "I trust MPs quite a lot."), 7: ("I trust MPs a great deal.", "I have a great deal of trust in MPs.", "I trust MPs very much indeed.")}.get(int(answer))
 
 
 def _party_noun(code: int) -> str | None:
@@ -335,6 +335,63 @@ def wished_vote(row, country: int) -> tuple[str, ...] | None:
     return ("I wish I'd voted differently to how I voted in 2024.",
             "I've regrets about my 2024 vote - I wish I'd voted differently.",
             "If I could do 2024 again, I'd vote differently.")
+
+def _plural(what: str) -> bool:
+    return what.endswith("s") and not what.endswith(("'s", "ss", "economy"))
+
+
+def brexit_effect5(what: str) -> Phraser:
+    """The wave-27 'has Brexit made X better or worse' items: much worse ... much better."""
+    cap, pl = f"{what[0].upper()}{what[1:]}", _plural(what)
+    be = "are" if pl else "is"
+    return by_code({
+        1: (f"Brexit has made {what} much worse.", f"{cap} {be} much worse because of Brexit.", f"Brexit has done {what} a great deal of harm."),
+        2: (f"Brexit has made {what} worse.", f"{cap} {be} worse because of Brexit.", f"Brexit has done {what} harm."),
+        3: (f"Brexit hasn't made much difference to {what}.", f"{cap} {be} about the same as before Brexit.", f"Brexit has left {what} about where {'they were' if pl else 'it was'}."),
+        4: (f"Brexit has made {what} better.", f"{cap} {be} better because of Brexit.", f"Brexit has done {what} good."),
+        5: (f"Brexit has made {what} much better.", f"{cap} {be} much better because of Brexit.", f"Brexit has done {what} a great deal of good."),
+    })
+
+
+def remain_effect5(what: str) -> Phraser:
+    """The 2021-23 'if Britain had stayed in the EU, would X be better or worse' items."""
+    pl = _plural(what)
+    be = "would be"
+    return by_code({
+        1: (f"If Britain had stayed in the EU, {what} {be} much worse.", f"Had we stayed in the EU, {what} {be} a lot worse.", f"Staying in the EU would have left {what} much worse off."),
+        2: (f"If Britain had stayed in the EU, {what} {be} worse.", f"Had we stayed in the EU, {what} {be} worse.", f"Staying in the EU would have left {what} worse off."),
+        3: (f"If Britain had stayed in the EU, {what} {be} about the same.", f"Staying in the EU would have made little difference to {what}.", f"Had we stayed in the EU, {what} {be} much as {'they are' if pl else 'it is'} now."),
+        4: (f"If Britain had stayed in the EU, {what} {be} better.", f"Had we stayed in the EU, {what} {be} better.", f"Staying in the EU would have left {what} better off."),
+        5: (f"If Britain had stayed in the EU, {what} {be} much better.", f"Had we stayed in the EU, {what} {be} a lot better.", f"Staying in the EU would have left {what} much better off."),
+    })
+
+
+def globalisation5(what: str) -> Phraser:
+    """The 2020-21 globalisation grid: is X mainly bad ... mainly good for Britain? The middle sits on the fence."""
+    cap, pl = f"{what[0].upper()}{what[1:]}", _plural(what)
+    has, does, be = ("have", "do", "are") if pl else ("has", "does", "is")
+    return by_code({
+        1: (f"{cap} {has} been mainly bad for Britain.", f"On the whole, {what} {has} been a bad thing for Britain.", f"{cap} {does} Britain more harm than good, by a long way."),
+        2: (f"{cap} {has} been slightly more bad than good for Britain.", f"On balance, {what} {has} done Britain a bit more harm than good.", f"{cap} {be} a little more of a bad thing than a good thing for Britain."),
+        3: (f"{cap} {has} been good and bad for Britain in equal measure.", f"{cap} {has} done Britain good and harm in equal measure."),
+        4: (f"{cap} {has} been slightly more good than bad for Britain.", f"On balance, {what} {has} done Britain a bit more good than harm.", f"{cap} {be} a little more of a good thing than a bad thing for Britain."),
+        5: (f"{cap} {has} been mainly good for Britain.", f"On the whole, {what} {has} been a good thing for Britain.", f"{cap} {does} Britain far more good than harm."),
+    })
+
+
+def vote_difference(answer: float) -> tuple[str, ...] | None:
+    """0-10: how likely it is that their vote makes a difference in their constituency."""
+    n = int(answer)
+    if n <= 2:
+        return ("My vote makes no difference at all where I live.", "Where I live, my vote is very unlikely to change anything.", "There's next to no chance my vote makes a difference in my constituency.")
+    if n <= 4:
+        return ("My vote is unlikely to make much difference where I live.", "Where I live, my vote probably doesn't change anything.", "I doubt my vote makes much difference in my constituency.")
+    if n >= 8:
+        return ("My vote really can make a difference where I live.", "Where I live, my vote is very likely to count.", "There's every chance my vote makes a difference in my constituency.")
+    if n >= 6:
+        return ("My vote probably makes a difference where I live.", "Where I live, my vote is fairly likely to count.", "I think my vote makes some difference in my constituency.")
+    return None
+
 
 # ---------------------------------------------------------------------------
 # The library. Column lists start with wave 31 and fall back to earlier waves
@@ -507,8 +564,8 @@ ITEMS: list[Item] = [
                 ("Stiffer sentences are the last thing we need.", "I'm firmly against stiffer sentences for lawbreakers."))),
 
     Item("cwLanguage", "offence", ("cwLanguageW31", "cwLanguageW26W27", "cwLanguageW25"),
-         agree5(("Far too many people are easily offended these days over the words others use.", "Far too many people these days get offended far too easily over the words others use.", "These days far too many people get offended at the drop of a hat over the words others use."),
-                ("Too many people are easily offended these days over the language others use.", "These days too many people take offence too easily at the words others use.", "I think too many people get offended too easily over language these days."),
+         agree5(("Far too many people are easily offended these days over the words others use.", "Far too many people these days get offended far too easily over the words others use.", "These days, far too many people get offended at the drop of a hat over the words others use."),
+                ("Too many people are easily offended these days over the language others use.", "These days, too many people take offence too easily at the words others use.", "I think too many people get offended too easily over language these days."),
                 ("I don't think people are too easily offended by language - words matter.", "I don't think people are too quick to take offence at the language others use.", "I wouldn't say people are too easily offended by the words others use."),
                 ("People aren't too easily offended over language - far from it.", "I really don't think people are too easily offended by the language others use.", "The idea that people get offended too easily over language is nonsense."))),
     Item("cwStatues", "statues", ("cwStatuesW31", "cwStatuesW26W27", "cwStatuesW25"),
@@ -565,14 +622,14 @@ ITEMS: list[Item] = [
                   ("Measures to protect the environment haven't gone nearly far enough.", "Environmental protection hasn't gone anywhere near far enough.", "We need to be doing a great deal more to protect the environment than we are."))),
     Item("taxSpend", "tax-and-spend", ("taxSpendSelfW31", "taxSpendSelfW30", "taxSpendSelfW28", "taxSpendSelfW27"),
          scale11(("Cut taxes a lot, even if it means spending much less on health and social services.", "I'd cut taxes a lot, even if that means spending much less on health and social services.", "Taxes should come down a lot, and spending on health and social services should come down a lot too."),
-                 ("I'd cut taxes a bit and trim spending on health and social services.", "I'd like taxes cut a little, even if it means slightly less spending on health and social services.", "On balance I'd cut taxes a bit and spend a bit less on health and social services."),
-                 ("I'd pay a bit more tax for better health and social services.", "I'd be willing to pay a little more tax to get better health and social services.", "On balance I'd raise taxes a bit and spend a bit more on health and social services."),
+                 ("I'd cut taxes a bit and trim spending on health and social services.", "I'd like taxes cut a little, even if it means slightly less spending on health and social services.", "On balance, I'd cut taxes a bit and spend a bit less on health and social services."),
+                 ("I'd pay a bit more tax for better health and social services.", "I'd be willing to pay a little more tax to get better health and social services.", "On balance, I'd raise taxes a bit and spend a bit more on health and social services."),
                  ("Raise taxes a lot and spend much more on health and social services.", "I'd raise taxes a lot and spend much more on health and social services.", "Taxes should go up a lot so we can spend much more on health and social services."),
                  ("Tax and spending on health and social services should stay about where they are.", "I'd leave taxes and spending on health and social services roughly as they are.", "I wouldn't change taxes or spending on health and social services much either way."))),
     Item("redist", "redistribution", ("redistSelfW31", "redistSelfW30", "redistSelfW29"),
          scale11(("Government should be doing much more to make incomes equal.", "The government should make a much bigger effort to make people's incomes more equal.", "I want the government to do much more to even out people's incomes."),
-                 ("Government should do a bit more to even out incomes.", "The government should make a bit more effort to make incomes more equal.", "On balance I'd like the government to do a little more to make incomes equal."),
-                 ("Government should worry less about making incomes equal.", "The government should be a bit less concerned with how equal people's incomes are.", "On balance I think the government should care less about evening out incomes."),
+                 ("Government should do a bit more to even out incomes.", "The government should make a bit more effort to make incomes more equal.", "On balance, I'd like the government to do a little more to make incomes equal."),
+                 ("Government should worry less about making incomes equal.", "The government should be a bit less concerned with how equal people's incomes are.", "On balance, I think the government should care less about evening out incomes."),
                  ("Making incomes more equal shouldn't be the government's concern at all.", "The government should be much less concerned about how equal people's incomes are.", "It's not the government's job to even out people's incomes.")), weight=0.7),
     # BES: "Do you think that the amount of money families on welfare receive is too high or too low?"
     Item("welfare", "benefits", ("welfarePreferenceW31", "welfarePreferenceW27"),
@@ -587,13 +644,13 @@ ITEMS: list[Item] = [
                       "Families on benefits get much less than they should.")})),
     Item("enviroGrowth", "growth-v-environment", ("enviroGrowthW31", "enviroGrowthW30", "enviroGrowthW28"),
          scale11(("Economic growth has to come first, ahead of the environment.", "Economic growth should take priority, even if it gets in the way of protecting the environment.", "Growth comes first for me, even if the environment suffers for it."),
-                 ("Growth should come first, but the environment matters too.", "On balance I'd put economic growth ahead of the environment, though not by much.", "I lean towards growth over the environment, but both count."),
-                 ("Protecting the environment should come first, though growth matters.", "On balance I'd put protecting the environment ahead of growth, though not by much.", "I lean towards the environment over growth, but both count."),
+                 ("Growth should come first, but the environment matters too.", "On balance, I'd put economic growth ahead of the environment, though not by much.", "I lean towards growth over the environment, but both count."),
+                 ("Protecting the environment should come first, though growth matters.", "On balance, I'd put protecting the environment ahead of growth, though not by much.", "I lean towards the environment over growth, but both count."),
                  ("Protecting the environment must come before economic growth.", "Protecting the environment should take priority, even if it means less economic growth.", "The environment comes first for me, even if growth suffers for it."))),
     # Immigration and Europe
     Item("immigSelf", "immigration", ("immigSelfW31", "immigSelfW30", "immigSelfW29"),
-         scale11(("Britain should let in far fewer immigrants.", "The UK should allow many fewer immigrants to come here to live.", "We should be letting far fewer immigrants into this country."), ("I'd like to see fewer immigrants coming in.", "On balance I'd let somewhat fewer immigrants into the UK.", "I'd rather Britain allowed slightly fewer immigrants in than it does now."),
-                 ("I'd be happy for a few more immigrants to come.", "On balance I'd let somewhat more immigrants into the UK.", "I'd rather Britain allowed slightly more immigrants in than it does now."), ("Britain should let in many more immigrants.", "The UK should allow many more immigrants to come here to live.", "We should be letting far more immigrants into this country."),
+         scale11(("Britain should let in far fewer immigrants.", "The UK should allow many fewer immigrants to come here to live.", "We should be letting far fewer immigrants into this country."), ("I'd like to see fewer immigrants coming in.", "On balance, I'd let somewhat fewer immigrants into the UK.", "I'd rather Britain allowed slightly fewer immigrants in than it does now."),
+                 ("I'd be happy for a few more immigrants to come.", "On balance, I'd let somewhat more immigrants into the UK.", "I'd rather Britain allowed slightly more immigrants in than it does now."), ("Britain should let in many more immigrants.", "The UK should allow many more immigrants to come here to live.", "We should be letting far more immigrants into this country."),
                  ("Immigration levels are about right as they are.", "The number of immigrants we let in is about right.", "I'd say the level of immigration into Britain is about right."))),
     Item("immigEcon", "immigration", ("immigEconW31", "immigEconW30", "immigEconW27"),
          by_code({1: ("Immigration is clearly bad for the economy.", "Immigration is bad for Britain's economy, no question.", "There's no doubt in my mind that immigration is bad for the economy."), 2: ("Immigration is bad for the economy.", "I think immigration does the economy harm.", "Immigration is bad news for Britain's economy."),
@@ -625,9 +682,9 @@ ITEMS: list[Item] = [
                 ("It matters enormously which party is in power.", "It makes a huge difference which party is in power.", "Which party is in power matters a great deal.")), weight=0.7),
     Item("efficacyUnderstand", "political-interest", ("efficacyUnderstandW31", "efficacyUnderstandW30"),
          agree5(("I've got a good grasp of the big political issues facing the country.", "I understand the big political issues facing the country very well.", "I have a really good understanding of the big political issues facing the country."),
-                ("I understand the big political issues facing the country pretty well.", "I've got a pretty good understanding of the big political issues facing the country.", "I'd say I follow the big political issues facing the country pretty well."),
+                ("I understand the big political issues facing the country pretty well.", "I've got a pretty good understanding of the big political issues facing the country.", "I understand the important political issues facing the country reasonably well."),
                 ("I don't really understand the big political issues facing the country.", "I wouldn't say I understand the big political issues facing the country.", "I don't have much of a grasp of the big political issues facing the country."),
-                ("I struggle to follow the big political issues facing the country.", "I really don't understand the big political issues facing the country.", "The big political issues facing the country go over my head.")), weight=0.5),
+                ("I struggle to understand the big political issues facing the country.", "I really don't understand the big political issues facing the country.", "The big political issues facing the country go over my head.")), weight=0.5),
     Item("approveUK", "uk-government", ("approveUKGovtW31",), approve5("the UK government"), fallback=False),
     Item("approveScot", "scottish-government", ("approveScotGovtW31",), approve5("the Scottish Government"), nations=(2,), fallback=False),
     Item("approveWelsh", "welsh-government", ("approveWelshGovtW31",), approve5("the Welsh Government"), nations=(3,), fallback=False),
@@ -657,12 +714,12 @@ ITEMS: list[Item] = [
          by_code({5: ("Crime is going up a lot.", "Crime is getting a lot higher.", "The level of crime is rising a lot."), 4: ("Crime is going up a bit.", "Crime is getting a little higher.", "The level of crime is rising a bit."),
                   2: ("Crime is falling a bit.", "Crime is getting a little lower.", "The level of crime is coming down a bit."), 1: ("Crime is falling a lot.", "Crime is getting a lot lower.", "The level of crime is coming down a lot.")}), weight=0.6, fallback=False),
     Item("econGenRetro", "economy-direction", ("econGenRetroW31", "econGenRetroW30"),
-         worse_better5(("The economy has got a lot worse over the past year.", "The economy has got much worse in the last twelve months.", "Over the last year the economy has gone downhill a lot."), ("The economy has got a bit worse over the past year.", "The economy has got a little worse in the last twelve months.", "Over the last year the economy has slipped a bit."),
-                       ("The economy has got a bit better over the past year.", "The economy has got a little better in the last twelve months.", "Over the last year the economy has picked up a bit."), ("The economy has got a lot better over the past year.", "The economy has got much better in the last twelve months.", "Over the last year the economy has picked up a great deal.")),
+         worse_better5(("The economy has got a lot worse over the past year.", "The economy has got much worse in the last twelve months.", "Over the last year, the economy has gone downhill a lot."), ("The economy has got a bit worse over the past year.", "The economy has got a little worse in the last twelve months.", "Over the last year, the economy has slipped a bit."),
+                       ("The economy has got a bit better over the past year.", "The economy has got a little better in the last twelve months.", "Over the last year, the economy has picked up a bit."), ("The economy has got a lot better over the past year.", "The economy has got much better in the last twelve months.", "Over the last year, the economy has picked up a great deal.")),
          weight=0.5, fallback=False),
     Item("econGenProsp", "economy-outlook", ("econGenProspW31",),
-         worse_better5(("The economy is going to get a lot worse over the next year.", "I expect the economy to get much worse over the next twelve months.", "Over the next year I think the economy will go downhill a lot."), ("I expect the economy to get a bit worse next year.", "The economy is going to get a little worse over the next year.", "Over the next twelve months I think the economy will slip a bit."),
-                       ("I expect the economy to pick up a bit next year.", "The economy is going to get a little better over the next year.", "Over the next twelve months I think the economy will improve a bit."), ("The economy is going to get a lot better over the next year.", "I expect the economy to get much better over the next twelve months.", "Over the next year I think the economy will pick up a great deal.")),
+         worse_better5(("The economy is going to get a lot worse over the next year.", "I expect the economy to get much worse over the next twelve months.", "Over the next year, I think the economy will go downhill a lot."), ("I expect the economy to get a bit worse next year.", "The economy is going to get a little worse over the next year.", "Over the next twelve months, I think the economy will slip a bit."),
+                       ("I expect the economy to pick up a bit next year.", "The economy is going to get a little better over the next year.", "Over the next twelve months, I think the economy will improve a bit."), ("The economy is going to get a lot better over the next year.", "I expect the economy to get much better over the next twelve months.", "Over the next year, I think the economy will pick up a great deal.")),
          weight=0.6, fallback=False),
     # Nation, union and identity
     Item("identity", "identity", (), custom=identity_statement, weight=1.0),
@@ -873,14 +930,14 @@ ITEMS: list[Item] = [
                 ("I'm against needing photo ID to vote.", "I don't support requiring photo ID to vote.", "I'd oppose making people show photo ID before they vote."), ("Making people show photo ID to vote is wrong.", "I strongly oppose making people show photo ID to vote.", "I'm dead against requiring photo ID at the polling station.")), weight=0.7),
     Item("satDemUK", "democracy", ("satDemUKW29", "satDemUKW27"),
          by_code({1: ("I'm very dissatisfied with how democracy works in the UK.", "The way democracy works in the UK leaves me very dissatisfied.", "I'm really unhappy with how democracy works in the UK.", "I'm really unhappy with the way democracy works in the UK."), 2: ("I'm a bit dissatisfied with how democracy works in the UK.", "I'm a little dissatisfied with the way democracy works in the UK.", "How democracy works in the UK leaves me a bit dissatisfied."),
-                  3: ("I'm fairly satisfied with how democracy works in the UK.", "On the whole I'm fairly happy with how democracy works in the UK.", "I'm reasonably satisfied with the way democracy works in the UK.", "On the whole I'm reasonably happy with how democracy works in the UK.", "I'm pretty satisfied with the way democracy works in the UK."), 4: ("I'm very satisfied with how democracy works in the UK.", "I'm very happy with the way democracy works in the UK.", "On the whole, I'm very satisfied with the way democracy works in the UK.", "As far as I'm concerned, democracy in the UK works very well.")})),
+                  3: ("I'm fairly satisfied with how democracy works in the UK.", "On the whole, I'm fairly happy with how democracy works in the UK.", "I'm reasonably satisfied with the way democracy works in the UK.", "On the whole, I'm reasonably happy with how democracy works in the UK.", "I'm pretty satisfied with the way democracy works in the UK."), 4: ("I'm very satisfied with how democracy works in the UK.", "I'm very happy with the way democracy works in the UK.", "On the whole, I'm very satisfied with the way democracy works in the UK.", "As far as I'm concerned, democracy in the UK works very well.")})),
     Item("satDemScot", "democracy", ("satDemScotW29",),
          by_code({1: ("I'm very dissatisfied with how democracy works in Scotland.", "The way democracy works in Scotland leaves me very dissatisfied.", "I'm really unhappy with how democracy works in Scotland."), 2: ("I'm a bit dissatisfied with how democracy works in Scotland.", "I'm a little dissatisfied with the way democracy works in Scotland.", "How democracy works in Scotland leaves me a bit dissatisfied."),
-                  3: ("I'm fairly satisfied with how democracy works in Scotland.", "On the whole I'm fairly happy with how democracy works in Scotland.", "I'm reasonably satisfied with the way democracy works in Scotland."), 4: ("I'm very satisfied with how democracy works in Scotland.", "I'm very happy with the way democracy works in Scotland.", "On the whole, I'm very satisfied with the way democracy works in Scotland.")}),
+                  3: ("I'm fairly satisfied with how democracy works in Scotland.", "On the whole, I'm fairly happy with how democracy works in Scotland.", "I'm reasonably satisfied with the way democracy works in Scotland."), 4: ("I'm very satisfied with how democracy works in Scotland.", "I'm very happy with the way democracy works in Scotland.", "On the whole, I'm very satisfied with the way democracy works in Scotland.")}),
          nations=(2,)),
     Item("satDemWales", "democracy", ("satDemWalesW29",),
          by_code({1: ("I'm very dissatisfied with how democracy works in Wales.", "The way democracy works in Wales leaves me very dissatisfied.", "I'm really unhappy with how democracy works in Wales."), 2: ("I'm a bit dissatisfied with how democracy works in Wales.", "I'm a little dissatisfied with the way democracy works in Wales.", "How democracy works in Wales leaves me a bit dissatisfied."),
-                  3: ("I'm fairly satisfied with how democracy works in Wales.", "On the whole I'm fairly happy with how democracy works in Wales.", "I'm reasonably satisfied with the way democracy works in Wales."), 4: ("I'm very satisfied with how democracy works in Wales.", "I'm very happy with the way democracy works in Wales.", "On the whole, I'm very satisfied with the way democracy works in Wales.")}),
+                  3: ("I'm fairly satisfied with how democracy works in Wales.", "On the whole, I'm fairly happy with how democracy works in Wales.", "I'm reasonably satisfied with the way democracy works in Wales."), 4: ("I'm very satisfied with how democracy works in Wales.", "I'm very happy with the way democracy works in Wales.", "On the whole, I'm very satisfied with the way democracy works in Wales.")}),
          nations=(3,)),
     Item("trustYourMP", "trust", ("trustYourMPW27",),
          by_code({1: ("I don't trust my local MP one bit.", "I've no trust at all in my local MP.", "I don't trust my local MP at all."), 2: ("I've little trust in my local MP.", "I don't trust my local MP much.", "I've not got much trust in my local MP."), 5: ("I trust my local MP a fair amount.", "I trust my local MP a fair bit.", "I've a fair amount of trust in my local MP."),
@@ -893,13 +950,13 @@ ITEMS: list[Item] = [
                 ("You don't need to own a home by 40 to be a success.", "You can be a success without owning a home by 40.", "Not owning a home by 40 doesn't mean you haven't made it."),
                 ("Owning a home by 40 has nothing to do with success in life.", "Whether you own a home by 40 has nothing to do with success in life.", "Success in life has nothing to do with owning a home by 40.")), weight=0.6),
     Item("econSecurityFuture", "personal-outlook", ("EconSecurityFutureW25", "EconSecurityFutureW23"),
-         by_code({1: ("I expect to be a lot better off in ten years' time.", "In ten years I expect to be a lot better off.", "I think I'll be much better off ten years from now."), 2: ("I expect to be a little better off in ten years.", "In ten years' time I expect to be a bit better off.", "I think I'll be slightly better off ten years from now."),
-                  4: ("I expect to be a little worse off in ten years.", "In ten years' time I expect to be a bit worse off.", "I think I'll be slightly worse off ten years from now."), 5: ("I expect to be a lot worse off in ten years' time.", "In ten years I expect to be a lot worse off.", "I think I'll be much worse off ten years from now.")}), weight=0.6),
+         by_code({1: ("I expect to be a lot better off in ten years' time.", "In ten years, I expect to be a lot better off.", "I think I'll be much better off ten years from now."), 2: ("I expect to be a little better off in ten years.", "In ten years' time, I expect to be a bit better off.", "I think I'll be slightly better off ten years from now."),
+                  4: ("I expect to be a little worse off in ten years.", "In ten years' time, I expect to be a bit worse off.", "I think I'll be slightly worse off ten years from now."), 5: ("I expect to be a lot worse off in ten years' time.", "In ten years, I expect to be a lot worse off.", "I think I'll be much worse off ten years from now.")}), weight=0.6),
     Item("statusLadder", "status", ("statusTopBottomW30", "statusTopBottomW21"),
-         by_code({1: ("I'd put myself right at the bottom of the pile in society.", "In society's pecking order I'm right at the bottom.", "I'm at the very bottom of the ladder in society."), 2: ("I'd put myself near the bottom of the pile in society.", "I'm near the bottom of the ladder in society.", "In society's pecking order I'm close to the bottom."),
-                  3: ("I'd put myself near the bottom of the pile in society.", "I'm near the bottom of the ladder in society.", "In society's pecking order I'm close to the bottom."), 4: ("I'd put myself a bit below the middle of society.", "I'm a little below the middle of the ladder in society.", "In society's pecking order I'm just below the middle."),
-                  7: ("I'd put myself a bit above the middle of society.", "I'm a little above the middle of the ladder in society.", "In society's pecking order I'm just above the middle."), 8: ("I'd put myself near the top of the pile in society.", "I'm near the top of the ladder in society.", "In society's pecking order I'm close to the top."),
-                  9: ("I'd put myself near the top of the pile in society.", "I'm near the top of the ladder in society.", "In society's pecking order I'm close to the top."), 10: ("I'd put myself right at the top of the pile in society.", "I'm at the very top of the ladder in society.", "In society's pecking order I'm right at the top.")}),
+         by_code({1: ("I'd put myself right at the bottom of the pile in society.", "In society's pecking order, I'm right at the bottom.", "I'm at the very bottom of the ladder in society."), 2: ("I'd put myself near the bottom of the pile in society.", "I'm near the bottom of the ladder in society.", "In society's pecking order, I'm close to the bottom."),
+                  3: ("I'd put myself near the bottom of the pile in society.", "I'm near the bottom of the ladder in society.", "In society's pecking order, I'm close to the bottom."), 4: ("I'd put myself a bit below the middle of society.", "I'm a little below the middle of the ladder in society.", "In society's pecking order, I'm just below the middle."),
+                  7: ("I'd put myself a bit above the middle of society.", "I'm a little above the middle of the ladder in society.", "In society's pecking order, I'm just above the middle."), 8: ("I'd put myself near the top of the pile in society.", "I'm near the top of the ladder in society.", "In society's pecking order, I'm close to the top."),
+                  9: ("I'd put myself near the top of the pile in society.", "I'm near the top of the ladder in society.", "In society's pecking order, I'm close to the top."), 10: ("I'd put myself right at the top of the pile in society.", "I'm at the very top of the ladder in society.", "In society's pecking order, I'm right at the top.")}),
          weight=0.5),
     # Welfare and work (wave 20 values battery)
     Item("jobForAll", "state-role", ("jobForAllW20",),
@@ -916,7 +973,7 @@ ITEMS: list[Item] = [
                 ("Private enterprise isn't the answer to Britain's economic problems.", "I don't think private enterprise is the best way to solve Britain's economic problems.", "Britain's economic problems won't be solved by private enterprise."),
                 ("Leaving our economic problems to private enterprise would be a disaster.", "Private enterprise is definitely not the answer to Britain's economic problems.", "I strongly disagree that private enterprise is the way to fix Britain's economy.")), weight=0.7),
     Item("govtHandouts", "welfare-attitudes", ("govtHandoutsW20",),
-         agree5(("Far too many people like living off government handouts.", "There are far too many people these days who like to rely on handouts.", "Far too many people are content to live off government handouts."), ("Too many people rely on government handouts these days.", "These days too many people like to rely on government handouts.", "Too many people are happy to live off government handouts."),
+         agree5(("Far too many people like living off government handouts.", "There are far too many people these days who like to rely on handouts.", "Far too many people are content to live off government handouts."), ("Too many people rely on government handouts these days.", "These days, too many people like to rely on government handouts.", "Too many people are happy to live off government handouts."),
                 ("I don't think too many people rely on handouts.", "I don't think too many people like to rely on government handouts.", "I wouldn't say too many people rely on government handouts these days."), ("The idea people choose to live off handouts is a myth.", "It's simply not true that too many people like living off government handouts.", "I strongly disagree that people these days like to rely on handouts."))),
     Item("benefitsNotDeserved", "welfare-attitudes", ("benefitsNotDeservedW20",),
          agree5(("Plenty of people on benefits don't really deserve the help.", "Lots of people on benefits don't deserve any help at all.", "Far too many people on benefits don't really deserve the help."), ("Many people on benefits don't really deserve help.", "A lot of people on benefits don't really deserve the help.", "Many people getting benefits don't genuinely deserve them."),
@@ -1189,10 +1246,10 @@ ITEMS: list[Item] = [
     Item("socialCircle", "social-circle", (), custom=social_circle_vote, weight=0.5),
     Item("satDemUK", "democracy", ("satDemUKW29", "satDemUKW27"),
          by_code({1: ("I'm very dissatisfied with how democracy works in the UK.", "The way democracy works in the UK leaves me very dissatisfied.", "I'm really unhappy with how democracy works in the UK.", "I'm really unhappy with the way democracy works in the UK."), 2: ("I'm a little dissatisfied with how democracy works in the UK.", "I'm somewhat unhappy with the way democracy works in the UK.", "I'm a bit dissatisfied with the way democracy works in the UK."),
-                  3: ("I'm fairly satisfied with how democracy works in the UK.", "On the whole I'm fairly happy with how democracy works in the UK.", "I'm reasonably satisfied with the way democracy works in the UK.", "On the whole I'm reasonably happy with how democracy works in the UK.", "I'm pretty satisfied with the way democracy works in the UK."), 4: ("I'm very satisfied with how democracy works in the UK.", "I'm very happy with the way democracy works in the UK.", "On the whole, I'm very satisfied with the way democracy works in the UK.", "As far as I'm concerned, democracy in the UK works very well.")}), weight=0.5),
+                  3: ("I'm fairly satisfied with how democracy works in the UK.", "On the whole, I'm fairly happy with how democracy works in the UK.", "I'm reasonably satisfied with the way democracy works in the UK.", "On the whole, I'm reasonably happy with how democracy works in the UK.", "I'm pretty satisfied with the way democracy works in the UK."), 4: ("I'm very satisfied with how democracy works in the UK.", "I'm very happy with the way democracy works in the UK.", "On the whole, I'm very satisfied with the way democracy works in the UK.", "As far as I'm concerned, democracy in the UK works very well.")}), weight=0.5),
     Item("satDemEng", "democracy", ("satDemEngW29",),
          by_code({1: ("I'm very dissatisfied with how democracy works in England.", "I'm really unhappy with the way democracy works in England.", "The way democracy works in England leaves me very dissatisfied."), 2: ("I'm a little dissatisfied with how democracy works in England.", "I'm somewhat unhappy with the way democracy works in England.", "I'm a bit dissatisfied with the way democracy works in England."),
-                  3: ("I'm fairly satisfied with how democracy works in England.", "On the whole I'm reasonably happy with how democracy works in England.", "I'm pretty satisfied with the way democracy works in England."), 4: ("I'm very satisfied with how democracy works in England.", "I'm very happy with the way democracy works in England.", "As far as I'm concerned, democracy in England works very well.")}), nations=(1,), weight=0.4),
+                  3: ("I'm fairly satisfied with how democracy works in England.", "On the whole, I'm reasonably happy with how democracy works in England.", "I'm pretty satisfied with the way democracy works in England."), 4: ("I'm very satisfied with how democracy works in England.", "I'm very happy with the way democracy works in England.", "As far as I'm concerned, democracy in England works very well.")}), nations=(1,), weight=0.4),
     Item("localSchools", "local-area", ("statusAreaEduW30", "statusAreaEduW25"),
          agree5(("The schools round here are excellent.", "The local schools are first-rate.", "The schools in my area provide a really high quality education."), ("The schools round here are good.", "The local schools are decent.", "The schools in my area give kids a good education."), ("The schools round here aren't up to much.", "The local schools aren't very good.", "I don't think the schools in my area give kids a particularly good education."), ("The schools round here are poor.", "The schools in my area are rubbish.", "The local schools really don't provide a decent education.")), weight=0.5),
     Item("localSpaces", "local-area", ("statusAreaSpacesW30", "statusAreaSpacesW25"),
@@ -1221,6 +1278,31 @@ ITEMS: list[Item] = [
     Item("voteAgainst", "vote-2024", ("disapprovalVoteW29",), custom=vote_against, weight=0.8),
     Item("partyPreferred", "vote-2024", ("partyPreferredW29",), custom=party_really_preferred, weight=0.8),
     Item("votingWish", "vote-2024", ("votingWishW29",), custom=wished_vote, weight=0.8),
+    # Brexit's effects beyond the headline ones (wave 27, 2024), and what staying in would have meant (2021-23)
+    Item("brexitWorkers", "brexit-effects", ("effectsEUWorkersRetroW27",), brexit_effect5("working conditions for British workers"), weight=0.8),
+    Item("brexitUnemployment", "brexit-effects", ("effectsEUUnemploymentRetroW27",), brexit_effect5("unemployment"), weight=0.8),
+    Item("brexitTrade", "brexit-effects", ("effectsEUTradeRetroW27",), brexit_effect5("Britain's international trade"), weight=0.8),
+    Item("brexitEconScotland", "brexit-effects", ("effectsEUEconScotRetroW27",), brexit_effect5("Scotland's economy"), nations=(codes.SCOTLAND,), weight=0.8),
+    Item("brexitEconWales", "brexit-effects", ("effectsEUEconWalesRetroW27",), brexit_effect5("the Welsh economy"), nations=(codes.WALES,), weight=0.8),
+    Item("remainEcon", "remain-effects", ("effectsRemainEconW23", "effectsRemainEconW22", "effectsRemainEconW21"), remain_effect5("the economy"), weight=0.6),
+    Item("remainFinance", "remain-effects", ("effectsRemainFinanceW23", "effectsRemainFinanceW22", "effectsRemainFinanceW21"), remain_effect5("my own finances"), weight=0.6),
+    Item("remainTrade", "remain-effects", ("effectsRemainTradeW21",), remain_effect5("Britain's international trade"), weight=0.6),
+    Item("euCertain", "europe", ("selfEUCertainW30",),
+         by_code({1: ("I'm not at all certain where I stand on the EU.", "Where I stand on the EU is far from settled in my mind.", "I haven't got a firm view on the EU either way."),
+                  2: ("I'm fairly certain where I stand on the EU.", "I've a reasonably settled view on the EU.", "Where I stand on the EU is more or less settled in my mind."),
+                  3: ("I'm very certain where I stand on the EU.", "My mind is completely made up on the EU.", "Where I stand on the EU is beyond doubt, as far as I'm concerned.")}), weight=0.6),
+    # Globalisation, aspect by aspect (2020-21)
+    Item("globalMigration", "globalisation", ("globalMigrationW21", "globalMigrationW20"), globalisation5("international migration"), weight=0.6),
+    Item("globalTrade", "globalisation", ("globalTradeW21", "globalTradeW20"), globalisation5("international trade"), weight=0.6),
+    Item("globalBanks", "globalisation", ("globalBanksW21", "globalBanksW20"), globalisation5("international banking"), weight=0.6),
+    Item("globalBrands", "globalisation", ("globalBrandsW21", "globalBrandsW20"), globalisation5("multinational brands"), weight=0.6),
+    Item("globalFilms", "globalisation", ("globalFilmsW21", "globalFilmsW20"), globalisation5("worldwide access to film, TV, music and sport"), weight=0.6),
+    Item("globalOrgs", "globalisation", ("globalOrgsW21", "globalOrgsW20"), globalisation5("the influence of bodies like the UN"), weight=0.6),
+    Item("globalPlanes", "globalisation", ("globalPlanesW21", "globalPlanesW20"), globalisation5("international air travel"), weight=0.6),
+    Item("globalTalk", "globalisation", ("globalTalkW21", "globalTalkW20"), globalisation5("fast, cheap communication across the world"), weight=0.6),
+    Item("globalTourism", "globalisation", ("globalTourismW21", "globalTourismW20"), globalisation5("global tourism"), weight=0.6),
+    # Elections: whether a vote counts
+    Item("voteDifference", "vote-difference", ("voteMakesDifferenceW27",), vote_difference, weight=0.8),
 ]
 
 
@@ -1278,13 +1360,13 @@ ISSUE_TOPICS: dict[int, set[str]] = {
 # the Tories" are one thought, not two. Topics not listed here are themes of their own.
 THEMES: dict[str, set[str]] = {
     "politicians": {"politicians", "party-difference", "populism", "trust", "strong-leader", "experts", "political-interest"},
-    "elections": {"democracy", "elections", "electoral-system", "voter-id", "voting-duty", "tactical-voting", "turnout", "voting-age"},
+    "elections": {"democracy", "elections", "electoral-system", "voter-id", "voting-duty", "tactical-voting", "turnout", "voting-age", "vote-difference"},
     "economy": {"economy-direction", "economy-outlook", "economy-blame", "cost-of-living", "personal-outlook"},
     "inequality": {"redistribution", "inequality", "fair-share-wealth", "one-law", "big-business", "management"},
     "public-spending": {"tax-and-spend", "deficit", "spending-cuts", "local-cuts"},
     "health": {"nhs-direction", "nhs-cuts", "private-health", "private-healthcare"},
     "immigration": {"immigration", "immigration-direction"},
-    "europe": {"europe", "brexit-effects"},
+    "europe": {"europe", "brexit-effects", "remain-effects"},
     "environment": {"climate", "green-rules", "growth-v-environment"},
     "public-ownership": {"nationalisation", "privatisation", "public-energy", "state-role"},
     "welfare": {"benefits", "welfare-attitudes"},
