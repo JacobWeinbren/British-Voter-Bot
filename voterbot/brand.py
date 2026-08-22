@@ -18,7 +18,7 @@ CREDITS = [("Jacob Weinbren", "@jacobweinbren.bsky.social"), ("Lawrence McKay", 
 CREDIT = " · ".join(name for name, _ in CREDITS)
 SUBTITLE = "Taken one at a time, voters are messier - and more interesting - than any stereotype."
 CADENCE = {1: "One voter a day", 2: "Two voters a day", 3: "Three voters a day", 4: "Four voters a day"}
-CADENCE_SENTENCE = {1: "One voter a day.", 2: "One voter every morning and evening.", 3: "One voter every morning, midday and evening.", 4: "Four voters a day."}
+CADENCE_SENTENCE = {1: "One voter a day.", 2: "One voter every morning and evening.", 3: "One voter every morning, midday and evening.", 4: "One voter, four times a day."}
 
 # Text alternatives for the brand images, saved next to each PNG for pasting in when uploading.
 BANNER_ALT = "The Union Jack."
@@ -38,7 +38,7 @@ def intro_poster_alt(respondents: str, cadence: str) -> str:
         "liberal-authoritarian value scales, with a tick at the centre of the scale (5) and a lilac band for the "
         "interquartile range of voters; the coloured footer band is their vote - how they voted in 2024 and who they'd vote "
         f"for now, grey if they're undecided or wouldn't vote. Voters are drawn from the wave's {respondents} respondents in proportion to BES survey weights, so "
-        f"the feed reflects the British adult population. Source: BES Wave {config.WAVE}, YouGov, {config.FIELDWORK_LABEL}. "
+        f"the feed reflects the British adult population. {cadence} Source: BES Wave {config.WAVE}, YouGov, {config.FIELDWORK_LABEL}. "
         f"Closing line: No one is the average voter. {SUBTITLE} "
         f"Credits: {'; '.join(f'{name}, {handle}' for name, handle in CREDITS)}."
     )

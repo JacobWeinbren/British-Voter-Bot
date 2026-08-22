@@ -1,7 +1,8 @@
 """Posting a card to Bluesky.
 
-Credentials come from BLUESKY_HANDLE and BLUESKY_PASSWORD (an app password),
-read from the environment or a local .env file.
+Credentials come from the environment: BLUESKY_HANDLE and BLUESKY_PASSWORD
+(an app password). On GitHub they are repository secrets or variables, passed
+in by .github/workflows/post.yml; locally, export them in the shell.
 """
 
 from __future__ import annotations
@@ -10,7 +11,6 @@ import os
 from pathlib import Path
 
 from atproto import Client, models
-from dotenv import load_dotenv
 
 from . import config
 
@@ -20,11 +20,11 @@ POST_TEXT_LIMIT = 300
 
 
 def _client() -> Client:
-    load_dotenv(config.ROOT / ".env")
     handle = os.environ.get("BLUESKY_HANDLE")
     password = os.environ.get("BLUESKY_PASSWORD")
     if not handle or not password:
-        raise SystemExit("Set BLUESKY_HANDLE and BLUESKY_PASSWORD (see .env.example)")
+        raise SystemExit("BLUESKY_HANDLE and BLUESKY_PASSWORD are not set. On GitHub add them under Settings > Secrets and variables > Actions; "
+                         "locally, export them before running `python -m voterbot post`.")
     client = Client()
     client.login(handle, password)
     return client

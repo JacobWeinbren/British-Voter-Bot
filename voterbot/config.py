@@ -39,7 +39,7 @@ EARLIEST_WAVE = 20  # rule of thumb: ignore questions last asked before wave 20
 # Pass --count to `build` to stop early for a test run.
 PROFILE_COUNT = None
 RANDOM_SEED = 31_2026
-POSTS_PER_DAY = 3
+POSTS_PER_DAY = 4  # 10am, 1pm, 5pm and 9pm UK time: see .github/workflows/post.yml
 RENDER_SCALE = 2000 / 1350  # post images at 1600x2000: Bluesky's CDN caps the long side at 2000px, so nothing is resampled
 MAX_IMAGE_BYTES = 950_000   # under the 1,000,000-byte limit for image blobs
 MAX_OPINIONS = 3  # opinion bubbles besides the leader line: four bubbles in all (five was tried and felt crowded)

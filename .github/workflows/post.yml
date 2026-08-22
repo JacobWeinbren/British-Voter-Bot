@@ -2,8 +2,10 @@ name: Post the next voter card
 
 on:
   schedule:
-    # 08:00, 12:30 and 18:00 UK time (cron runs in UTC; adjust for BST if you mind the hour)
-    - cron: "0 7,11,17 * * *"
+    # 10:00, 13:00, 17:00 and 21:00 UK time. GitHub cron runs in UTC with no timezone setting, so this
+    # fires at both the GMT hour and the BST hour for each slot (8 triggers a day) and the `slot` job
+    # lets the post go ahead only when the clock in Europe/London reads one of the four hours.
+    - cron: "0 9,10,12,13,16,17,20,21 * * *"
   workflow_dispatch:
 
 permissions:
@@ -14,7 +16,27 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  slot:
+    runs-on: ubuntu-latest
+    outputs:
+      go: ${{ steps.uk.outputs.go }}
+    steps:
+      - name: Is it 10am, 1pm, 5pm or 9pm in the UK?
+        id: uk
+        run: |
+          hour=$(TZ=Europe/London date +%-H)
+          case "${{ github.event_name }}:$hour" in
+            workflow_dispatch:*|schedule:10|schedule:13|schedule:17|schedule:21)
+              echo "go=true" >> "$GITHUB_OUTPUT"
+              echo "UK time is ${hour}:00 - posting" ;;
+            *)
+              echo "go=false" >> "$GITHUB_OUTPUT"
+              echo "UK time is ${hour}:00 - the other clock-change hour for this slot, skipping" ;;
+          esac
+
   post:
+    needs: slot
+    if: needs.slot.outputs.go == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,9 +53,11 @@ jobs:
           python -m playwright install --with-deps chromium
 
       - name: Render and post
+        # Set both under Settings > Secrets and variables > Actions. Either tab works; the app
+        # password belongs in Secrets, which GitHub masks in logs (Variables are printed in clear).
         env:
-          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
-          BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
+          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE || vars.BLUESKY_HANDLE }}
+          BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD || vars.BLUESKY_PASSWORD }}
         run: python -m voterbot post
 
       - name: Save the queue position
