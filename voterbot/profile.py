@@ -258,7 +258,7 @@ def alt_text(profile: dict) -> str:
         economic = scale_description(profile["econ_score10"], profile["econ_pct"], profile["econ_iqr"], "further left than", "further right than")
         cultural = scale_description(profile["cultural_score10"], profile["cultural_pct"], profile["cultural_iqr"], "more liberal than", "more authoritarian than")
         scales = (f"Where they sit on the BES 0 to 10 value scales: economic, left to right, {economic}; "
-                  f"cultural, liberal to authoritarian, {cultural}.")
+                  f"social, liberal to authoritarian, {cultural}.")
     else:
         scales = "The value scales are left off because they did not answer those questions."
     map_line = (f"A map of {profile['nation']} with a dot on {profile['constituency']}." if profile.get("constituency_code")

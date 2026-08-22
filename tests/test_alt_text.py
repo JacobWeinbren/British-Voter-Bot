@@ -43,7 +43,7 @@ def test_alt_text_carries_what_only_the_image_shows():
     assert "map of Scotland with a dot on Glasgow North" in alt
     assert "John Swinney" in alt and "care work etc." in alt and "Facebook" in alt
     assert "economic, left to right, 2 out of 10, within the middle half of voters" in alt
-    assert "cultural, liberal to authoritarian, 5 out of 10, within the middle half of voters" in alt
+    assert "social, liberal to authoritarian, 5 out of 10, within the middle half of voters" in alt
 
 
 def test_scale_description_reads_the_marker_against_median_and_band():

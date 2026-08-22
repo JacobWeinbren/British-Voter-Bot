@@ -98,11 +98,12 @@ def cmd_post(args) -> None:
     profile = profiles[position]
     png, webp = render_card(profile, config.CARDS_DIR / f"card_{position:04d}.png")
     if args.dry_run:
-        print(f"[dry run] would post profile {position}:\n{profile['post_text']}\nimage: {webp} (fallback {png})")
+        print(f"[dry run] would post profile {position}:\n{profile['post_text']}\nimage: {webp} (fallback {png})\n"
+              f"alt text ({len(profile['alt_text'])} characters): {profile['alt_text']}")
         return
     uri = post_card(profile["post_text"], webp, profile["alt_text"], fallback_path=png)
     write_position(position + 1)
-    print(f"Posted profile {position} ({profile['constituency']}): {uri}")
+    print(f"Posted profile {position} ({profile['constituency']}) with {len(profile['alt_text'])}-character alt text: {uri}")
 
 
 def cmd_alt(args) -> None:
