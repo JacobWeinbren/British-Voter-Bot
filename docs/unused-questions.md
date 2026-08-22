@@ -1,8 +1,8 @@
 # BES questions from wave 20 onwards: what the bot uses and what it leaves out
 
-1617 variable stems with at least one fielding from wave 20. 439 are used somewhere on the cards; the rest are grouped by the reason they are left out. Profile (p_*), weights, timing and admin variables are not listed. 'Answers' shows the scale ends or the first few response options so short labels make sense. Regenerate with `python -m voterbot audit`.
+1617 variable stems with at least one fielding from wave 20. 443 are used somewhere on the cards; the rest are grouped by the reason they are left out. Profile (p_*), weights, timing and admin variables are not listed. 'Answers' shows the scale ends or the first few response options so short labels make sense. Regenerate with `python -m voterbot audit`.
 
-## Used (439)
+## Used (443)
 
 | Variable | Waves | Label | Answers |
 |---|---|---|---|
@@ -77,6 +77,8 @@
 | cwTrans | 25,26,27,30,31 | Transgender women should be allowed to compete in female-sex sport | Strongly disagree; Disagree; Neither agree nor disagree; Agree; Strongly agree |
 | deficitReduce | 20,21,23,25,27 | Opinion on necessity of deficit reduction in next 3 years | It is completely unnecessary; It is not necessary but it would be desirable; It is important but not absolutely  necessary; It is completely necessary |
 | devoPrefWales | 21,27 | Wales Q only: Preferences for Welsh powers | There should be no devolved government in Wales; The National Assembly for Wales should have fewer powers; We should leave things as they are now; The National Assembly for Wales should have more powers; Wales should become independent, separate from the UK |
+| disabilityChild | 26,29 | Do any of your children have physical/mental conditions/illnesses? | No; Yes |
+| disapprovalVote | 29 | If you could vote *against* a party? | Conservative / Labour |
 | discrimBME | 25,27,30,31 | How much discrimination for or against: BME | A lot of discrimination in favour / A lot of discrimination against |
 | discrimGay | 25,27,30,31 | How much discrimination for or against: Gay and lesbian people | A lot of discrimination in favour / A lot of discrimination against |
 | discrimMen | 25,27,30,31 | How much discrimination for or against: Men | A lot of discrimination in favour / A lot of discrimination against |
@@ -259,6 +261,7 @@
 | partyIdSqueeze | 20,21,22,23,24,25,26,27,28,29,30,31 | Party ID if no party to first ID question | Conservative / Labour |
 | partyMemberNow | 27 | Which party are you a member of? | I would/did not vote / Conservative |
 | partyMemberOrSupporter | 27 | Are you a member or registered supporter of any political party? | No, I am not a member or registered supporter of any party; Yes, I am a member of a party; Yes, I am a registered supporter of a party |
+| partyPreferred | 29 | Which party did you really prefer? | I would/did not vote / Conservative |
 | pcUnited | 27,28,30,31 | Plaid Cymru united or divided | Very divided; Fairly divided; Neither united nor divided; Fairly united; Very united |
 | polAttention | 20,21,22,23,25,26,27,28,29,30,31 | Attention to Politics | Pay no attention / Pay a great deal of attention |
 | polPreferToFight | 28 | Parties/politicians more concerned with fighting than public interest | Strongly disagree; Disagree; Neither agree nor disagree; Agree; Strongly agree |
@@ -431,6 +434,7 @@
 | voterIDpage1_111 | 25,26,27,30 | Which forms of photo ID do you hold: none on page 1 | No; Yes |
 | voterIDSupport | 25,29 | Support or oppose requiring photo ID for voting? | Strongly oppose; Oppose; Neither support nor oppose; Support; Strongly support |
 | votesAt16 | 28 | Lowering the voting age to 16 for all UK elections | Strongly oppose; Oppose; Neither support nor oppose; Support; Strongly support |
+| votingWish | 29 | If regrets vote: How do you wish you had voted? | I would/did not vote / Conservative |
 | walesFairShare | 21,30,31 | Does Wales get fair share from Union? | Much less than its fair share; A little less than its fair share; More or less its fair share; A little more than its fair share; Much more than its fair share |
 | warmAtheist | 26 | Warmth 0-100: non-religious people | Very cold / Very warm |
 | warmChristian | 26 | Warmth 0-100: Christians | Very cold / Very warm |
@@ -1083,25 +1087,11 @@
 | worryCoronaHealth | 20 | Worried: You or someone close catching coronavirus | Not at all worried / Extremely Worried |
 | worryCoronaPub | 20 | Worried: About impact of coronavirus on way of life | Not at all worried / Extremely Worried |
 
-## Left off deliberately: warmth ratings of religious groups and a child's disability are too raw to put on a public card (1)
-
-| Variable | Waves | Label | Answers |
-|---|---|---|---|
-| disabilityChild | 26,29 | Do any of your children have physical/mental conditions/illnesses? | No; Yes |
-
 ## Left-right self-placement: the card's scales already show it (1)
 
 | Variable | Waves | Label | Answers |
 |---|---|---|---|
 | leftRight | 20,21,22,23,25,26,27,28,29,30,31 | Left/right position: Self | Left / Right |
-
-## Not yet used - no reason beyond time; could be added (3)
-
-| Variable | Waves | Label | Answers |
-|---|---|---|---|
-| disapprovalVote | 29 | If you could vote *against* a party? | Conservative / Labour |
-| partyPreferred | 29 | Which party did you really prefer? | I would/did not vote / Conservative |
-| votingWish | 29 | If regrets vote: How do you wish you had voted? | I would/did not vote / Conservative |
 
 ## Older wave, a sub-item or a variant of a question the card already uses (191)
 

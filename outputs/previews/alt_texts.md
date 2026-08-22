@@ -6,9 +6,9 @@
 
 I'm a White Scottish Presbyterian woman from Angus and Perthshire Glens, aged 63. My top issue is the NHS. In 2024 I voted SNP. Today I still would.
 
-**Alt text** (1032 characters)
+**Alt text** (1051 characters)
 
-Voter card. A map of Scotland with a dot on Angus and Perthshire Glens. About them, in their words: I'm a council tenant. An unexpected £300 bill would mean I'd have to put it on the credit card. I work full-time and have a semi-routine service job in the private sector (care work etc.). Not much rattles me. I'd call myself working class. News habits: I get most of my politics by talking to people, half an hour or so a day. My paper is the local daily. I use Facebook and watch YouTube. Her views, from her survey answers, in four speech bubbles: John Swinney is my favourite of the party leaders; Keir Starmer is my least favourite. London gets far more than its fair share of government spending. The NHS is getting a lot worse. Transgender women should not be competing in women's sport at all. Where they sit on the BES 0 to 10 value scales: economic, left to right, 0.5 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 9 out of 10, more authoritarian than the middle half of voters.
+Voter card. A map of Scotland with a dot on Angus and Perthshire Glens. About them, in their words: I rent from the council. I've got £500 to £1,000 put by. I work full-time and have a semi-routine service job in the private sector (care work etc.). Tesco is where I do most of my food shopping. I think of myself as working class. News habits: Most of what I take in about politics is by talking to people, a good half hour a day. I read the local daily paper more than any other. I go on Facebook, and watch YouTube as well. Her views, from her survey answers, in four speech bubbles: If I had to rank the party leaders, John Swinney would be first and Keir Starmer last. Brexit hasn't made any difference to my own finances. I was against independence in 2014, but I'd vote for it now. The NHS is getting a lot worse. Where they sit on the BES 0 to 10 value scales: economic, left to right, 0.5 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 9 out of 10, more authoritarian than the middle half of voters.
 
 ## card_01.webp
 
@@ -16,9 +16,9 @@ Voter card. A map of Scotland with a dot on Angus and Perthshire Glens. About th
 
 I'm a Hindu man from Edinburgh North and Leith, aged 20. My top issue is the cost of living. In 2024 I voted Green. Today I still would.
 
-**Alt text** (872 characters)
+**Alt text** (986 characters)
 
-Voter card. A map of Scotland with a dot on Edinburgh North and Leith. About them, in their words: I live rent-free with family or friends. I've had to borrow money for essentials this year. I'm a full-time university student. I've got Highers. I don't think of myself as belonging to any class. News habits: I follow politics very closely. The paper I read most is the Guardian. His views, from his survey answers, in four speech bubbles: My favourite leader is John Swinney. My least favourite is Nigel Farage. I feel more British than Scottish. I'd be happy for a few more immigrants to come. The economy has got a bit worse over the past year. Where they sit on the BES 0 to 10 value scales: economic, left to right, 1 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 2.5 out of 10, more liberal than the middle half of voters.
+Voter card. A map of Scotland with a dot on Edinburgh North and Leith. About them, in their words: I live rent-free with family or friends. This last year I've had to borrow just to get by on the basics. I'm a full-time university student. When I was 14, the main earner at home was my dad, who had a management job. I wouldn't say I belong to any class. News habits: I pay a great deal of attention to politics. When it comes to papers, I mostly read the Guardian. His views, from his survey answers, in four speech bubbles: My favourite leader is John Swinney. My least favourite is Nigel Farage. The Scottish Government has been good for Scotland's economy. The cost of living is getting a little lower. There's one law for the rich and another for the poor. Where they sit on the BES 0 to 10 value scales: economic, left to right, 1 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 2.5 out of 10, more liberal than the middle half of voters.
 
 ## card_02.webp
 
@@ -26,9 +26,9 @@ Voter card. A map of Scotland with a dot on Edinburgh North and Leith. About the
 
 I'm a White Scottish non-religious woman from Angus and Perthshire Glens, aged 72. My top issue is immigration. In 2024 I voted Labour. Today I wouldn't vote.
 
-**Alt text** (793 characters)
+**Alt text** (860 characters)
 
-Voter card. A map of Scotland with a dot on Angus and Perthshire Glens. About them, in their words: I live rent-free with family or friends, and I've no wish to buy a home. I'm retired now. In my working life I worked for myself. I'd call myself working class. News habits: I don't follow political news at all. I use Facebook. Her views, from her survey answers, in four speech bubbles: I can't stand any of the party leaders. Immigration is clearly bad for the economy. I don't feel on either side of the independence debate. Children's TV should show more families with same-sex parents. Where they sit on the BES 0 to 10 value scales: economic, left to right, 1.5 out of 10, within the middle half of voters; social, liberal to authoritarian, 5 out of 10, within the middle half of voters.
+Voter card. A map of Scotland with a dot on Angus and Perthshire Glens. About them, in their words: I live with family or friends and pay no rent. I'm retired - in my working days I worked for myself. Growing up, around 14, the main wage earner in our house was my dad, who had a management job. I'd call myself working class. News habits: I don't take in any news about politics. I'm on Facebook. Her views, from her survey answers, in four speech bubbles: I can't abide a single one of the party leaders. Families on benefits get much less than they should. Immigration is getting a lot higher. The global economy has had a big negative impact on Britain. Where they sit on the BES 0 to 10 value scales: economic, left to right, 1.5 out of 10, within the middle half of voters; social, liberal to authoritarian, 5 out of 10, within the middle half of voters.
 
 ## card_03.webp
 
@@ -36,9 +36,9 @@ Voter card. A map of Scotland with a dot on Angus and Perthshire Glens. About th
 
 I'm a White European non-religious woman from Rutherglen, aged 20. My top issue is party politics. In 2024 I didn't vote. Today I'd vote Green.
 
-**Alt text** (839 characters)
+**Alt text** (857 characters)
 
-Voter card. A map of Scotland with a dot on Rutherglen. About them, in their words: I live with family and pay them a bit of rent. I expect money to get a bit tighter over the next year. I'm a full-time university student. I'm bisexual and single. Class-wise, I'd put myself down as working class. News habits: I keep a close eye on politics. Her views, from her survey answers, in four speech bubbles: I don't much like any of the leaders - John Swinney comes closest. My least favourite is Kemi Badenoch. Benefits are too low. It matters enormously which party is in power. I'd vote Yes to Scottish independence. Where they sit on the BES 0 to 10 value scales: economic, left to right, 0 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 2.5 out of 10, more liberal than the middle half of voters.
+Voter card. A map of Scotland with a dot on Rutherglen. About them, in their words: I live with family and pay them a bit of rent. I expect to be slightly worse off a year from now. I'm a full-time university student. I've got Highers. Class-wise, I'd put myself down as working class. News habits: I follow politics closely. Her views, from her survey answers, in four speech bubbles: None of the leaders does much for me. John Swinney comes closest; Kemi Badenoch comes last. I'd vote Yes to Scotland leaving the UK. Global conflicts like Iran and Ukraine have hurt the economy a bit. Which party is in power matters a great deal. Where they sit on the BES 0 to 10 value scales: economic, left to right, 0 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 2.5 out of 10, more liberal than the middle half of voters.
 
 ## card_04.webp
 
@@ -46,9 +46,9 @@ Voter card. A map of Scotland with a dot on Rutherglen. About them, in their wor
 
 I'm a White Scottish woman from Aberdeen North, aged 21. My top issue is the state of our politics. I can't remember how I voted in 2024. Today I'd vote Green.
 
-**Alt text** (760 characters)
+**Alt text** (867 characters)
 
-Voter card. A map of Scotland with a dot on Aberdeen North. About them, in their words: I live with family or friends and pay no rent. I've borrowed money this year just to cover essentials. I'm out of work and looking for a job. I left school with Standard Grades. News habits: I don't pay much attention to politics. Her views, from her survey answers, in four speech bubbles: I can't stand any of the party leaders. I'd vote Yes to Scottish independence. I don't have much trust in MPs. People who break the law should get stiffer sentences. Where they sit on the BES 0 to 10 value scales: economic, left to right, 2.5 out of 10, within the middle half of voters; social, liberal to authoritarian, 3.3 out of 10, more liberal than the middle half of voters.
+Voter card. A map of Scotland with a dot on Aberdeen North. About them, in their words: I'm living with family or friends, rent-free. I've needed to borrow to pay for bills and groceries this past year. I'm out of work and looking for a job. My family could lend me less than £5,000 towards a house if I needed it. News habits: I take very little notice of politics. Her views, from her survey answers, in four speech bubbles: I've no time at all for any of the party leaders. I think too many people get offended too easily over language these days. Too many of our public services are being run by private companies. I don't trust MPs all that much. Where they sit on the BES 0 to 10 value scales: economic, left to right, 2.5 out of 10, within the middle half of voters; social, liberal to authoritarian, 3.3 out of 10, more liberal than the middle half of voters.
 
 ## card_05.webp
 
@@ -56,9 +56,9 @@ Voter card. A map of Scotland with a dot on Aberdeen North. About them, in their
 
 I'm a White Scottish Presbyterian woman from Caithness, Sutherland and Easter Ross, aged 70. My top issue is defence. In 2024 I voted SNP. Today I'd vote Lib Dem.
 
-**Alt text** (981 characters)
+**Alt text** (922 characters)
 
-Voter card. A map of Scotland with a dot on Caithness, Sutherland and Easter Ross. About them, in their words: I own my home outright. Last time I was asked, our household income was £35,000 to £40,000 a year, and money has got a bit tighter this past year. I'm retired - before that I had a professional or technical job in the public sector. Class-wise, I'd put myself down as working class. News habits: I follow politics closely. My paper is the Daily Mail. Her views, from her survey answers, in four speech bubbles: My favourite leader is Ed Davey. My least favourite is Ross Greer. There's one law for the rich and another for the poor. My local area gets a little less than its fair share of government spending. In May's Holyrood election I voted Lib Dem on both ballots. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3 out of 10, within the middle half of voters; social, liberal to authoritarian, 7 out of 10, within the middle half of voters.
+Voter card. A map of Scotland with a dot on Caithness, Sutherland and Easter Ross. About them, in their words: I own my home, mortgage-free. I've nothing put by in savings. These days I'm retired, but when I was working I had a professional or technical job in the public sector. My other half is retired. If you asked, I'd say I'm working class. News habits: I keep up with politics pretty closely. The daily paper I read most often is the Daily Mail. Her views, from her survey answers, in four speech bubbles: My favourite leader is Ed Davey. My least favourite is Ross Greer. There's one law for the rich and another for the poor. The economy has got a lot worse over the past year. I feel more Scottish than British. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3 out of 10, within the middle half of voters; social, liberal to authoritarian, 7 out of 10, within the middle half of voters.
 
 ## card_06.webp
 
@@ -66,9 +66,9 @@ Voter card. A map of Scotland with a dot on Caithness, Sutherland and Easter Ros
 
 I'm a White British Methodist man from Montgomeryshire and Glyndwr, aged 84. My top issue is immigration. In 2024 I voted Reform UK. Today I still would.
 
-**Alt text** (1050 characters)
+**Alt text** (1073 characters)
 
-Voter card. A map of Wales with a dot on Montgomeryshire and Glyndwr. About them, in their words: I own my home, mortgage-free, and my home is worth somewhere around £400,000 to £500,000. Money has got a little easier this past year. I work as a self-employed professional. If you asked, I'd say I'm middle class. News habits: I get most of my politics online and in the papers, a few minutes a day. I read the Daily Mail more than any other paper. I get some of my politics from Facebook, mostly from commentators and journalists. His views, from his survey answers, in four speech bubbles: My favourite leader is Nigel Farage. My least favourite is Keir Starmer. The Welsh Government has done Wales's economy a lot of damage. Immigration is going up a bit. I'm a bit dissatisfied with how democracy works in Wales. Where they sit on the BES 0 to 10 value scales: economic, left to right, 6.5 out of 10, further right than the middle half of voters; social, liberal to authoritarian, 8.5 out of 10, more authoritarian than the middle half of voters.
+Voter card. A map of Wales with a dot on Montgomeryshire and Glyndwr. About them, in their words: I own my home outright. I'm not someone who worries about money. I work as a self-employed professional. The main wage earner at home when I was 14 was my dad, who had a management job. I think of myself as middle class. News habits: I keep up with politics mainly online and in the papers, less than half an hour a day. The daily paper I read most often is the Daily Mail. Some of what I see about politics comes from Facebook, mostly from commentators and journalists. His views, from his survey answers, in four speech bubbles: I rate Nigel Farage highest of the party leaders and Keir Starmer lowest. I'm a bit dissatisfied with how democracy works in Wales. Britain should let in far fewer immigrants. I'd vote No to Welsh independence. Where they sit on the BES 0 to 10 value scales: economic, left to right, 6.5 out of 10, further right than the middle half of voters; social, liberal to authoritarian, 8.5 out of 10, more authoritarian than the middle half of voters.
 
 ## card_07.webp
 
@@ -76,9 +76,9 @@ Voter card. A map of Wales with a dot on Montgomeryshire and Glyndwr. About them
 
 I'm a White Welsh non-religious woman from Neath and Swansea East, aged 35. My top issue is immigration. I can't remember how I voted in 2024. Today I don't know who I'd vote for.
 
-**Alt text** (961 characters)
+**Alt text** (966 characters)
 
-Voter card. A map of Wales with a dot on Neath and Swansea East. About them, in their words: I rent from the council. An unexpected £300 bill would mean I'd have to borrow it from family or friends. I'm not in paid work at the moment - before that I had a sales or customer service job in the public sector. I don't really think in class terms, but if pushed I'd say I'm working class. News habits: I take a passing interest in politics. Her views, from her survey answers, in four speech bubbles: None of the leaders does much for me. Keir Starmer comes closest; Nigel Farage comes last. If there were an election tomorrow, I very probably wouldn't vote. Wales gets a little less than its fair share from the Union. Britain should let in far fewer immigrants. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3 out of 10, within the middle half of voters; social, liberal to authoritarian, 7 out of 10, within the middle half of voters.
+Voter card. A map of Wales with a dot on Neath and Swansea East. About them, in their words: My landlord is the council. I've got no savings at all. I'm not in paid work at the moment - before that I had a sales or customer service job in the public sector. I've a degree to my name. I don't think of myself as belonging to a class, but if I had to choose I'd say working class. News habits: I pay some attention to politics, but not loads. Her views, from her survey answers, in four speech bubbles: I don't think much of any of the leaders - Keir Starmer is the best of a bad lot, Nigel Farage the worst. Politicians don't care what people like me think. Britain should let in far fewer immigrants. If there were a referendum, I'd vote against Welsh independence. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3 out of 10, within the middle half of voters; social, liberal to authoritarian, 7 out of 10, within the middle half of voters.
 
 ## card_08.webp
 
@@ -86,9 +86,9 @@ Voter card. A map of Wales with a dot on Neath and Swansea East. About them, in 
 
 I'm a White Welsh man from Caerfyrddin, aged 69. My top issue is immigration. In 2024 I didn't vote. Today I'd vote for a smaller party.
 
-**Alt text** (903 characters)
+**Alt text** (945 characters)
 
-Voter card. A map of Wales with a dot on Caerfyrddin. About them, in their words: I'm paying off a mortgage. I've had to borrow money for essentials this year. I'm retired. I stayed in education past 20. I don't think of myself as belonging to any class. News habits: Politics mostly passes me by. My paper is the Western Mail. I get some of my politics from X. I also watch YouTube. His views, from his survey answers, in four speech bubbles: Of the party leaders, I like Nigel Farage most and Zack Polanski least. Britain should let in far fewer immigrants. London gets far more than its fair share of government spending. I'm delighted Trump is back in the White House. Where they sit on the BES 0 to 10 value scales: economic, left to right, 0.5 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 9 out of 10, more authoritarian than the middle half of voters.
+Voter card. A map of Wales with a dot on Caerfyrddin. About them, in their words: I've got a mortgage on my home. I've needed to borrow to pay for bills and groceries this past year. I've retired. I'm single. I don't think of myself as belonging to any class. News habits: I don't really keep up with politics. My paper is the Western Mail. Some of what I see about politics comes from X. I also spend time watching YouTube. His views, from his survey answers, in four speech bubbles: If I had to rank the party leaders, Nigel Farage would be first and Zack Polanski last. Cuts to public spending have gone much too far. I feel Welsh more than I feel British. Immigration is bad for Britain's economy, no question. Where they sit on the BES 0 to 10 value scales: economic, left to right, 0.5 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 9 out of 10, more authoritarian than the middle half of voters.
 
 ## card_09.webp
 
@@ -96,9 +96,9 @@ Voter card. A map of Wales with a dot on Caerfyrddin. About them, in their words
 
 I'm a White British woman from Vale of Glamorgan, aged 41. My top issue is crime. In 2024 I didn't vote. Today I wouldn't either.
 
-**Alt text** (870 characters)
+**Alt text** (866 characters)
 
-Voter card. A map of Wales with a dot on Vale of Glamorgan. About them, in their words: I'm paying off a mortgage. Money has got a bit tighter this past year. I work full-time and have a professional or technical job in the public sector at a small firm. I'm married. If you asked, I'd say I'm working class. News habits: I take a passing interest in politics. Her views, from her survey answers, in four speech bubbles: The only leader I have a view on is Nigel Farage, and I can't stand him. For some crimes, the death penalty is the right sentence. The gap between rich and poor is too wide. My local area gets more or less its fair share of government spending. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3.5 out of 10, within the middle half of voters; social, liberal to authoritarian, 5.6 out of 10, within the middle half of voters.
+Voter card. A map of Wales with a dot on Vale of Glamorgan. About them, in their words: I'm paying off a mortgage. I expect to be slightly worse off a year from now. I have a professional or technical job in the public sector, working full-time at a small firm, with people working under me. I'm working class, I'd say. News habits: I keep half an eye on politics. Her views, from her survey answers, in four speech bubbles: The only leader I have a view on is Nigel Farage, and I can't stand him. On the whole, Wales gets more or less its fair share from the Union. I didn't vote in May's Senedd election. People who break the law should get stiffer sentences. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3.5 out of 10, within the middle half of voters; social, liberal to authoritarian, 5.6 out of 10, within the middle half of voters.
 
 ## card_10.webp
 
@@ -106,9 +106,9 @@ Voter card. A map of Wales with a dot on Vale of Glamorgan. About them, in their
 
 I'm a White British non-religious man from Redcar, aged 67. My top issue is immigration. In 2024 I voted Conservative. Today I don't know who I'd vote for.
 
-**Alt text** (1081 characters)
+**Alt text** (1123 characters)
 
-Voter card. A map of England with a dot on Redcar. About them, in their words: I've got a mortgage on my home. I expect money to get a lot tighter over the next year. I work full-time and have a higher professional job in the private sector, supervising other people. I know someone who could lend me a month's rent if I needed it. I don't really think in class terms, but if pushed I'd say I'm working class. News habits: I get most of my politics on TV and on the radio, half an hour or so a day. I'm on Facebook and I watch YouTube. His views, from his survey answers, in four speech bubbles: I don't much like any of the leaders - Kemi Badenoch comes closest. My least favourite is Zack Polanski. Britain should let in far fewer immigrants. National government doesn't listen much to people round here. The state of the world economy has hurt Britain a bit. Where they sit on the BES 0 to 10 value scales: economic, left to right, 2 out of 10, within the middle half of voters; social, liberal to authoritarian, 9.5 out of 10, more authoritarian than the middle half of voters.
+Voter card. A map of England with a dot on Redcar. About them, in their words: I've got a mortgage on my home. I've got £5,000 to £10,000 put by. I have a higher professional job in the private sector, working full-time, and I'm responsible for other people's work. I've got someone I could ask to lend me a month's rent or mortgage. I don't think of myself as belonging to a class, but if I had to choose I'd say working class. News habits: I keep up with politics mainly on TV and on the radio, a good half hour a day. You'll find me on Facebook and I watch YouTube. His views, from his survey answers, in four speech bubbles: None of the leaders does much for me. Kemi Badenoch comes closest; Zack Polanski comes last. There are some differences between Labour and the Conservatives. British cultural life is undermined by immigration. Taking the railways back into public ownership is a big mistake. Where they sit on the BES 0 to 10 value scales: economic, left to right, 2 out of 10, within the middle half of voters; social, liberal to authoritarian, 9.5 out of 10, more authoritarian than the middle half of voters.
 
 ## card_11.webp
 
@@ -116,9 +116,9 @@ Voter card. A map of England with a dot on Redcar. About them, in their words: I
 
 I'm a White British non-religious woman from North Somerset, aged 45. My top issue is foreign affairs. In 2024 I voted Labour. Today I don't know who I'd vote for.
 
-**Alt text** (854 characters)
+**Alt text** (974 characters)
 
-Voter card. A map of England with a dot on North Somerset. About them, in their words: I've got a mortgage on my home. I'm a bit worse off than a year ago. I work full-time and have a higher professional job for a charity. I'm a graduate. I think of myself as middle class. News habits: I take a passing interest in politics. Her views, from her survey answers, in four speech bubbles: My favourite leader is Keir Starmer. My least favourite is Nigel Farage. I'd keep the United States at arm's length. My local area gets more or less its fair share of government spending. Cuts to local services where I live have gone too far. Where they sit on the BES 0 to 10 value scales: economic, left to right, 6 out of 10, further right than the middle half of voters; social, liberal to authoritarian, 4.5 out of 10, more liberal than the middle half of voters.
+Voter card. A map of England with a dot on North Somerset. About them, in their words: I'm still paying the mortgage on my place. When I was last asked, the household's income came to £100,000 to £150,000 a year, and to cover a surprise £300 expense I'd need to put it on the credit card. I'm working full-time and have a higher professional job for a charity, with people working under me. I'd call myself middle class. News habits: I take a passing interest in politics. Her views, from her survey answers, in four speech bubbles: My favourite leader is Keir Starmer. My least favourite is Nigel Farage. I'd keep the United States at arm's length. England gets a bit more than its fair share from the Union. Living costs are still rising sharply. Where they sit on the BES 0 to 10 value scales: economic, left to right, 6 out of 10, further right than the middle half of voters; social, liberal to authoritarian, 4.5 out of 10, more liberal than the middle half of voters.
 
 ## card_12.webp
 
@@ -126,9 +126,9 @@ Voter card. A map of England with a dot on North Somerset. About them, in their 
 
 I'm a White British non-religious woman from East Thanet, aged 68. My top issue is an emergency here at home. In 2024 I didn't vote. Today I wouldn't either.
 
-**Alt text** (907 characters)
+**Alt text** (929 characters)
 
-Voter card. A map of England with a dot on East Thanet. About them, in their words: I own my home, mortgage-free. An unexpected £300 bill would mean I'd have to sell something. I'm retired now. In my working life I had a routine operative job (driving, machine operating etc.). I look after a sick or elderly relative at home. I don't think of myself as belonging to any class. News habits: I keep half an eye on politics. Her views, from her survey answers, in four speech bubbles: I can't stand any of the party leaders. Politicians couldn't care less what people like me think. Britain should let in far fewer immigrants. The economy has got a lot worse over the past year. Where they sit on the BES 0 to 10 value scales: economic, left to right, 1 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 8.5 out of 10, more authoritarian than the middle half of voters.
+Voter card. A map of England with a dot on East Thanet. About them, in their words: There's no mortgage on my home - I own it outright. I've got no savings at all. I'm retired - before that I had a routine operative job (driving, machine operating etc.). I care for a sick or elderly relative who lives with me. I don't think of myself as belonging to any class. News habits: I keep half an eye on politics. Her views, from her survey answers, in four speech bubbles: I can't abide a single one of the party leaders. The government is making a real mess of the NHS. There's not much difference between Labour and the Tories. I think too many people get offended too easily over language these days. Where they sit on the BES 0 to 10 value scales: economic, left to right, 1 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 8.5 out of 10, more authoritarian than the middle half of voters.
 
 ## card_13.webp
 
@@ -136,9 +136,9 @@ Voter card. A map of England with a dot on East Thanet. About them, in their wor
 
 I'm a British Pakistani Muslim woman from Nottingham South, aged 35. My top issue is the cost of living. In 2024 I didn't vote. Today I wouldn't either.
 
-**Alt text** (836 characters)
+**Alt text** (831 characters)
 
-Voter card. A map of England with a dot on Nottingham South. About them, in their words: I own my home, mortgage-free. I think I'll be a bit worse off this time next year. I've got A-levels. I don't think of myself as belonging to any class. News habits: I don't follow the news about politics at all. I'm on Instagram and TikTok. I watch YouTube too. Her views, from her survey answers, in four speech bubbles: I don't have a view on any of the party leaders. The cost of living is still going up a lot. Trump back in the White House is a disaster. I'm firmly against compulsory national service for 18-year-olds. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3.1 out of 10, within the middle half of voters; social, liberal to authoritarian, 8.3 out of 10, more authoritarian than the middle half of voters.
+Voter card. A map of England with a dot on Nottingham South. About them, in their words: My home is bought and paid for, no mortgage. My savings come to £500 to £1,000. I'm a tidy, organised person. I don't see myself as belonging to any particular class. News habits: I don't take in any news about politics. You'll find me on Instagram and TikTok. I watch YouTube too. Her views, from her survey answers, in four speech bubbles: I've no opinion on any of the party leaders. The cost of living is getting a lot higher. There's one law for the rich and another for the poor. I feel cold towards Jewish people. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3.1 out of 10, within the middle half of voters; social, liberal to authoritarian, 8.3 out of 10, more authoritarian than the middle half of voters.
 
 ## card_14.webp
 
@@ -146,9 +146,9 @@ Voter card. A map of England with a dot on Nottingham South. About them, in thei
 
 I'm a White British non-religious woman from Frome and East Somerset, aged 75. My top issue is immigration. In 2024 I voted Conservative. Today I'd vote for a smaller party.
 
-**Alt text** (880 characters)
+**Alt text** (1025 characters)
 
-Voter card. A map of England with a dot on Frome and East Somerset. About them, in their words: I own my home, mortgage-free. I'm a bit worse off than a year ago. I'm retired - before that I did office and admin work in the public sector. My partner's retired. I think of myself as middle class. News habits: I get most of my politics on TV and online, a few minutes a day. I watch YouTube. Her views, from her survey answers, in four speech bubbles: My favourite leader is Kemi Badenoch. My least favourite is Keir Starmer. I'd take fewer foreign students. You can't be too careful in dealing with people. Young people don't have enough respect for traditional British values. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3.5 out of 10, within the middle half of voters; social, liberal to authoritarian, 6 out of 10, within the middle half of voters.
+Voter card. A map of England with a dot on Frome and East Somerset. About them, in their words: I own my home, mortgage-free. I'm a bit worse off than a year ago. I'm retired now. In my working life I did office and admin work in the public sector. The main wage earner at home when I was 14 was my dad, who was a skilled process operative. I'd call myself middle class. News habits: The politics I take in is mostly on TV and online, less than half an hour a day. YouTube is something I watch. Her views, from her survey answers, in four speech bubbles: Kemi Badenoch is the leader I've most time for, Keir Starmer the one I've least time for. These days too many people like to rely on government handouts. The UK should allow many fewer immigrants to come here to live. The law treats the rich and the poor differently. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3.5 out of 10, within the middle half of voters; social, liberal to authoritarian, 6 out of 10, within the middle half of voters.
 
 ## card_15.webp
 
@@ -156,9 +156,9 @@ Voter card. A map of England with a dot on Frome and East Somerset. About them, 
 
 I'm a White British evangelical Christian woman from South West Devon, aged 26. My top issue is the environment. In 2024 I voted Green. Today I still would.
 
-**Alt text** (840 characters)
+**Alt text** (828 characters)
 
-Voter card. A map of England with a dot on South West Devon. About them, in their words: I live rent-free with family or friends. Money has got a lot tighter this past year. I'm out of work and looking for a job - before that I had a professional or technical job for a charity. I'm at church every week. I think of myself as middle class. News habits: I get most of my politics on TV and online, an hour or two a day. Her views, from her survey answers, in four speech bubbles: Zack Polanski is my favourite of the party leaders; Nigel Farage is my least favourite. I'd pay a bit more tax for better health and social services. Some censorship of films and magazines is needed to uphold moral standards. Protecting the environment must come before economic growth. The value scales are left off because they did not answer those questions.
+Voter card. A map of England with a dot on South West Devon. About them, in their words: I live rent-free with family or friends. I've got £30,000 to £40,000 put by. I'm between jobs and looking for work. Before this I had a professional or technical job for a charity. I stayed in education past 20. Class-wise, I'd put myself down as middle class. News habits: The politics I take in is mostly on TV and online, between one and two hours a day. Her views, from her survey answers, in four speech bubbles: Top of the leaders for me is Zack Polanski, bottom is Nigel Farage. Measures to protect the environment haven't gone nearly far enough. The government isn't doing a great job on crime. Transgender people still face some discrimination in Britain. The value scales are left off because they did not answer those questions.
 
 ## card_16.webp
 
@@ -166,9 +166,9 @@ Voter card. A map of England with a dot on South West Devon. About them, in thei
 
 I'm a White British non-religious woman from Hereford and South Herefordshire, aged 20. In 2024 I voted Reform UK. Today I wouldn't vote.
 
-**Alt text** (905 characters)
+**Alt text** (854 characters)
 
-Voter card. A map of England with a dot on Hereford and South Herefordshire. About them, in their words: I live rent-free with family or friends. I've borrowed money this year just to cover essentials. I'm out of work and looking for a job - before that I had a sales or customer service job for a charity. Class-wise, I'd put myself down as working class. News habits: I don't pay much attention to politics. Her views, from her survey answers, in four speech bubbles: I don't have a view on any of the party leaders. Far too many people are easily offended these days over the words others use. The NHS is getting a bit better. My local area gets more or less its fair share of government spending. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3.8 out of 10, within the middle half of voters; social, liberal to authoritarian, 6.9 out of 10, within the middle half of voters.
+Voter card. A map of England with a dot on Hereford and South Herefordshire. About them, in their words: I stay with family or friends and don't pay any rent. I've had to borrow money for essentials this year. I'm out of work and looking for a job - before that I had a sales or customer service job for a charity. If you asked, I'd say I'm working class. News habits: I don't pay much attention to politics. Her views, from her survey answers, in four speech bubbles: I don't have a view on any of the party leaders. Living costs are still rising sharply. Trump back in the White House is a disaster. Women still get a bit of a raw deal in Britain. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3.8 out of 10, within the middle half of voters; social, liberal to authoritarian, 6.9 out of 10, within the middle half of voters.
 
 ## card_17.webp
 
@@ -176,19 +176,19 @@ Voter card. A map of England with a dot on Hereford and South Herefordshire. Abo
 
 I'm an Asian non-religious woman from Newcastle upon Tyne North, aged 25. My top issue is inequality. In 2024 I voted Green. Today I still would.
 
-**Alt text** (922 characters)
+**Alt text** (957 characters)
 
-Voter card. A map of England with a dot on Newcastle upon Tyne North. About them, in their words: I live rent-free with family or friends. I've borrowed money this year just to cover essentials. I'm a full-time student. I have a health condition that limits me a little day to day. I'd call myself middle class. News habits: I mostly follow politics online and by talking to people, for hours every day. The paper I read most is the Guardian. Her views, from her survey answers, in four speech bubbles: Of the party leaders, I like Zack Polanski most and Keir Starmer least. I feel strongly European. You can't be too careful in dealing with people. Big business doesn't take advantage of ordinary people - that's a myth. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3 out of 10, within the middle half of voters; social, liberal to authoritarian, 5 out of 10, within the middle half of voters.
+Voter card. A map of England with a dot on Newcastle upon Tyne North. About them, in their words: I live rent-free with family or friends. This last year I've had to borrow just to get by on the basics. I'm a full-time student. I've boycotted products over politics or ethics. I'm middle class, I'd say. News habits: For politics, I mostly rely on what I get online and by talking to people, several hours a day. The daily paper I read most often is the Guardian. Her views, from her survey answers, in four speech bubbles: I rate Zack Polanski highest of the party leaders and Keir Starmer lowest. Government should be doing much more to make incomes equal. My region gets nowhere near its fair share of government spending. Brexit has made the NHS worse. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3 out of 10, within the middle half of voters; social, liberal to authoritarian, 5 out of 10, within the middle half of voters.
 
 ## card_18.webp
 
 **Post text**
 
-I'm an Indian Hindu man from Twickenham, aged 52. My top issue is tax. In 2024 I voted Conservative. Today I still would.
+I'm a White British non-religious woman from North Durham, aged 22. My top issue is the cost of living. In 2024 I voted Labour. Today I'd vote Green.
 
-**Alt text** (975 characters)
+**Alt text** (920 characters)
 
-Voter card. A map of England with a dot on Twickenham. About them, in their words: I'm paying off a mortgage. Money has got a lot tighter this past year. I'm out of work and looking for a job - before that I had a professional or technical job in the private sector. My partner works full-time and have a professional or technical job. I think of myself as middle class. News habits: I follow politics closely. I read the Daily Mail more than any other paper. His views, from his survey answers, in four speech bubbles: My favourite leader is Ed Davey. My least favourite is Zack Polanski. Crime is going up a bit. I'd cut taxes a bit and trim spending on health and social services. My local area gets a little less than its fair share of government spending. Where they sit on the BES 0 to 10 value scales: economic, left to right, 6 out of 10, further right than the middle half of voters; social, liberal to authoritarian, 7.5 out of 10, within the middle half of voters.
+Voter card. A map of England with a dot on North Durham. About them, in their words: I live with family or friends and pay no rent. There's a real chance I'll be out of work and job-hunting this year. I have a semi-routine service job in the private sector (care work etc.), working part-time at a place with 500-plus staff. I'd call myself middle class. News habits: I keep up with politics pretty closely. When it comes to papers, I mostly read the Guardian. Her views, from her survey answers, in four speech bubbles: Top of the leaders for me is Zack Polanski, bottom is Nigel Farage. The NHS is going downhill fast. I think immigration does the economy good. The cost of living is still creeping up. Where they sit on the BES 0 to 10 value scales: economic, left to right, 2.5 out of 10, within the middle half of voters; social, liberal to authoritarian, 0.6 out of 10, more liberal than the middle half of voters.
 
 ## card_19.webp
 
@@ -196,19 +196,19 @@ Voter card. A map of England with a dot on Twickenham. About them, in their word
 
 I'm a White British Anglican man from Lowestoft, aged 79. My top issue is immigration. In 2024 I voted Conservative. Today I'd vote Reform UK.
 
-**Alt text** (898 characters)
+**Alt text** (1009 characters)
 
-Voter card. A map of England with a dot on Lowestoft. About them, in their words: I'm a council tenant. I'm a bit worse off than a year ago. I'm retired - before that I worked for myself. I had a poster up for the 2024 election. I think of myself as working class. News habits: I get most of my politics on TV and in the papers, half an hour or so a day. The paper I read most is the Sun. I use Facebook. His views, from his survey answers, in four speech bubbles: Nigel Farage is my favourite of the party leaders; Keir Starmer is my least favourite. Immigration is bad for the economy. Britain must protect its independence from the EU. I'm fairly satisfied with how democracy works in the UK. Where they sit on the BES 0 to 10 value scales: economic, left to right, 4 out of 10, within the middle half of voters; social, liberal to authoritarian, 7.5 out of 10, within the middle half of voters.
+Voter card. A map of England with a dot on Lowestoft. About them, in their words: I'm a council tenant. My savings come to £1,000 to £2,000. I'm retired now. In my working life I worked for myself. I'm the sort who keeps in the background, as I see it. Class-wise, I'd put myself down as working class. News habits: For politics, I mostly rely on what I get on TV and in the papers, a good half hour a day. My paper is the Sun. I've got an account on Facebook. His views, from his survey answers, in four speech bubbles: When it comes to the party leaders, Nigel Farage is my pick and Keir Starmer is my least favourite. Children should be taught to obey authority at school. We should be letting far fewer immigrants into this country. On the whole I'm reasonably happy with how democracy works in the UK. Where they sit on the BES 0 to 10 value scales: economic, left to right, 4 out of 10, within the middle half of voters; social, liberal to authoritarian, 7.5 out of 10, within the middle half of voters.
 
 ## card_20.webp
 
 **Post text**
 
-I'm a White Catholic man from Greenwich and Woolwich, aged 44. My top issue is the cost of living. In 2024 I voted Lib Dem. Today I still would.
+I'm a White British Anglican man from Wyre Forest, aged 40. My top issue is immigration. In 2024 I voted Reform UK. Today I still would.
 
-**Alt text** (1067 characters)
+**Alt text** (1030 characters)
 
-Voter card. A map of England with a dot on Greenwich and Woolwich. About them, in their words: I've got a mortgage on my home. Last time I was asked, our household income was £100,000 to £150,000 a year, and I've got £2,000 to £3,000 put by. I work full-time and have a higher professional job in the private sector. I think of myself as middle class. News habits: I mostly follow politics online, an hour or two a day. I read the Independent more than any other paper. I get some of my politics from Facebook and X. I also use Instagram and watch YouTube. His views, from his survey answers, in four speech bubbles: Of the party leaders, I like Ed Davey most and Nigel Farage least. England gets more or less its fair share from the Union. The economy is getting a bit worse. Too many people are easily offended these days over the language others use. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3 out of 10, within the middle half of voters; social, liberal to authoritarian, 2.5 out of 10, more liberal than the middle half of voters.
+Voter card. A map of England with a dot on Wyre Forest. About them, in their words: I'm still paying the mortgage on my place. I've got £5,000 to £10,000 put by. I have a management job in the private sector, working full-time. I'm married with two kids at home. I'd call myself working class. News habits: For politics, I mostly rely on what I get on TV and online, only a few minutes each day. I get some of my politics from YouTube and TikTok. I also go on Facebook. His views, from his survey answers, in four speech bubbles: Of the party leaders, I like Nigel Farage most and Keir Starmer least. I'd rather Britain allowed slightly fewer immigrants in than it does now. There's no way a preacher who preaches hatred of the West should be allowed to stand for election. Some crimes deserve the death penalty - nothing less. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3.5 out of 10, within the middle half of voters; social, liberal to authoritarian, 8 out of 10, within the middle half of voters.
 
 ## card_21.webp
 
@@ -216,9 +216,9 @@ Voter card. A map of England with a dot on Greenwich and Woolwich. About them, i
 
 I'm a White British Pentecostal woman from Portsmouth North, aged 56. My top issue is the NHS. In 2024 I voted Labour. Today I still would.
 
-**Alt text** (982 characters)
+**Alt text** (1089 characters)
 
-Voter card. A map of England with a dot on Portsmouth North. About them, in their words: I rent privately. My finances are about where they were a year ago. I work full-time and do office and admin work in the private sector. I left school at 15 or younger. I'm working class, I'd say. News habits: I take a passing interest in politics. I get some of my politics from Facebook, mostly from the parties themselves. I'm also on X, Instagram and TikTok. I watch YouTube too. Her views, from her survey answers, in four speech bubbles: Of the party leaders, I like Ed Davey most and Nigel Farage least. Cuts to NHS spending have gone too far. London gets much more than its fair share of government spending. The cost of living is still going up a lot. Where they sit on the BES 0 to 10 value scales: economic, left to right, 1.2 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 9.4 out of 10, more authoritarian than the middle half of voters.
+Voter card. A map of England with a dot on Portsmouth North. About them, in their words: I rent from a private landlord. I don't lose sleep over money. I do office and admin work in the private sector, working full-time. I left school at 15 or younger. Class-wise, I'd put myself down as working class. News habits: I take a passing interest in politics. Some of what I see about politics comes from Facebook, mostly from the parties themselves. I also go on X, Instagram and TikTok. I watch YouTube on top of that. Her views, from her survey answers, in four speech bubbles: Out of all the leaders, Ed Davey is the one I like best, and Nigel Farage the one I like least. Cuts to NHS spending have gone too far. I was a Leave voter in 2016 and I'd vote to stay out of the EU again tomorrow. London gets much more than its fair share of government spending. Where they sit on the BES 0 to 10 value scales: economic, left to right, 1.2 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 9.4 out of 10, more authoritarian than the middle half of voters.
 
 ## card_22.webp
 
@@ -226,9 +226,9 @@ Voter card. A map of England with a dot on Portsmouth North. About them, in thei
 
 I'm a White British Anglican woman from North East Hertfordshire, aged 42. My top issue is the cost of living. In 2024 I didn't vote. Today I'd vote Conservative.
 
-**Alt text** (1080 characters)
+**Alt text** (1193 characters)
 
-Voter card. A map of England with a dot on North East Hertfordshire. About them, in their words: I'm paying off a mortgage, and my home is worth somewhere around £400,000 to £500,000. I've had to borrow money for essentials this year. I work full-time and have a professional or technical job in the private sector. I don't really think in class terms, but if pushed I'd say I'm working class. News habits: I mostly follow politics on TV and in the papers, an hour or two a day. I read the Daily Mail more than any other paper. I'm on Facebook, Instagram and TikTok. I watch YouTube too. Her views, from her survey answers, in four speech bubbles: Of the party leaders, I like Kemi Badenoch most and Keir Starmer least. The cost of living is still going up a lot. I disapprove of how the UK government is doing. Inheritance tax should be abolished altogether. Where they sit on the BES 0 to 10 value scales: economic, left to right, 2.5 out of 10, within the middle half of voters; social, liberal to authoritarian, 10 out of 10, more authoritarian than the middle half of voters.
+Voter card. A map of England with a dot on North East Hertfordshire. About them, in their words: I'm still paying the mortgage on my place. I've had to borrow money for essentials this year. I have a professional or technical job in the private sector, working full-time. I work in the creative industries. I don't think of myself as belonging to a class, but if I had to choose I'd say working class. News habits: I keep up with politics mainly on TV and in the papers, one to two hours a day. The daily paper I read most often is the Daily Mail. I've got an account on Facebook, Instagram and TikTok. I watch YouTube on top of that. Her views, from her survey answers, in four speech bubbles: Kemi Badenoch is my favourite of the party leaders; Keir Starmer is my least favourite. I was a Leave voter in 2016 and I'd vote to stay out of the EU again tomorrow. I'd say London gets more or less its fair share of government spending. Living costs are still rising sharply. Where they sit on the BES 0 to 10 value scales: economic, left to right, 2.5 out of 10, within the middle half of voters; social, liberal to authoritarian, 10 out of 10, more authoritarian than the middle half of voters.
 
 ## card_23.webp
 
@@ -236,19 +236,19 @@ Voter card. A map of England with a dot on North East Hertfordshire. About them,
 
 I'm a White British non-religious woman from Ashford, aged 24. My top issue is immigration. In 2024 I voted Conservative. Today I'd vote Reform UK.
 
-**Alt text** (877 characters)
+**Alt text** (849 characters)
 
-Voter card. A map of England with a dot on Ashford. About them, in their words: I'm paying off a mortgage. I've had to borrow money for essentials this year. I work full-time and am a team leader in the private sector at a small firm. My mum and dad both voted Conservative. News habits: I follow politics closely. Her views, from her survey answers, in four speech bubbles: Of the party leaders, I like Kemi Badenoch most and Keir Starmer least. I don't see the need to change reading lists to add more female and non-white authors. Britain should let in far fewer immigrants. Ordinary working people do get their fair share of the nation's wealth. Where they sit on the BES 0 to 10 value scales: economic, left to right, 8.5 out of 10, further right than the middle half of voters; social, liberal to authoritarian, 4.5 out of 10, more liberal than the middle half of voters.
+Voter card. A map of England with a dot on Ashford. About them, in their words: I'm paying off a mortgage, and my place would fetch something like £400,000 to £500,000. I've had to borrow money for essentials this year. I am a team leader in the private sector, working full-time. News habits: I follow politics closely. Her views, from her survey answers, in four speech bubbles: Kemi Badenoch is my favourite of the party leaders; Keir Starmer is my least favourite. Immigration is getting a lot higher. Families on welfare get far too much money. The government has no business redistributing income from the well-off. Where they sit on the BES 0 to 10 value scales: economic, left to right, 8.5 out of 10, further right than the middle half of voters; social, liberal to authoritarian, 4.5 out of 10, more liberal than the middle half of voters.
 
 ## card_24.webp
 
 **Post text**
 
-I'm a White British non-religious woman from Exmouth and Exeter East, aged 40. My top issue is the cost of living. In 2024 I voted Labour. Today I'd vote Lib Dem.
+I'm a White Catholic man from Greenwich and Woolwich, aged 44. My top issue is the cost of living. In 2024 I voted Lib Dem. Today I still would.
 
-**Alt text** (1048 characters)
+**Alt text** (1082 characters)
 
-Voter card. A map of England with a dot on Exmouth and Exeter East. About them, in their words: I've got a mortgage on my home, and we've got a three-bedroom place with a small garden. I expect money to get a bit tighter over the next year. I work part-time and have a professional or technical job in the public sector at a place with 500-plus staff. I don't really think in class terms, but if pushed I'd say I'm working class. News habits: I take a passing interest in politics. I use Facebook and Instagram. Her views, from her survey answers, in four speech bubbles: My favourite leader is Ed Davey. My least favourite is Nigel Farage. London gets a little more than its fair share of government spending. The cost of living is still creeping up. Tax and spending on health and social services should stay about where they are. Where they sit on the BES 0 to 10 value scales: economic, left to right, 2.5 out of 10, within the middle half of voters; social, liberal to authoritarian, 3.5 out of 10, more liberal than the middle half of voters.
+Voter card. A map of England with a dot on Greenwich and Woolwich. About them, in their words: I own my home with a mortgage. I've got £2,000 to £3,000 put by. I work full-time and have a higher professional job in the private sector. If I needed money for a house, my family couldn't put anything towards it. I'd call myself middle class. News habits: I get most of my politics online, one to two hours a day. The daily paper I read most often is the Independent. Some of what I see about politics comes from Facebook and X. You'll also find me on Instagram and I watch YouTube too. His views, from his survey answers, in four speech bubbles: I rate Ed Davey highest of the party leaders and Nigel Farage lowest. I'd be delighted if my child married a Lib Dem voter. The cost of living is getting a little higher. Women's sport shouldn't be open to transgender women. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3 out of 10, within the middle half of voters; social, liberal to authoritarian, 2.5 out of 10, more liberal than the middle half of voters.
 
 ## card_25.webp
 
@@ -256,9 +256,9 @@ Voter card. A map of England with a dot on Exmouth and Exeter East. About them, 
 
 I'm a White British Anglican woman from Wirral West, aged 52. My top issue is the cost of living. In 2024 I voted Green. Today I still would.
 
-**Alt text** (921 characters)
+**Alt text** (1067 characters)
 
-Voter card. A map of England with a dot on Wirral West. About them, in their words: I'm paying off a mortgage. I've got no savings at all. I work full-time and do office and admin work in the public sector at a place with 500-plus staff. I'm married, no kids at home. If you asked, I'd say I'm middle class. News habits: I mostly follow politics online, half an hour or so a day. I'm on Facebook and Instagram. I watch YouTube too. Her views, from her survey answers, in four speech bubbles: I can't stand any of the party leaders. The cost of living is still creeping up. Cuts to public spending haven't gone far enough. My local area gets much less than its fair share of government spending. Where they sit on the BES 0 to 10 value scales: economic, left to right, 0.5 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 4.5 out of 10, more liberal than the middle half of voters.
+Voter card. A map of England with a dot on Wirral West. About them, in their words: I'm still paying the mortgage on my place, and I'd put my home's value at roughly £200,000 to £250,000. If a £300 bill turned up out of the blue, I'd have to stick it on a credit card and pay it off over time. I work full-time and do office and admin work in the public sector at a place with 500-plus staff. If you asked, I'd say I'm middle class. News habits: I keep up with politics mainly online, a good half hour a day. I go on Facebook and Instagram. I watch YouTube too. Her views, from her survey answers, in four speech bubbles: I can't stand any of the party leaders. Big business rides roughshod over ordinary people. I strongly oppose a government-owned renewable energy company. I strongly disagree that private school fees should be tax free. Where they sit on the BES 0 to 10 value scales: economic, left to right, 0.5 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 4.5 out of 10, more liberal than the middle half of voters.
 
 ## card_26.webp
 
@@ -266,9 +266,9 @@ Voter card. A map of England with a dot on Wirral West. About them, in their wor
 
 I'm a White Scottish non-religious woman from Glasgow South, aged 33. My top issue is the NHS. In 2024 I voted SNP. Today I still would.
 
-**Alt text** (936 characters)
+**Alt text** (1086 characters)
 
-Voter card. A map of Scotland with a dot on Glasgow South. About them, in their words: I've got a mortgage on my home. I work full-time and have a higher professional job in the private sector. My family could lend me £25,000 to £50,000 towards a house if I needed it. I'm middle class, I'd say. News habits: I get most of my politics on TV and by talking to people, half an hour or so a day. I use Instagram and watch YouTube. Her views, from her survey answers, in four speech bubbles: Of the party leaders, I like John Swinney most and Kemi Badenoch least. I'd give sixteen-year-olds the vote. People in Scotland should have the final say on how Scotland is governed. Paying to jump the healthcare queue is plain wrong. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3 out of 10, within the middle half of voters; social, liberal to authoritarian, 2.5 out of 10, more liberal than the middle half of voters.
+Voter card. A map of Scotland with a dot on Glasgow South. About them, in their words: I've got a mortgage on my home. My household income, last time I gave it, was £40,000 to £45,000 a year, and I'm not someone who worries about money. I have a higher professional job in the private sector, working full-time. I think of myself as middle class. News habits: For politics, I mostly rely on what I get on TV and by talking to people, a good half hour a day. I've got an account on Instagram, and I watch YouTube as well. Her views, from her survey answers, in four speech bubbles: When it comes to the party leaders, John Swinney is my pick and Kemi Badenoch is my least favourite. NHS spending has been cut far too much. London gets way more than its fair share of government spending. Scotland shouldn't have to accept Brexit just because the UK as a whole voted for it. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3 out of 10, within the middle half of voters; social, liberal to authoritarian, 2.5 out of 10, more liberal than the middle half of voters.
 
 ## card_27.webp
 
@@ -276,9 +276,9 @@ Voter card. A map of Scotland with a dot on Glasgow South. About them, in their 
 
 I'm a White British Catholic woman from Merthyr Tydfil and Aberdare, aged 70. My top issue is asylum seekers. In 2024 I voted Plaid Cymru. Today I still would.
 
-**Alt text** (1032 characters)
+**Alt text** (1083 characters)
 
-Voter card. A map of Wales with a dot on Merthyr Tydfil and Aberdare. About them, in their words: I own my home, mortgage-free, and I bought my first home in 1977. Money has got a bit tighter this past year. I'm retired - before that I did office and admin work in the private sector. I don't really think in class terms, but if pushed I'd say I'm working class. News habits: I mostly follow politics on TV and online, a few minutes a day. I read the Times more than any other paper. I use Facebook and Instagram. I watch YouTube too. Her views, from her survey answers, in four speech bubbles: Rhun ap Iorwerth is my favourite of the party leaders; Eluned Morgan is my least favourite. I'd vote No to Welsh independence. I voted Leave in 2016 and I'd vote to stay out of the EU again. Britain should let in far fewer immigrants. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3.8 out of 10, within the middle half of voters; social, liberal to authoritarian, 8 out of 10, within the middle half of voters.
+Voter card. A map of Wales with a dot on Merthyr Tydfil and Aberdare. About them, in their words: I own my home, mortgage-free. I reckon my finances will get a little worse over the next twelve months. These days I'm retired, but when I was working I did office and admin work in the private sector. Class isn't something I think about much, though if pushed I'd go with working class. News habits: I mostly follow politics on TV and online, only a few minutes each day. The paper I read most is the Times. I've got an account on Facebook and Instagram. I watch YouTube on top of that. Her views, from her survey answers, in four speech bubbles: Top of the leaders for me is Rhun ap Iorwerth, bottom is Eluned Morgan. The way society works in Britain needs fundamental change. Private companies give better value on gas, water and electricity. Immigration is getting a lot higher. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3.8 out of 10, within the middle half of voters; social, liberal to authoritarian, 8 out of 10, within the middle half of voters.
 
 ## card_28.webp
 
@@ -286,9 +286,9 @@ Voter card. A map of Wales with a dot on Merthyr Tydfil and Aberdare. About them
 
 I'm a White English Anglican woman from Liverpool Wavertree, aged 56. My top issue is the cost of living. In 2024 I voted Reform UK. Today I still would.
 
-**Alt text** (972 characters)
+**Alt text** (993 characters)
 
-Voter card. A map of England with a dot on Liverpool Wavertree. About them, in their words: I'm paying off a mortgage. I'm very worried about my family's finances. I work full-time and have a higher professional job for a public corporation at a small firm. I'm married, no kids at home. If you asked, I'd say I'm working class. News habits: I take a passing interest in politics. I read the Mirror more than any other paper. Her views, from her survey answers, in four speech bubbles: Nigel Farage is my favourite of the party leaders; Keir Starmer is my least favourite. Protecting the environment should come first, though growth matters. The cost of living is starting to come down a little. London gets far more than its fair share of government spending. Where they sit on the BES 0 to 10 value scales: economic, left to right, 0 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 8 out of 10, within the middle half of voters.
+Voter card. A map of England with a dot on Liverpool Wavertree. About them, in their words: I own my home with a mortgage, and my place would fetch something like £300,000 to £400,000. If a £300 bill turned up out of the blue, I'd have to stick it on a credit card and pay it off over time. I have a higher professional job for a public corporation, working full-time. I'd call myself working class. News habits: I keep half an eye on politics. The paper I read most is the Mirror. Her views, from her survey answers, in four speech bubbles: Top of the leaders for me is Nigel Farage, bottom is Keir Starmer. Over the last year the economy has slipped a bit. Young people could do with more respect for traditional British values. Big business rides roughshod over ordinary people. Where they sit on the BES 0 to 10 value scales: economic, left to right, 0 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 8 out of 10, within the middle half of voters.
 
 ## card_29.webp
 
@@ -296,9 +296,9 @@ Voter card. A map of England with a dot on Liverpool Wavertree. About them, in t
 
 I'm a White English Catholic man from Whitehaven and Workington, aged 73. My top issue is immigration. In 2024 I voted Conservative. Today I'd vote Reform UK.
 
-**Alt text** (869 characters)
+**Alt text** (927 characters)
 
-Voter card. A map of England with a dot on Whitehaven and Workington. About them, in their words: I own my home outright. I'm a bit worse off than a year ago. I'm retired now. In my working life I had a higher professional job in the private sector. Nobody in my family could lend me a penny towards a house. I'm working class, I'd say. News habits: I follow politics closely. His views, from his survey answers, in four speech bubbles: Nigel Farage is my favourite of the party leaders; Zack Polanski is my least favourite. Britain should let in far fewer immigrants. I don't really feel European. Britain must protect its independence from the EU. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3 out of 10, within the middle half of voters; social, liberal to authoritarian, 8.5 out of 10, more authoritarian than the middle half of voters.
+Voter card. A map of England with a dot on Whitehaven and Workington. About them, in their words: My home is bought and paid for, no mortgage. I reckon my finances will get a little worse over the next twelve months. I'm retired now. In my working life I had a higher professional job in the private sector. I'm working class, I'd say. News habits: I keep a close eye on politics. His views, from his survey answers, in four speech bubbles: Of the party leaders, I like Nigel Farage most and Zack Polanski least. Statues of historical figures should absolutely stay up, even those of people who profited from slavery. I'm English, not British. The UK should allow many fewer immigrants to come here to live. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3 out of 10, within the middle half of voters; social, liberal to authoritarian, 8.5 out of 10, more authoritarian than the middle half of voters.
 
 ## card_30.webp
 
@@ -306,119 +306,119 @@ Voter card. A map of England with a dot on Whitehaven and Workington. About them
 
 I'm a White British Anglican woman from Romsey and Southampton North, aged 79. My top issue is war. In 2024 I voted Conservative. Today I'd vote Reform UK.
 
-**Alt text** (1014 characters)
+**Alt text** (1129 characters)
 
-Voter card. A map of England with a dot on Romsey and Southampton North. About them, in their words: I own my home outright. I think I'll be a lot worse off this time next year. I'm retired - before that I had a professional or technical job in the public sector. I'm single. I don't really think in class terms, but if pushed I'd say I'm middle class. News habits: I mostly follow politics in the papers and by talking to people, for hours every day. My paper is the Express. I'm not on social media. Her views, from her survey answers, in four speech bubbles: Nigel Farage is my favourite of the party leaders; Ed Davey is my least favourite. Brexit has made the economy better. On Israel and Palestine, I don't take either side. There's a world of difference between Labour and the Tories. Where they sit on the BES 0 to 10 value scales: economic, left to right, 2.5 out of 10, within the middle half of voters; social, liberal to authoritarian, 8.5 out of 10, more authoritarian than the middle half of voters.
+Voter card. A map of England with a dot on Romsey and Southampton North. About them, in their words: I own my home outright. I expect to be a good deal worse off a year from now. I'm retired - before that I had a professional or technical job in the public sector. My religion makes a great deal of difference to my life. I don't really think in class terms, but if pushed I'd say I'm middle class. News habits: I mostly follow politics in the papers and by talking to people, several hours a day. The daily paper I read most often is the Express. I don't use social media. Her views, from her survey answers, in four speech bubbles: Of the party leaders, I like Nigel Farage most and Ed Davey least. London gets far more than its fair share of government spending. Britain should scrap its nuclear weapons altogether. Gas, electricity and water should be provided equally by the public and private sectors. Where they sit on the BES 0 to 10 value scales: economic, left to right, 2.5 out of 10, within the middle half of voters; social, liberal to authoritarian, 8.5 out of 10, more authoritarian than the middle half of voters.
 
 ## card_31.webp
 
 **Post text**
 
-I'm a White British Anglican man from Wyre Forest, aged 40. My top issue is immigration. In 2024 I voted Reform UK. Today I still would.
+I'm a White British Anglican woman from Bexhill and Battle, aged 54. My top issue is asylum seekers. In 2024 I voted Reform UK. Today I still would.
 
-**Alt text** (924 characters)
+**Alt text** (1061 characters)
 
-Voter card. A map of England with a dot on Wyre Forest. About them, in their words: I'm paying off a mortgage, and I bought my first home in 2013. I've got £5,000 to £10,000 put by. I work full-time and have a management job in the private sector at a small firm. I'm working class, I'd say. News habits: I get most of my politics on TV and online, a few minutes a day. I get some of my politics from YouTube and TikTok. I also use Facebook. His views, from his survey answers, in four speech bubbles: My favourite leader is Nigel Farage. My least favourite is Keir Starmer. I don't really feel European. Britain should let in far fewer workers from outside the EU. Too many people rely on government handouts these days. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3.5 out of 10, within the middle half of voters; social, liberal to authoritarian, 8 out of 10, within the middle half of voters.
+Voter card. A map of England with a dot on Bexhill and Battle. About them, in their words: I've got a mortgage on my home. Money has got a bit tighter this past year. I have a professional or technical job in the private sector, working part-time. The main wage earner at home when I was 14 was my mum, who had a routine operative job. I think of myself as working class. News habits: I get most of my politics online and by talking to people, for hours every day. I'm on Facebook. Her views, from her survey answers, in four speech bubbles: When it comes to the party leaders, Nigel Farage is my pick and Keir Starmer is my least favourite. Inequality in Britain is getting higher. On the whole, my local area gets more or less its fair share of government spending. The UK should allow many fewer immigrants to come here to live. Where they sit on the BES 0 to 10 value scales: economic, left to right, 1 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 10 out of 10, more authoritarian than the middle half of voters.
 
 ## card_32.webp
 
 **Post text**
 
-I'm a White British Anglican woman from Bexhill and Battle, aged 54. My top issue is asylum seekers. In 2024 I voted Reform UK. Today I still would.
+I'm a White British non-religious woman from Bootle, aged 53. My top issue is the cost of living. In 2024 I voted Lib Dem. Today I'd vote Conservative.
 
-**Alt text** (942 characters)
+**Alt text** (980 characters)
 
-Voter card. A map of England with a dot on Bexhill and Battle. About them, in their words: I've got a mortgage on my home. I'm a bit worse off than a year ago. I work part-time and have a professional or technical job in the private sector. I'm organised and tidy. I think of myself as working class. News habits: I mostly follow politics online and by talking to people, for hours every day. I use Facebook. Her views, from her survey answers, in four speech bubbles: Of the party leaders, I like Nigel Farage most and Keir Starmer least. Immigrants are clearly a burden on the welfare state. A white supremacist should never be allowed to teach in a school. The government is making a real mess of immigration. Where they sit on the BES 0 to 10 value scales: economic, left to right, 1 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 10 out of 10, more authoritarian than the middle half of voters.
+Voter card. A map of England with a dot on Bootle. About them, in their words: I rent from a housing association. I've no savings to fall back on. I'm not doing paid work right now. Before this I had a professional or technical job in the public sector. I've got a postgraduate degree. If you asked, I'd say I'm working class. News habits: I mostly follow politics on the radio, more than two hours a day. I use Facebook and Instagram. I watch YouTube on top of that. Her views, from her survey answers, in four speech bubbles: Nigel Farage is my favourite of the party leaders; Keir Starmer is my least favourite. I don't feel the least bit European. The government isn't doing a great job on the economy. I expect to be a lot worse off in ten years' time. Where they sit on the BES 0 to 10 value scales: economic, left to right, 1 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 4 out of 10, more liberal than the middle half of voters.
 
 ## card_33.webp
 
 **Post text**
 
-I'm a White British non-religious woman from Bootle, aged 53. My top issue is the cost of living. In 2024 I voted Lib Dem. Today I'd vote Conservative.
+I'm a White British Anglican woman from Blackpool South, aged 56. My top issue is immigration. In 2024 I didn't vote. Today I'd vote Reform UK.
 
-**Alt text** (960 characters)
+**Alt text** (1002 characters)
 
-Voter card. A map of England with a dot on Bootle. About them, in their words: I rent from a housing association. I've no savings to fall back on. I'm not in paid work at the moment - before that I had a professional or technical job in the public sector. I'm organised and tidy. I'm working class, I'd say. News habits: I mostly follow politics on the radio, for hours every day. I'm on Facebook and Instagram. I watch YouTube too. Her views, from her survey answers, in four speech bubbles: My favourite leader is Nigel Farage. My least favourite is Keir Starmer. Things in Britain were definitely better in the past. Private companies provide healthcare more efficiently than the NHS. I back a publicly owned renewable energy company. Where they sit on the BES 0 to 10 value scales: economic, left to right, 1 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 4 out of 10, more liberal than the middle half of voters.
+Voter card. A map of England with a dot on Blackpool South. About them, in their words: There's no mortgage on my home - I own it outright. I expect to be slightly worse off a year from now. I do office and admin work in the public sector, working part-time at a place with 500-plus staff. If you asked, I'd say I'm middle class. News habits: Most of what I take in about politics is on TV and online, less than half an hour a day. Her views, from her survey answers, in four speech bubbles: I'm not keen on any of the leaders, though Ed Davey is the nearest to it. Keir Starmer is my least favourite. My region gets much less than its fair share of government spending. Britain should let in far fewer immigrants. MPs should go along with the will of the people most of the time. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3.5 out of 10, within the middle half of voters; social, liberal to authoritarian, 9.5 out of 10, more authoritarian than the middle half of voters.
 
 ## card_34.webp
 
 **Post text**
 
-I'm a White British Anglican woman from Blackpool South, aged 56. My top issue is immigration. In 2024 I didn't vote. Today I'd vote Reform UK.
+I'm a Mixed White and Black African non-religious woman from Sutton and Cheam, aged 18. My top issue is order, discipline and respect. In 2024 I didn't vote. Today I'd vote Green.
 
-**Alt text** (910 characters)
+**Alt text** (962 characters)
 
-Voter card. A map of England with a dot on Blackpool South. About them, in their words: I own my home, mortgage-free. I'm a bit worse off than a year ago. I work part-time and do office and admin work in the public sector at a place with 500-plus staff. I'm married, no kids at home. I'm middle class, I'd say. News habits: I get most of my politics on TV and online, a few minutes a day. Her views, from her survey answers, in four speech bubbles: None of the leaders does much for me. Ed Davey comes closest; Keir Starmer comes last. The cost of living is still going up a lot. Immigrants are a burden on the welfare state. Vote for the party you like best, whether or not they can win. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3.5 out of 10, within the middle half of voters; social, liberal to authoritarian, 9.5 out of 10, more authoritarian than the middle half of voters.
+Voter card. A map of England with a dot on Sutton and Cheam. About them, in their words: I stay with family or friends and don't pay any rent. An unexpected £300 bill would mean I'd have to ask family or friends to lend it to me. I'm a full-time student. My family could lend me £25,000 to £50,000 towards a house if I needed it. News habits: I keep half an eye on politics. When it comes to papers, I mostly read the Guardian. Her views, from her survey answers, in four speech bubbles: If I had to rank the party leaders, Zack Polanski would be first and Nigel Farage last. Big business rides roughshod over ordinary people. Ethnic minorities face a lot of discrimination in Britain today. Sentences should be tougher on people who break the law. Where they sit on the BES 0 to 10 value scales: economic, left to right, 0.5 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 6 out of 10, within the middle half of voters.
 
 ## card_35.webp
 
 **Post text**
 
-I'm a Mixed White and Black African non-religious woman from Sutton and Cheam, aged 18. My top issue is order, discipline and respect. In 2024 I didn't vote. Today I'd vote Green.
+I'm a White British Anglican man from Brighton Kemptown and Peacehaven, aged 44. My top issue is immigration. In 2024 I didn't vote. Today I'd vote Reform UK.
 
-**Alt text** (860 characters)
+**Alt text** (1021 characters)
 
-Voter card. A map of England with a dot on Sutton and Cheam. About them, in their words: I live with family or friends and pay no rent. Last time I was asked, our household income was £30,000 to £35,000 a year, and I expect money to get a bit tighter over the next year. I'm a full-time student. News habits: I take a passing interest in politics. My paper is the Guardian. Her views, from her survey answers, in four speech bubbles: My favourite leader is Zack Polanski. My least favourite is Nigel Farage. People who break the law should get stiffer sentences. I don't trust MPs one bit. The government is handling foreign affairs fairly badly. Where they sit on the BES 0 to 10 value scales: economic, left to right, 0.5 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 6 out of 10, within the middle half of voters.
+Voter card. A map of England with a dot on Brighton Kemptown and Peacehaven. About them, in their words: I live in council housing. This last year I've had to borrow just to get by on the basics. I'm not in a paid job just now. I'd say I'm a worrier by nature. I don't think of myself as belonging to any class. News habits: I don't take in any news about politics. I go on Facebook, and watch YouTube as well. His views, from his survey answers, in four speech bubbles: When it comes to the party leaders, Nigel Farage is my pick and Keir Starmer is my least favourite. We should be letting far fewer immigrants into this country. I think the country would do better with a strong leader who didn't have to bother with parliament. I support 18-year-olds doing a year of national service. Where they sit on the BES 0 to 10 value scales: economic, left to right, 0.5 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 8.5 out of 10, more authoritarian than the middle half of voters.
 
 ## card_36.webp
 
 **Post text**
 
-I'm a White British Anglican man from Brighton Kemptown and Peacehaven, aged 44. My top issue is immigration. In 2024 I didn't vote. Today I'd vote Reform UK.
+I'm a White British non-religious woman from North Warwickshire and Bedworth, aged 42. My top issue is immigration. In 2024 I voted Conservative. Today I still would.
 
-**Alt text** (920 characters)
+**Alt text** (1024 characters)
 
-Voter card. A map of England with a dot on Brighton Kemptown and Peacehaven. About them, in their words: I'm a council tenant, and I've no wish to buy a home. I've borrowed money this year just to cover essentials. I'm not in paid work at the moment. I don't think of myself as belonging to any class. News habits: I don't follow political news at all. I'm on Facebook and I watch YouTube. His views, from his survey answers, in four speech bubbles: Nigel Farage is my favourite of the party leaders; Keir Starmer is my least favourite. I didn't vote in May's local elections - I forgot. Gas, electricity and water should be a mix of public and private. Immigration is coming down a lot. Where they sit on the BES 0 to 10 value scales: economic, left to right, 0.5 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 8.5 out of 10, more authoritarian than the middle half of voters.
+Voter card. A map of England with a dot on North Warwickshire and Bedworth. About them, in their words: I'm still paying the mortgage on my place. I work part-time and work in childcare in the public sector. There's an inheritance coming my way that will be a major change for me financially. If you asked, I'd say I'm middle class. News habits: I mostly follow politics on TV and in the papers, less than half an hour a day. When it comes to papers, I mostly read the Daily Mail. I'm not on social media. Her views, from her survey answers, in four speech bubbles: Of the party leaders, I like Kemi Badenoch most and Nigel Farage least. Transgender women shouldn't compete in women's sport. There are far too many people these days who like to rely on handouts. The level of immigration is rising a lot. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3 out of 10, within the middle half of voters; social, liberal to authoritarian, 8.5 out of 10, more authoritarian than the middle half of voters.
 
 ## card_37.webp
 
 **Post text**
 
-I'm a White British non-religious woman from North Warwickshire and Bedworth, aged 42. My top issue is immigration. In 2024 I voted Conservative. Today I still would.
+I'm an Asian non-religious woman from Woking, aged 25. My top issue is the cost of living. In 2024 I voted Labour. Today I'd vote Green.
 
-**Alt text** (1041 characters)
+**Alt text** (981 characters)
 
-Voter card. A map of England with a dot on North Warwickshire and Bedworth. About them, in their words: I'm paying off a mortgage. I've got £10,000 to £15,000 put by. I work part-time and work in childcare in the public sector. My family could lend me £10,000 to £25,000 towards a house if I needed it. If you asked, I'd say I'm middle class. News habits: I mostly follow politics on TV and in the papers, a few minutes a day. I read the Daily Mail more than any other paper. I'm not on social media. Her views, from her survey answers, in four speech bubbles: Kemi Badenoch is my favourite of the party leaders; Nigel Farage is my least favourite. Britain should let in far fewer immigrants. London gets a little more than its fair share of government spending. I'm a bit dissatisfied with how democracy works in the UK. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3 out of 10, within the middle half of voters; social, liberal to authoritarian, 8.5 out of 10, more authoritarian than the middle half of voters.
+Voter card. A map of England with a dot on Woking. About them, in their words: I rent privately. Money's slightly easier than it was this time last year. I'm working full-time and have a professional or technical job in the private sector somewhere with more than 500 people on the books. If you asked, I'd say I'm middle class. News habits: I follow politics a bit, on and off. When it comes to papers, I mostly read the Guardian. Her views, from her survey answers, in four speech bubbles: Out of all the leaders, Zack Polanski is the one I like best, and Kemi Badenoch the one I like least. The government has immigration reasonably well in hand. The cost of living is getting a lot higher. I'd say I follow the big political issues facing the country pretty well. Where they sit on the BES 0 to 10 value scales: economic, left to right, 1.5 out of 10, within the middle half of voters; social, liberal to authoritarian, 3 out of 10, more liberal than the middle half of voters.
 
 ## card_38.webp
 
 **Post text**
 
-I'm an Asian non-religious woman from Woking, aged 25. My top issue is the cost of living. In 2024 I voted Labour. Today I'd vote Green.
+I'm a White British non-religious man from Selby, aged 34. My top issue is immigration. In 2024 I didn't vote. Today I'd vote Reform UK.
 
-**Alt text** (892 characters)
+**Alt text** (905 characters)
 
-Voter card. A map of England with a dot on Woking. About them, in their words: I rent privately. Money has got a little easier this past year. I work full-time and have a professional or technical job in the private sector at a place with 500-plus staff. I went to a private school. Class-wise, I'd put myself down as middle class. News habits: I take a passing interest in politics. My paper is the Guardian. Her views, from her survey answers, in four speech bubbles: Of the party leaders, I like Zack Polanski most and Kemi Badenoch least. The cost of living is still going up a lot. I'm completely against the death penalty, whatever the crime. I don't really feel European. Where they sit on the BES 0 to 10 value scales: economic, left to right, 1.5 out of 10, within the middle half of voters; social, liberal to authoritarian, 3 out of 10, more liberal than the middle half of voters.
+Voter card. A map of England with a dot on Selby. About them, in their words: I rent privately. I expect money to get a bit tighter over the next year. I'm working full-time and have a routine operative job in the private sector (driving, machine operating etc.). I finished education at 19. I don't really think in class terms, but if pushed I'd say I'm working class. News habits: I follow politics a bit, on and off. His views, from his survey answers, in four speech bubbles: If I had to rank the party leaders, Nigel Farage would be first and Zack Polanski last. Living costs are falling a lot. England gets much less than its fair share from the Union. Immigration is coming down a lot. Where they sit on the BES 0 to 10 value scales: economic, left to right, 5 out of 10, further right than the middle half of voters; social, liberal to authoritarian, 5 out of 10, within the middle half of voters.
 
 ## card_39.webp
 
 **Post text**
 
-I'm a White British non-religious man from Selby, aged 34. My top issue is immigration. In 2024 I didn't vote. Today I'd vote Reform UK.
+I'm a White British non-religious woman from South West Norfolk, aged 71. My top issue is immigration. In 2024 I voted for an independent. Today I'd vote Reform UK.
 
-**Alt text** (1002 characters)
+**Alt text** (1072 characters)
 
-Voter card. A map of England with a dot on Selby. About them, in their words: I rent from a private landlord. Last time I was asked, our household income was £30,000 to £35,000 a year, and money has got a bit tighter this past year. I work full-time and have a routine operative job in the private sector (driving, machine operating etc.) at a place with 500-plus staff. I don't really think in class terms, but if pushed I'd say I'm working class. News habits: I keep half an eye on politics. His views, from his survey answers, in four speech bubbles: My favourite leader is Nigel Farage. My least favourite is Zack Polanski. Measures to protect the environment haven't gone nearly far enough. Immigration is clearly bad for the economy. I think my local council is doing a very bad job. Where they sit on the BES 0 to 10 value scales: economic, left to right, 5 out of 10, further right than the middle half of voters; social, liberal to authoritarian, 5 out of 10, within the middle half of voters.
+Voter card. A map of England with a dot on South West Norfolk. About them, in their words: I own my home, mortgage-free. My family's financial security is something I'm really worried about. Before I retired, I did office and admin work. I finished school with GCSEs. Class-wise, I'd put myself down as middle class. News habits: The politics I take in is mostly on TV and online, a few minutes a day. The paper I read most is the Telegraph. I get some of my politics from X, mostly from people I know. I also go on Facebook and Instagram. Her views, from her survey answers, in four speech bubbles: Kemi Badenoch is the leader I've most time for, Zack Polanski the one I've least time for. England gets way more than its fair share from the Union. The UK should allow many fewer immigrants to come here to live. The last government hurt the economy somewhat. Where they sit on the BES 0 to 10 value scales: economic, left to right, 6 out of 10, further right than the middle half of voters; social, liberal to authoritarian, 8 out of 10, within the middle half of voters.
 
 ## card_40.webp
 
 **Post text**
 
-I'm a White British non-religious woman from South West Norfolk, aged 71. My top issue is immigration. In 2024 I voted for an independent. Today I'd vote Reform UK.
+I'm an Orthodox Christian man from Harrow East, aged 54. My top issue is poverty. In 2024 I voted Labour. Today I'd vote Green.
 
-**Alt text** (1037 characters)
+**Alt text** (1164 characters)
 
-Voter card. A map of England with a dot on South West Norfolk. About them, in their words: I own my home outright. Last time I was asked, our household income was £30,000 to £35,000 a year, and I worry a lot about my family's financial security. I'm retired now. In my working life I did office and admin work. I'm middle class, I'd say. News habits: I mostly follow politics on TV and online, a few minutes a day. My paper is the Telegraph. I get some of my politics from X, mostly from people I know. I also use Facebook and Instagram. Her views, from her survey answers, in four speech bubbles: Of the party leaders, I like Kemi Badenoch most and Zack Polanski least. I'd pay a bit more tax for better health and social services. Mandatory diversity training at work should definitely stay. Immigration is going up a lot. Where they sit on the BES 0 to 10 value scales: economic, left to right, 6 out of 10, further right than the middle half of voters; social, liberal to authoritarian, 8 out of 10, within the middle half of voters.
+Voter card. A map of England with a dot on Harrow East. About them, in their words: I'm living with family or friends, rent-free. Last time I was asked, our household income was £5,000 to £10,000 a year, and I've needed to borrow to pay for bills and groceries this past year. I'm self-employed in a professional or technical line of work. Class-wise, I'd put myself down as working class. News habits: For politics, I mostly rely on what I get on TV and online, half an hour or so a day. A bit of my political news reaches me via YouTube, mostly from commentators and journalists. I also use Facebook and Instagram. His views, from his survey answers, in four speech bubbles: If I had to rank the party leaders, Zack Polanski would be first and Kemi Badenoch last. England does slightly better than its fair share from the Union. Families on welfare get too little money. Children's TV doesn't need any more families with same-sex parents than it has. Where they sit on the BES 0 to 10 value scales: economic, left to right, 0 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 5 out of 10, within the middle half of voters.
 
 ## card_41.webp
 
 **Post text**
 
-I'm an Orthodox Christian man from Harrow East, aged 54. My top issue is poverty. In 2024 I voted Labour. Today I'd vote Green.
+I'm an Indian Hindu man from Twickenham, aged 52. My top issue is tax. In 2024 I voted Conservative. Today I still would.
 
-**Alt text** (1016 characters)
+**Alt text** (933 characters)
 
-Voter card. A map of England with a dot on Harrow East. About them, in their words: I live with family or friends and pay no rent. I've had to borrow money for essentials this year. I'm self-employed in a professional or technical line of work. I look after my parents. I'm working class, I'd say. News habits: I mostly follow politics on TV and online, half an hour or so a day. I get some of my politics from YouTube, mostly from commentators and journalists. I also use Facebook and Instagram. His views, from his survey answers, in four speech bubbles: My favourite leader is Zack Polanski. My least favourite is Kemi Badenoch. I'd vote to rejoin the EU if there were another referendum. The gap between rich and poor is getting much wider. Government should provide a job for everyone who wants one. Where they sit on the BES 0 to 10 value scales: economic, left to right, 0 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 5 out of 10, within the middle half of voters.
+Voter card. A map of England with a dot on Twickenham. About them, in their words: I'm still paying the mortgage on my place. I'm a lot worse off than I was a year ago. I'm between jobs and looking for work. Before this I had a professional or technical job in the private sector. If you asked, I'd say I'm middle class. News habits: I keep up with politics pretty closely. My paper is the Daily Mail. His views, from his survey answers, in four speech bubbles: My favourite leader is Ed Davey. My least favourite is Zack Polanski. Brexit has been very good for the economy. I was a Remain voter in 2016 and I'd vote to rejoin the EU in a heartbeat. I'd cut taxes a bit and trim spending on health and social services. Where they sit on the BES 0 to 10 value scales: economic, left to right, 6 out of 10, further right than the middle half of voters; social, liberal to authoritarian, 7.5 out of 10, within the middle half of voters.
 
 ## card_42.webp
 
@@ -426,9 +426,9 @@ Voter card. A map of England with a dot on Harrow East. About them, in their wor
 
 I'm a White British non-religious man from Doncaster East and the Isle of Axholme, aged 47. My top issue is immigration. In 2024 I didn't vote. Today I'd vote Reform UK.
 
-**Alt text** (940 characters)
+**Alt text** (949 characters)
 
-Voter card. A map of England with a dot on Doncaster East and the Isle of Axholme. About them, in their words: I'm paying off a mortgage. I've had to borrow money for essentials this year. I work full-time and have a semi-routine technical job in the private sector. I can usually tell straight away when a friend is angry. I'd call myself working class. News habits: I take a passing interest in politics. His views, from his survey answers, in four speech bubbles: None of the leaders does much for me. Ed Davey comes closest; Keir Starmer comes last. Immigration undermines British cultural life. The government is making a real mess of the NHS. Major public services and industries should definitely be in state hands. Where they sit on the BES 0 to 10 value scales: economic, left to right, 4 out of 10, within the middle half of voters; social, liberal to authoritarian, 9 out of 10, more authoritarian than the middle half of voters.
+Voter card. A map of England with a dot on Doncaster East and the Isle of Axholme. About them, in their words: I'm paying off a mortgage. I've needed to borrow to pay for bills and groceries this past year. I have a semi-routine technical job in the private sector, working full-time for a big employer with over 500 staff. I'm working class, I'd say. News habits: I follow politics a bit, on and off. His views, from his survey answers, in four speech bubbles: I don't think much of any of the leaders - Ed Davey is the best of a bad lot, Keir Starmer the worst. I voted Leave in 2016. Now I'd vote to rejoin the EU. Immigrants are a real burden on the welfare state. There's clearly one law for the rich and another for the poor. Where they sit on the BES 0 to 10 value scales: economic, left to right, 4 out of 10, within the middle half of voters; social, liberal to authoritarian, 9 out of 10, more authoritarian than the middle half of voters.
 
 ## card_43.webp
 
@@ -436,9 +436,9 @@ Voter card. A map of England with a dot on Doncaster East and the Isle of Axholm
 
 I'm a White English non-religious man from Gosport, aged 60. My top issue is war. In 2024 I voted Lib Dem. Today I'd vote Reform UK.
 
-**Alt text** (916 characters)
+**Alt text** (1011 characters)
 
-Voter card. A map of England with a dot on Gosport. About them, in their words: I've got a mortgage on my home. Money has got a bit tighter this past year. I work part-time and do office and admin work in the public sector at a place with 500-plus staff. I left school at 17 or 18. I'm middle class, I'd say. News habits: I get most of my politics online, an hour or two a day. I'm not on social media. His views, from his survey answers, in four speech bubbles: My favourite leader is Nigel Farage. My least favourite is Zack Polanski. Nobody has a duty to vote - it's a choice. My region gets a little more than its fair share of government spending. Britain must keep its nuclear submarines. Where they sit on the BES 0 to 10 value scales: economic, left to right, 1.5 out of 10, within the middle half of voters; social, liberal to authoritarian, 9.5 out of 10, more authoritarian than the middle half of voters.
+Voter card. A map of England with a dot on Gosport. About them, in their words: I own my home with a mortgage. I expect to be slightly worse off a year from now. I work part-time and do office and admin work in the public sector. If I had to move, I don't know anyone who could help me find somewhere to live. Class-wise, I'd put myself down as middle class. News habits: I get most of my politics online, an hour or two a day. I'm not on social media. His views, from his survey answers, in four speech bubbles: My favourite leader is Nigel Farage. My least favourite is Zack Polanski. Teaching children to obey authority should be one of a school's main jobs. My local area doesn't quite get its fair share of government spending. On Israel and Palestine, I'm very much on Israel's side. Where they sit on the BES 0 to 10 value scales: economic, left to right, 1.5 out of 10, within the middle half of voters; social, liberal to authoritarian, 9.5 out of 10, more authoritarian than the middle half of voters.
 
 ## card_44.webp
 
@@ -446,9 +446,9 @@ Voter card. A map of England with a dot on Gosport. About them, in their words: 
 
 I'm a White British non-religious man from Runcorn and Helsby, aged 45. My top issue is the cost of living. In 2024 I voted Green. Today I still would.
 
-**Alt text** (1018 characters)
+**Alt text** (1019 characters)
 
-Voter card. A map of England with a dot on Runcorn and Helsby. About them, in their words: I've got a mortgage on my home. I've borrowed money this year just to cover essentials. I work part-time and have a shop floor job in the private sector. I'm living with my partner with one child at home. I'd call myself working class. News habits: I mostly follow politics by talking to people, half an hour or so a day. I'm on Facebook and Instagram. I watch YouTube too. His views, from his survey answers, in four speech bubbles: Zack Polanski is my favourite of the party leaders; Nigel Farage is my least favourite. England gets more or less its fair share from the Union. Films and magazines need censoring to uphold moral standards. A publicly owned renewable energy company is exactly what we need. Where they sit on the BES 0 to 10 value scales: economic, left to right, 2 out of 10, within the middle half of voters; social, liberal to authoritarian, 8.8 out of 10, more authoritarian than the middle half of voters.
+Voter card. A map of England with a dot on Runcorn and Helsby. About them, in their words: I'm paying off a mortgage. Last time I was asked, our household income was £30,000 to £35,000 a year, and I've borrowed money this year just to cover essentials. I work part-time and have a shop floor job in the private sector. I'm working class, I'd say. News habits: I mostly follow politics by talking to people, somewhere between half an hour and an hour a day. I use Facebook and Instagram. Then there's YouTube, which I watch. His views, from his survey answers, in four speech bubbles: Top of the leaders for me is Zack Polanski, bottom is Nigel Farage. I strongly support a government-owned renewable energy company. Photo ID at polling stations is the right thing. Brexit has made the economy worse. Where they sit on the BES 0 to 10 value scales: economic, left to right, 2 out of 10, within the middle half of voters; social, liberal to authoritarian, 8.8 out of 10, more authoritarian than the middle half of voters.
 
 ## card_45.webp
 
@@ -456,9 +456,9 @@ Voter card. A map of England with a dot on Runcorn and Helsby. About them, in th
 
 I'm a White English non-religious woman from Ashford, aged 28. My top issue is immigration. In 2024 I voted Labour. Today I don't know who I'd vote for.
 
-**Alt text** (860 characters)
+**Alt text** (987 characters)
 
-Voter card. A map of England with a dot on Ashford. About them, in their words: I live rent-free with family or friends. Money is much the same as it was a year ago. I work part-time and have a shop floor job in the private sector. I started university but didn't finish. Class-wise, I'd put myself down as working class. News habits: I take a passing interest in politics. Her views, from her survey answers, in four speech bubbles: None of the leaders does much for me. Keir Starmer comes closest; Nigel Farage comes last. I don't think immigrants are a burden on the welfare state. I feel more English than British. The cost of living is still creeping up. Where they sit on the BES 0 to 10 value scales: economic, left to right, 2 out of 10, within the middle half of voters; social, liberal to authoritarian, 6 out of 10, within the middle half of voters.
+Voter card. A map of England with a dot on Ashford. About them, in their words: I live with family or friends and pay no rent, and the place has a three-bedroom place, plus a garden about the size of a tennis court. If a £300 bill turned up out of the blue, I'd have to put it on the credit card. I work part-time and have a shop floor job in the private sector. I think of myself as working class. News habits: I keep half an eye on politics. Her views, from her survey answers, in four speech bubbles: I'm not keen on any of the leaders, though Keir Starmer is the nearest to it. Nigel Farage is my least favourite. On balance, immigration is slightly bad for the economy. The government isn't doing a great job on crime. For some crimes, the death penalty is the only right sentence. Where they sit on the BES 0 to 10 value scales: economic, left to right, 2 out of 10, within the middle half of voters; social, liberal to authoritarian, 6 out of 10, within the middle half of voters.
 
 ## card_46.webp
 
@@ -466,9 +466,9 @@ Voter card. A map of England with a dot on Ashford. About them, in their words: 
 
 I'm a White British Anglican man from Portsmouth South, aged 43. My top issue is immigration. In 2024 I voted Reform UK. Today I still would.
 
-**Alt text** (889 characters)
+**Alt text** (950 characters)
 
-Voter card. A map of England with a dot on Portsmouth South. About them, in their words: I live rent-free with family or friends. Money is much the same as it was a year ago. I work full-time and have a senior supervisory job in the public sector. I left school with GCSEs. I think of myself as working class. News habits: I take a passing interest in politics. The paper I read most is the Mirror. His views, from his survey answers, in four speech bubbles: Of the party leaders, I like Nigel Farage most and Zack Polanski least. England gets nowhere near its fair share from the Union. Immigration is clearly bad for the economy. Crime is going up a lot. Where they sit on the BES 0 to 10 value scales: economic, left to right, 0.5 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 8.5 out of 10, more authoritarian than the middle half of voters.
+Voter card. A map of England with a dot on Portsmouth South. About them, in their words: I live rent-free with family or friends. I work full-time and have a senior supervisory job in the public sector at a small firm. I left school at 16. I'd call myself working class. News habits: I pay some attention to politics, but not loads. The daily paper I read most often is the Mirror. His views, from his survey answers, in four speech bubbles: Nigel Farage is my favourite of the party leaders; Zack Polanski is my least favourite. England is badly short-changed when it comes to its fair share from the Union. Immigration is bad for Britain's economy, no question. Local services in my area have been cut far too much. Where they sit on the BES 0 to 10 value scales: economic, left to right, 0.5 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 8.5 out of 10, more authoritarian than the middle half of voters.
 
 ## card_47.webp
 
@@ -476,9 +476,9 @@ Voter card. A map of England with a dot on Portsmouth South. About them, in thei
 
 I'm a White British non-religious woman from Kingston upon Hull West and Haltemprice, aged 35. My top issue is immigration. In 2024 I voted Reform UK. Today I don't know who I'd vote for.
 
-**Alt text** (907 characters)
+**Alt text** (877 characters)
 
-Voter card. A map of England with a dot on Kingston upon Hull West and Haltemprice. About them, in their words: I'm paying off a mortgage. I've borrowed money this year just to cover essentials. I work for myself. I stayed in education past 20. If you asked, I'd say I'm middle class. News habits: I don't pay much attention to politics. Her views, from her survey answers, in four speech bubbles: The only leader I have a view on is Keir Starmer, and I really don't like him. Immigration is clearly bad for the economy. Too many people are easily offended these days over the language others use. The government should take a lot more from the well-off and give it to those with less. Where they sit on the BES 0 to 10 value scales: economic, left to right, 1.7 out of 10, within the middle half of voters; social, liberal to authoritarian, 8.8 out of 10, more authoritarian than the middle half of voters.
+Voter card. A map of England with a dot on Kingston upon Hull West and Haltemprice. About them, in their words: I own my home with a mortgage. I've needed to borrow to pay for bills and groceries this past year. I work for myself. Nobody in my family could lend me a penny towards a house. Class-wise, I'd put myself down as middle class. News habits: I don't really keep up with politics. Her views, from her survey answers, in four speech bubbles: The only leader I have a view on is Keir Starmer, and I've very little time for him. The law treats the rich and the poor differently. Cuts to NHS spending have gone too far. Immigration is going up a lot. Where they sit on the BES 0 to 10 value scales: economic, left to right, 1.7 out of 10, within the middle half of voters; social, liberal to authoritarian, 8.8 out of 10, more authoritarian than the middle half of voters.
 
 ## card_48.webp
 
@@ -486,9 +486,9 @@ Voter card. A map of England with a dot on Kingston upon Hull West and Haltempri
 
 I'm a White English non-religious woman from North Devon, aged 63. My top issue is the economy. In 2024 I voted Conservative. Today I still would.
 
-**Alt text** (1006 characters)
+**Alt text** (1050 characters)
 
-Voter card. A map of England with a dot on North Devon. About them, in their words: I own my home, mortgage-free. Last time I was asked, our household income was £30,000 to £35,000 a year, and money has got a little easier this past year. I'm retired - before that I did office and admin work. I don't really think in class terms, but if pushed I'd say I'm working class. News habits: I mostly follow politics in the papers, a few minutes a day. I read the Telegraph more than any other paper. Her views, from her survey answers, in four speech bubbles: My favourite leader is Kemi Badenoch. My least favourite is Keir Starmer. The economy has got a lot worse over the past year. The government is handling foreign affairs very badly. Britain should keep spending on overseas aid. Where they sit on the BES 0 to 10 value scales: economic, left to right, 7 out of 10, further right than the middle half of voters; social, liberal to authoritarian, 3.5 out of 10, more liberal than the middle half of voters.
+Voter card. A map of England with a dot on North Devon. About them, in their words: I own my home outright. I've got £5,000 to £10,000 put by. I'm retired now. Back when I was working, I did office and admin work. I did go to uni, though I dropped out before the end. I don't really think in class terms, but if pushed I'd say I'm working class. News habits: I keep up with politics mainly in the papers, less than half an hour a day. My paper is the Telegraph. Her views, from her survey answers, in four speech bubbles: Kemi Badenoch is my favourite of the party leaders; Keir Starmer is my least favourite. I don't see the need to fundamentally change how society works in Britain. I don't think reading lists need more female and non-white authors added to them. The economy has got much worse in the last twelve months. Where they sit on the BES 0 to 10 value scales: economic, left to right, 7 out of 10, further right than the middle half of voters; social, liberal to authoritarian, 3.5 out of 10, more liberal than the middle half of voters.
 
 ## card_49.webp
 
@@ -496,7 +496,7 @@ Voter card. A map of England with a dot on North Devon. About them, in their wor
 
 I'm a White British non-religious man from Bury St Edmunds and Stowmarket, aged 51. My top issue is the state of our politics. In 2024 I voted Reform UK. Today I still would.
 
-**Alt text** (928 characters)
+**Alt text** (997 characters)
 
-Voter card. A map of England with a dot on Bury St Edmunds and Stowmarket. About them, in their words: I'm a housing association tenant. I've borrowed money this year just to cover essentials. I work full-time and have a semi-routine service job for a charity (care work etc.) at a place with 500-plus staff. I don't really think in class terms, but if pushed I'd say I'm working class. News habits: I keep a close eye on politics. His views, from his survey answers, in four speech bubbles: I don't much like any of the leaders - Nigel Farage comes closest. My least favourite is Keir Starmer. I'd never want a leader who ignored parliament and elections. I feel strongly European. Cuts to NHS spending have gone much too far. Where they sit on the BES 0 to 10 value scales: economic, left to right, 2 out of 10, within the middle half of voters; social, liberal to authoritarian, 6 out of 10, within the middle half of voters.
+Voter card. A map of England with a dot on Bury St Edmunds and Stowmarket. About them, in their words: I rent my place through a housing association. I've had to borrow money for essentials this year. I'm working full-time and have a semi-routine service job for a charity (care work etc.) at a place with 500-plus staff. Class isn't something I think about much, though if pushed I'd go with working class. News habits: I keep up with politics pretty closely. His views, from his survey answers, in four speech bubbles: None of the leaders does much for me. Nigel Farage comes closest; Keir Starmer comes last. I'm dead against the idea of a strong leader who doesn't have to bother with parliament or elections. I feel very strongly European. I want Britain to stay fully independent of the EU. Where they sit on the BES 0 to 10 value scales: economic, left to right, 2 out of 10, within the middle half of voters; social, liberal to authoritarian, 6 out of 10, within the middle half of voters.
 
