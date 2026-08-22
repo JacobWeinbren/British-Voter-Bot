@@ -11,6 +11,7 @@ RAW_DIR = ROOT / "data" / "raw"
 REFERENCE_DIR = ROOT / "data" / "reference"
 PROCESSED_DIR = ROOT / "data" / "processed"
 SAV_PATH = RAW_DIR / "BES2024_W31_Panel_v31.05.sav"
+CODEBOOK_PATH = RAW_DIR / "Bes_wave31Documentationv31.05-1.pdf"  # the questionnaire: scanned by `audit` for questions the SPSS file leaves out
 PANEL_CACHE = PROCESSED_DIR / "w31_panel.parquet"
 CONSTITUENCIES_PATH = REFERENCE_DIR / "pcon24_buc.geojson"
 COUNTRIES_PATH = REFERENCE_DIR / "countries24_buc.geojson"

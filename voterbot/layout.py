@@ -5,8 +5,9 @@ turn-5 layout (tighter text, 340px map) has slightly more room, so the estimate
 errs on the safe side there.
 
 Measured on rendered cards: the headline, life, media and issue blocks plus the
-middle row (map and bubbles) always add up to 862px, or 823px when the vote band
-wraps to two lines; the spectrums block is a fixed 200px plus its gap. Line
+middle row (map and bubbles) always add up to 806px, or 767px when the vote band
+wraps to two lines (36px block gaps, 28/18px inside the intro); the spectrums
+block is a fixed 200px plus its gap. Line
 breaks follow character counts closely enough to estimate the block heights.
 """
 
@@ -14,10 +15,10 @@ from __future__ import annotations
 
 import math
 
-ROW_TOTAL = 862            # middle row + headline + life + media + issue line, one-line band
+ROW_TOTAL = 806            # middle row + headline + life + media + issue line, one-line band
 TWO_LINE_BAND = 39         # extra height when the band text wraps
 TWO_LINE_BAND_CHARS = 78   # the band shrinks to 24px before wrapping; longer than this still wraps
-SPECTRUMS = 222            # the two scales block plus its gap, when present
+SPECTRUMS = 236            # the two scales block plus its gap, when present
 ISSUE_LINE = 36
 MARGIN = 16                # breathing room below the last bubble
 BUBBLE_GAP = 20

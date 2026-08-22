@@ -1688,3 +1688,18 @@
 | winConstituencyLD | 27,28,31 | Likelihood Win Local Constituency in GE: Lib Dems | 0 - Very unlikely to win / 100 - Very likely to win |
 | winConstituencyPC | 27,28,31 | How likely to win in constituency: Plaid Cymru | 0 - Very unlikely to win / 100 - Very likely to win |
 | winConstituencySNP | 27,28,31 | How likely to win in constituency: Scottish National Party (SNP) | 0 - Very unlikely to win / 100 - Very likely to win |
+
+## In the codebook but not in the released data (61)
+
+The questionnaire (Bes_wave31Documentationv31.05-1.pdf) was scanned as well. These question headers have no variable in the SPSS file, so nothing from them can go on a card. The open-text questions come first: the BES does not ship free-text answers in the public panel file (they are available from the BES on request), so for instance the three websites named in internetRead are not in the data. The rest are grid headers and section labels whose items are released under other names and appear in the tables above.
+
+| Question | Type | Waves | Asked |
+|---|---|---|---|
+| internetRead | grid-open | 4,5,8,28 | What are the most important Internet sources (including online newspapers) you read for information |
+| oldestChild | OPEN TEXTBOX | ? | What is the age of your oldest child? |
+| partnerOrgPartner | OPEN TEXTBOX | 20 | What does the firm or organisation they work at mainly make or do? |
+| selfOccLast | OPEN TEXTBOX | 1,17,18,19,20,21,22,23,25,26,27 | What was your job title? |
+| selfOrgLast | OPEN TEXTBOX | 1,17,18,19,20,21,22,23,25,26,27 | What did the firm or organisation you worked at mainly make or do? |
+| youngestChild | OPEN TEXTBOX | ? | What is the age of your youngest child? |
+
+Grid headers and section labels with no variable of that name: ambivalentSexis, brexitHandlingGrid, candidateLive, changeIssue1, changeIssue2, changeIssueLab1, changeIssueLab2, conCoalitionPartners, conHandlingGrid, csplGeneralElec, csplLocals, csplStandards, discussant_Ethnicity, econImpactPlacement, econProspGrid, effectsEU2Retro, effectsEU3, effectsEURetro, effectsIndScot, efficacyGrid, electionOutcomePrefsrank, euAgreeDisagree2, euIDGrid, fairShareGrid, genElectionVoteRetro, goneTooFarGrid, goneTooFarServiceGrid2, govtHandlingGrid, grnHandlingGrid, happyEULeaveResultSc, immigTypes, labCoalitionPartners, labHandlingGrid, leaderFreeSpeech, moreIssues, nationalIdentities, natSecurityGrid, nuclearGrid, partyContact1new, partyLeaderLike, pidGrid1b, pidGrid2b, polKnowPage1, polKnowPage2, privatePubGrid, privPrimSchool, privScndSchool, PTVGrid1, PTVGrid2, scotEconImpactPlacement, values1, values2, voteNormsGrid, watchDebates, welshEconImpactPlacement.

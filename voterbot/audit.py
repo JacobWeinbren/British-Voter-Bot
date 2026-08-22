@@ -4,12 +4,19 @@
 as used when its name (or its question stem) appears in the bot's source. The
 reasons are pattern rules, reviewed by hand; anything unmatched is listed as
 "not yet used" so it stays visible.
+
+The codebook PDF is scanned as well (pdftotext if installed, else pypdf), and
+question headers with no variable in the SPSS file get their own section: the
+open-text questions (internetRead, selfOrgLast...) whose free-text answers
+are not in the public release, and grid headers whose items carry other names.
 """
 
 from __future__ import annotations
 
 import collections
 import re
+import shutil
+import subprocess
 from pathlib import Path
 
 import pyreadstat
@@ -45,6 +52,70 @@ RULES: list[tuple[str, str]] = [
      "A snapshot of 2020-25 circumstances or a past government's handling that will have moved on; the card uses the wave-31 equivalents"),
 ]
 UNEXPLAINED = "Not yet used - no reason beyond time; could be added"
+
+KIND_RE = re.compile(r"grid-open|OPEN TEXTBOX|\bOPEN\b|SINGLE CHOICE|MULTIPLE CHOICE|DYNAMIC GRID|\bGRID\b|\bGrid\b|Coded variable|NUMERIC|SCALE|Scale|TEXT", re.I)
+OPEN_RE = re.compile(r"grid-open|OPEN TEXTBOX|\bOPEN\b", re.I)
+
+
+def codebook_text(pdf_path: Path = config.CODEBOOK_PATH) -> str | None:
+    """The codebook as text, or None if the PDF or a PDF reader is missing."""
+    if not pdf_path.exists():
+        return None
+    if shutil.which("pdftotext"):
+        return subprocess.run(["pdftotext", "-layout", str(pdf_path), "-"], capture_output=True, text=True, check=True).stdout
+    try:
+        from pypdf import PdfReader
+    except ImportError:
+        return None
+    return "\n".join(page.extract_text(extraction_mode="layout") or "" for page in PdfReader(str(pdf_path)).pages)
+
+
+def codebook_questions(text: str) -> dict[str, tuple[str, list[int], str]]:
+    """Question headers in the codebook: name -> (type, waves, question text).
+
+    A header is a variable-style name alone on a line (internetRead, values1,
+    PTVGrid1) with a question type or wave tag in the lines under it; the wave
+    tag often wraps, so the header lines are joined before the waves are read.
+    """
+    lines = text.splitlines()
+    found: dict[str, tuple[str, list[int], str]] = {}
+    for i, line in enumerate(lines):
+        match = re.fullmatch(r"\s*([A-Za-z][A-Za-z0-9_]*)\s*", line)
+        if not match:
+            continue
+        name = match.group(1)
+        if len(name) < 3 or re.search(r"W\d", name) or not re.search(r"[a-z][A-Z0-9_]", name):
+            continue  # wave tags, leader names and section titles are not variable names
+        head = []  # the type and wave tag: up to four lines, ending at the type keyword, a blank line or running text
+        for nxt in lines[i + 1:i + 5]:
+            if not nxt.strip() or (len(nxt.split()) > 4 and not KIND_RE.search(nxt)):
+                break
+            head.append(nxt)
+            if KIND_RE.search(nxt):
+                break
+        joined = " ".join(head)
+        if not (KIND_RE.search(joined) or re.search(r"\bW\d+", joined)):
+            continue
+        kind = KIND_RE.search(joined)
+        tag = re.sub(r"\s+", "", KIND_RE.sub("", joined.replace(name, "")).replace("topup", ""))
+        waves = sorted({int(w) for w in re.findall(r"W(\d+)", tag) if int(w) <= config.WAVE})
+        body = next((l.strip() for l in lines[i + 1 + len(head):i + 12] if len(l.split()) >= 4 and not l.strip().startswith("cols")), "")
+        found.setdefault(name, (kind.group(0) if kind else "", waves, body[:160]))
+    return found
+
+
+def unreleased_questions(questions: dict, released: set[str]) -> dict[str, tuple[str, list[int], str]]:
+    """Codebook headers with no variable (or variable prefix) in the data, ignoring names the PDF cut short."""
+    lower = {r.lower() for r in released}
+    out = {}
+    for name, info in questions.items():
+        key = name.lower()
+        if key in lower or any(r.startswith(key) for r in lower):
+            continue
+        if any(o != name and o.lower().startswith(key) for o in questions):
+            continue  # a longer header shares the prefix: this one was truncated at the column edge
+        out[name] = info
+    return out
 
 
 def _stem(column: str) -> tuple[str, str]:
@@ -98,5 +169,28 @@ def write_audit(out_path: Path = config.ROOT / "docs" / "unused-questions.md") -
         out += [f"## {status} ({len(group)})", "", "| Variable | Waves | Label | Answers |", "|---|---|---|---|"]
         out += [f"| {s} | {w} | {l.replace('|', '/')} | {a.replace('|', '/')} |" for s, w, l, a, _ in group]
         out.append("")
+    out += codebook_section(set(by_stem) | set(meta.column_names))
     out_path.write_text("\n".join(out))
     return out_path
+
+
+def codebook_section(released: set[str]) -> list[str]:
+    """The questions the codebook PDF has that the SPSS file does not, from wave 20 on."""
+    text = codebook_text()
+    if text is None:
+        return ["## In the codebook but not in the released data", "",
+                f"Not checked: {config.CODEBOOK_PATH.name} was not found, or neither pdftotext nor pypdf is installed.", ""]
+    missing = {n: q for n, q in unreleased_questions(codebook_questions(text), released).items()
+               if not q[1] or max(q[1]) >= config.EARLIEST_WAVE}
+    open_text = {n: q for n, q in missing.items() if OPEN_RE.search(q[0])}
+    headers = sorted((n for n in missing if n not in open_text), key=str.lower)
+    out = [f"## In the codebook but not in the released data ({len(missing)})", "",
+           f"The questionnaire ({config.CODEBOOK_PATH.name}) was scanned as well. These question headers have no variable in the SPSS file, "
+           "so nothing from them can go on a card. The open-text questions come first: the BES does not ship free-text answers in the public "
+           "panel file (they are available from the BES on request), so for instance the three websites named in internetRead are not in the data. "
+           "The rest are grid headers and section labels whose items are released under other names and appear in the tables above.", "",
+           "| Question | Type | Waves | Asked |", "|---|---|---|---|"]
+    for name, (kind, waves, asked) in sorted(open_text.items(), key=lambda kv: kv[0].lower()):
+        out.append(f"| {name} | {kind} | {','.join(map(str, waves)) or '?'} | {asked.replace('|', '/')} |")
+    out += ["", "Grid headers and section labels with no variable of that name: " + ", ".join(headers) + ".", ""]
+    return out

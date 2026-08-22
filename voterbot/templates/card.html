@@ -17,11 +17,12 @@
   strong { font-weight: 700; }
 
   .card { width: {{ width }}px; height: {{ height }}px; background: #ffffff; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; }
-  /* Handoff turn 5: the blocks share the column evenly, so there is no dead zone above the map row. */
-  .content { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 22px; padding: 46px 56px 30px; box-sizing: border-box; }
+  /* Fixed gaps between the blocks; any spare height goes into the map row (flex: 1, contents centred),
+     so the text blocks keep the reference spacing whatever the card's copy length. */
+  .content { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 36px; padding: 46px 56px 30px; box-sizing: border-box; }
 
-  .intro { display: flex; flex-direction: column; gap: 12px; }
-  .headline { font: 600 40px/1.28 "Archivo", sans-serif; color: {{ ink }}; letter-spacing: -0.01em; text-wrap: pretty; margin-bottom: 8px; }
+  .intro { display: flex; flex-direction: column; gap: 18px; }
+  .headline { font: 600 40px/1.28 "Archivo", sans-serif; color: {{ ink }}; letter-spacing: -0.01em; text-wrap: pretty; margin-bottom: 10px; }
   .headline strong { font-weight: 800; }
   .headline .place { font-weight: 800; color: {{ accent }}; }
 
@@ -34,7 +35,7 @@
   .issue { font: 600 28px/1.3 "Archivo", sans-serif; color: {{ ink }}; }
   .issue strong { font-weight: 800; border-bottom: 5px solid {{ accent }}; padding-bottom: 1px; }
 
-  .middle { display: flex; gap: 36px; align-items: center; }
+  .middle { flex: 1; display: flex; gap: 36px; align-items: center; }  /* no min-height: 0 - it must not shrink below the map, so overflow is detected */
   .map { width: {{ map_width }}px; flex: none; display: flex; justify-content: flex-start; }
   .map svg { display: block; }
   .bubbles { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
