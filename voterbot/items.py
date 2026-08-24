@@ -406,25 +406,16 @@ IMPACT_BATTERY = {  # the "how much impact on Britain's economy" grid, per wave,
 }
 
 
-MISREAD_CHECK = {  # a positive score for wars means the slider was read as sheer size of impact, not negative-to-positive
-    "W31": ("conflictEconImpactW31", "conflictEconImpactScotW31", "conflictEconImpactWalesW31"),
-    "W30": ("ukraineEconImpactW30", "ukraineEconImpactScotW30", "ukraineEconImpactWalesW30"),
-}
-
-
-def impact_item(cols: tuple[str, ...], lot_damage: str, some_damage: str, good: str, very_good: str,
-                mixed: str | tuple[str, ...] | None = None) -> Callable:
+def impact_item(cols: tuple[str, ...], lot_damage: str, some_damage: str, good: str | tuple[str, ...] | None,
+                very_good: str | tuple[str, ...] | None, mixed: str | tuple[str, ...] | None = None) -> Callable:
     """BES economic-impact scale, 0 (large negative impact) to 100 (large positive).
 
     The middle (41-59) reads as the `mixed` wordings, which is_neutral() picks up
-    so they are drawn at NEUTRAL_WEIGHT. Two kinds of answer are dropped outright:
-    a straight-liner who gave the identical answer to every item in the grid, and
-    anyone who scored global conflicts (in 2025, the invasion of Ukraine) as a
-    positive for the economy. Nobody believes wars have done Britain's economy
-    good: a 60+ there means the slider was read as "how much impact" rather than
-    negative-to-positive, so none of that person's impact answers can be trusted
-    (76% of rejoin supporters who put Brexit at 60+ also put conflicts at 60+,
-    against 14% of stay-out supporters).
+    so they are drawn at NEUTRAL_WEIGHT. A band passed as None stays unspoken:
+    the conflicts items do this for their positive side, where a high score reads
+    as a signal against Ukraine rather than a belief that wars help the economy.
+    Someone who gave the identical answer to every item in the grid is skipped -
+    that is a straight-liner, not a view.
     """
     def custom(row, country: int) -> str | None:
         answer, col = latest(row, cols)
@@ -434,8 +425,6 @@ def impact_item(cols: tuple[str, ...], lot_damage: str, some_damage: str, good: 
         grid = [value(row, c) for c in IMPACT_BATTERY.get(wave, ())]
         grid = [g for g in grid if g is not None]
         if len(grid) >= 3 and len(set(grid)) == 1:
-            return None
-        if any((value(row, c) or 0) >= 60 for c in MISREAD_CHECK.get(wave, ())):
             return None
         n = int(answer)
         if n <= 20:
@@ -1157,7 +1146,7 @@ ITEMS: list[Item] = [
          ("The state of the world economy has cut both ways for Britain.", "The global economy has done Britain about as much good as harm.", "The world economy hasn't had much impact on Britain either way.")), weight=0.5),
     Item("conflictEcon", "economy-blame", (), custom=impact_item(("conflictEconImpactW31",),
          ("Global conflicts like Iran and Ukraine have hit the economy hard.", "Conflicts around the world, like Iran and Ukraine, have had a big negative impact on our economy.", "The economy has been badly hurt by global conflicts like Iran and Ukraine."), ("Global conflicts like Iran and Ukraine have hurt the economy a bit.", "Conflicts around the world, like Iran and Ukraine, have had a fairly negative impact on our economy.", "The economy has suffered somewhat because of global conflicts like Iran and Ukraine."),
-         ("Global conflicts like Iran and Ukraine have been good for the economy.", "Conflicts around the world, like Iran and Ukraine, have had a positive impact on our economy.", "The economy has benefited from global conflicts like Iran and Ukraine."), ("Global conflicts like Iran and Ukraine have been very good for the economy.", "Conflicts around the world, like Iran and Ukraine, have had a big positive impact on our economy.", "The economy has benefited a great deal from global conflicts like Iran and Ukraine."),
+         None, None,  # "conflicts have been good for the economy" stays unspoken: a high score is a signal against Ukraine, not a genuine economic view
          ("Global conflicts like Iran and Ukraine haven't had much impact on our economy either way.", "Conflicts around the world, like Iran and Ukraine, have done our economy about as much good as harm.", "Global conflicts like Iran and Ukraine have had mixed effects on our economy.")), weight=0.7),
     Item("govtEconImpact", "economy-blame", (), custom=impact_item(("ukGovtEconImpactW31", "ukGovtEconImpactW30"),
          ("The UK government has done the economy a lot of damage.", "The current UK government has had a big negative impact on the economy.", "The UK government has really hurt the economy."), ("The UK government has done the economy some damage.", "The current UK government has had a fairly negative impact on the economy.", "The UK government has hurt the economy somewhat."),
@@ -1177,11 +1166,11 @@ ITEMS: list[Item] = [
          ("The Scottish Government has had mixed effects on Scotland's economy.", "The Scottish Government has done Scotland's economy about as much good as harm.", "The Scottish Government hasn't had much impact on the Scottish economy either way.")), nations=(2,), weight=0.7),
     Item("conflictEconScot", "economy-blame", (), custom=impact_item(("conflictEconImpactScotW31",),
          ("Global conflicts like Iran and Ukraine have hit Scotland's economy hard.", "Conflicts around the world, like Iran and Ukraine, have had a big negative impact on Scotland's economy.", "Scotland's economy has been badly hurt by global conflicts like Iran and Ukraine."), ("Global conflicts like Iran and Ukraine have hurt Scotland's economy a bit.", "Conflicts around the world, like Iran and Ukraine, have had a fairly negative impact on Scotland's economy.", "Scotland's economy has suffered somewhat because of global conflicts like Iran and Ukraine."),
-         ("Global conflicts like Iran and Ukraine have been good for Scotland's economy.", "Conflicts around the world, like Iran and Ukraine, have had a positive impact on Scotland's economy.", "Scotland's economy has benefited from global conflicts like Iran and Ukraine."), ("Global conflicts like Iran and Ukraine have been very good for Scotland's economy.", "Conflicts around the world, like Iran and Ukraine, have had a big positive impact on Scotland's economy.", "Scotland's economy has benefited a great deal from global conflicts like Iran and Ukraine."),
+         None, None,  # positive side unspoken, as on the GB conflicts item
          ("Global conflicts like Iran and Ukraine haven't had much impact on Scotland's economy either way.", "Conflicts around the world, like Iran and Ukraine, have done Scotland's economy about as much good as harm.", "Global conflicts like Iran and Ukraine have had mixed effects on Scotland's economy.")), nations=(2,), weight=0.5),
     Item("conflictEconWales", "economy-blame", (), custom=impact_item(("conflictEconImpactWalesW31",),
          ("Global conflicts like Iran and Ukraine have hit Wales's economy hard.", "Conflicts around the world, like Iran and Ukraine, have had a big negative impact on the Welsh economy.", "Wales's economy has been badly hurt by global conflicts like Iran and Ukraine."), ("Global conflicts like Iran and Ukraine have hurt Wales's economy a bit.", "Conflicts around the world, like Iran and Ukraine, have had a fairly negative impact on the Welsh economy.", "Wales's economy has suffered somewhat because of global conflicts like Iran and Ukraine."),
-         ("Global conflicts like Iran and Ukraine have been good for Wales's economy.", "Conflicts around the world, like Iran and Ukraine, have had a positive impact on the Welsh economy.", "Wales's economy has benefited from global conflicts like Iran and Ukraine."), ("Global conflicts like Iran and Ukraine have been very good for Wales's economy.", "Conflicts around the world, like Iran and Ukraine, have had a big positive impact on the Welsh economy.", "Wales's economy has benefited a great deal from global conflicts like Iran and Ukraine."),
+         None, None,  # positive side unspoken, as on the GB conflicts item
          ("Global conflicts like Iran and Ukraine haven't had much impact on Wales's economy either way.", "Conflicts around the world, like Iran and Ukraine, have done the Welsh economy about as much good as harm.", "Global conflicts like Iran and Ukraine have had mixed effects on Wales's economy.")), nations=(3,), weight=0.5),
     Item("brexitEconWales", "economy-blame", (), custom=impact_item(("brexitEconImpactWalesW31", "brexitEconImpactWalesW30"),
          ("Brexit has done Wales's economy a lot of damage.", "Brexit has had a big negative impact on the Welsh economy.", "Brexit has really hurt Wales's economy."), ("Brexit has done Wales's economy some damage.", "Brexit has had a fairly negative impact on the Welsh economy.", "Brexit has hurt Wales's economy somewhat."),
