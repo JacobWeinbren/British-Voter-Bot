@@ -1,8 +1,10 @@
 """Weighted sampling of respondents and the profiles.jsonl queue.
 
-Respondents are drawn without replacement with probability proportional to
-the wave 31 survey weight, so the run of posts looks like Britain rather than
-like the panel. The draw order is the posting order, so it is already random.
+Respondents are drawn without replacement in proportion to the wave 31
+survey weight (adjusted for card completion, and with ethnic minorities
+boosted to a fifth of the feed), then each year's draw is shuffled. The
+posting order is therefore random, and every stretch of the feed matches
+the target mix.
 """
 
 from __future__ import annotations
@@ -19,17 +21,15 @@ from .profile import ProfileBuilder
 
 
 def eligible_rows(panel: pd.DataFrame) -> pd.DataFrame:
-    """Cheap pre-filter before the full build: must carry a survey weight."""
+    """Cheap pre-filter before the full build: must carry a survey weight and be able to vote.
+
+    A respondent whose citizenship does not qualify them for UK general
+    elections (eligibleUKGE code 0) has no place on a card about how they
+    would vote in one.
+    """
     has_weight = panel[config.WEIGHT_COLUMN].notna() & (panel[config.WEIGHT_COLUMN] > 0)
-    return panel[has_weight]
-
-
-def weighted_order(panel: pd.DataFrame, seed: int) -> pd.DataFrame:
-    """Every row, in weighted-draw order without replacement (heavier weights tend to come first)."""
-    rng = np.random.default_rng(seed)
-    weights = panel[config.WEIGHT_COLUMN].to_numpy(dtype=float)
-    order = rng.choice(len(panel), size=len(panel), replace=False, p=weights / weights.sum())
-    return panel.iloc[order]
+    can_vote = pd.to_numeric(panel[f"eligibleUKGEW{config.WAVE}"], errors="coerce") == 1
+    return panel[has_weight & can_vote]
 
 
 def build_profiles(panel: pd.DataFrame, count: int | None = config.PROFILE_COUNT, seed: int = config.RANDOM_SEED,
@@ -46,6 +46,10 @@ def build_profiles(panel: pd.DataFrame, count: int | None = config.PROFILE_COUNT
     pool = eligible_rows(panel).reset_index(drop=True)
     builder = ProfileBuilder(pool)
     weights = card_weights(pool, builder, seed, verbose)
+    minority = pd.to_numeric(pool["p_ethnicity2W31"], errors="coerce").ge(5).to_numpy()
+    if verbose:
+        print(f"  ethnic minorities lifted from {weights[minority].sum() / weights.sum():.1%} "
+              f"to {config.MINORITY_SHARE:.0%} of each cycle's draw")
     usable = weights > 0
     cycle_size = config.POSTS_PER_DAY * 365
     cycles = int(np.ceil(len(pool) / cycle_size))
@@ -55,8 +59,8 @@ def build_profiles(panel: pd.DataFrame, count: int | None = config.PROFILE_COUNT
     for cycle in range(cycles):
         idx = np.flatnonzero(usable & (cycle - last_shown > config.REPEAT_GAP_CYCLES))
         take = min(cycle_size, len(idx)) if count is None else min(cycle_size, len(idx), count - len(profiles))
-        chosen = rng.choice(idx, size=take, replace=False, p=weights[idx] / weights[idx].sum())
-        rng.shuffle(chosen)  # sequential weighted draws put heavy weights first; shuffling makes the year uniform
+        chosen = draw_cycle(rng, idx, weights, minority, take)
+        rng.shuffle(chosen)  # the draw comes minorities-first and heavy-weights-first; shuffling makes the year uniform
         for i in chosen:
             row = pool.iloc[i]
             profile = builder.build(row, seed=seed * 100_003 + int(row["id"]) * 31 + cycle)
@@ -103,6 +107,31 @@ def card_weights(pool: pd.DataFrame, builder: ProfileBuilder, seed: int, verbose
         print(f"  {int(can_build.sum())} of {len(pool)} respondents can be carded; "
               f"completion by cell ranges {completion.min():.0%}-{completion.max():.0%}")
     return adjusted
+
+
+def draw_cycle(rng: np.random.Generator, idx: np.ndarray, weights: np.ndarray, minority: np.ndarray,
+               take: int) -> np.ndarray:
+    """One cycle's cards: exactly MINORITY_SHARE ethnic-minority, each side a weighted draw.
+
+    Fully representative, minority voters would be about one card in nine, and
+    each minority group a rarity, so a fifth of each cycle is drawn from the
+    minority pool and the rest from everyone else. Both sides are still drawn
+    in proportion to the survey weights, so the feed stays representative in
+    every other respect. The split is drawn per side rather than by scaling
+    the minority weights up: the repeat gap and the draw itself thin the small
+    minority pool much faster than the rest, and a weight boost lands a couple
+    of points short of its target.
+    """
+    minority_idx, rest_idx = idx[minority[idx]], idx[~minority[idx]]
+    n_minority = min(round(take * config.MINORITY_SHARE), len(minority_idx))
+    n_rest = min(take - n_minority, len(rest_idx))
+    n_minority = min(take - n_rest, len(minority_idx))  # top back up if the rest of the pool ran short
+    def draw(pool_idx: np.ndarray, n: int) -> np.ndarray:
+        if n == 0:
+            return np.array([], dtype=int)
+        return rng.choice(pool_idx, size=n, replace=False, p=weights[pool_idx] / weights[pool_idx].sum())
+
+    return np.concatenate([draw(minority_idx, n_minority), draw(rest_idx, n_rest)]).astype(int)
 
 
 def _open(path: Path, mode: str):

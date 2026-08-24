@@ -38,6 +38,7 @@ EARLIEST_WAVE = 20  # rule of thumb: ignore questions last asked before wave 20
 # Sampling: no cap - every eligible respondent is queued, in weighted-draw order.
 # Pass --count to `build` to stop early for a test run.
 PROFILE_COUNT = None
+MINORITY_SHARE = 0.20  # ethnic minorities (p_ethnicity2 codes 5+) are boosted to a fifth of the feed; the mix within each side of the split stays survey-weighted
 RANDOM_SEED = 31_2026
 POSTS_PER_DAY = 4  # 10am, 1pm, 5pm and 9pm UK time: see .github/workflows/post.yml
 RENDER_SCALE = 2000 / 1350  # post images at 1600x2000: Bluesky's CDN caps the long side at 2000px, so nothing is resampled
