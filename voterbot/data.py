@@ -16,7 +16,11 @@ import pandas as pd
 
 from . import config
 
-MISSING_CODES = {97, 98, 99, 997, 998, 999, 9997, 9998, 9999}
+# The BES "don't know / skipped / not asked" codes. Two-digit 97-99 are NOT treated as
+# missing: on the 0-100 sliders (warmth, economic impact, rich/poor ladders, age) they are
+# real answers, and every question that does use a code in that range (education age 97,
+# "no local election" 98, deficit 99) is read through a lookup that ignores unknown codes.
+MISSING_CODES = {997, 998, 999, 9997, 9998, 9999}
 
 
 def _wanted_columns(names: Iterable[str]) -> list[str]:

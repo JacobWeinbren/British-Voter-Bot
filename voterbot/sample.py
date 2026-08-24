@@ -56,6 +56,7 @@ def build_profiles(panel: pd.DataFrame, count: int | None = config.PROFILE_COUNT
         idx = np.flatnonzero(usable & (cycle - last_shown > config.REPEAT_GAP_CYCLES))
         take = min(cycle_size, len(idx)) if count is None else min(cycle_size, len(idx), count - len(profiles))
         chosen = rng.choice(idx, size=take, replace=False, p=weights[idx] / weights[idx].sum())
+        rng.shuffle(chosen)  # sequential weighted draws put heavy weights first; shuffling makes the year uniform
         for i in chosen:
             row = pool.iloc[i]
             profile = builder.build(row, seed=seed * 100_003 + int(row["id"]) * 31 + cycle)

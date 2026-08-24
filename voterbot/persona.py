@@ -507,11 +507,11 @@ def circumstance_details(row, country: int, rng: random.Random) -> list[tuple[st
         options.append(("other", one_of(rng, "I'd take a gamble over a sure thing", "I'd rather take my chances than settle for a sure thing", "I'll gamble rather than take the safe option")))
     # Mini-IPIP personality items: life of the party / keep in the background; mood swings / relaxed;
     # vivid imagination and abstract ideas; chores done right away and liking order; sympathy for others
-    for trait, high, low in (("extraversion", one_of(rng, "I'm an extrovert, by my own account", "I'd describe myself as an extrovert", "I'm an outgoing sort, if I say so myself"), one_of(rng, "I'm an introvert, by my own account", "I'd describe myself as an introvert", "I'm the sort who keeps in the background, as I see it")),
+    for trait, high, low in (("extraversion", one_of(rng, "I'm an extrovert", "I'd describe myself as an extrovert", "I'm an outgoing sort of person"), one_of(rng, "I'm an introvert", "I'd describe myself as an introvert", "I'm the sort who keeps in the background, as I see it")),
                              ("neuroticism", one_of(rng, "I'm a worrier", "I'm someone who worries a lot", "I'd say I'm a worrier by nature"), one_of(rng, "not much rattles me", "I'm pretty relaxed most of the time", "I don't get rattled easily")),
                              ("openness", one_of(rng, "I've a vivid imagination and a taste for abstract ideas", "I've got a vivid imagination and I like abstract ideas", "I'm imaginative, and I enjoy getting into abstract ideas"), None),
                              ("conscientiousness", one_of(rng, "I'm organised and tidy", "I keep things tidy and organised", "I'm a tidy, organised person"), one_of(rng, "I'm not the tidiest or most organised person", "I'm not very tidy or organised", "Being organised and tidy isn't my strong point")),
-                             ("agreeableness", one_of(rng, "I'm the sympathetic sort, by my own account", "I'd describe myself as a sympathetic person", "I feel for other people, by my own reckoning"), None)):
+                             ("agreeableness", one_of(rng, "I'm the sympathetic sort", "I'd describe myself as a sympathetic person", "I'm someone who feels for other people"), None)):
         score = value(row, f"big_five_{trait}", max_valid=21)
         if score is not None and score >= 17 and high:
             options.append(("other", high))
@@ -807,7 +807,7 @@ def shared_content(row, bold: dict[str, str], rng: random.Random | None = None) 
 def feeling(score: int, pronoun: str, rng: random.Random | None = None) -> str:
     """A 0-10 like/dislike rating as a plain clause: 'I really don't like him'."""
     if score <= 1:
-        return one_of(rng, f"I can't stand {pronoun}", f"I've no time at all for {pronoun}", f"I can't abide {pronoun}")
+        return one_of(rng, f"I can't stand {pronoun}", f"I've no time at all for {pronoun}", f"I can't bear {pronoun}")
     if score <= 3:
         return one_of(rng, f"I really don't like {pronoun}", f"I've very little time for {pronoun}", f"I'm really not keen on {pronoun}")
     if score == 4:
@@ -845,12 +845,12 @@ def leader_bubble(row, country: int, intention_party: int | None, rng: random.Ra
     if max(scores.values()) == min(scores.values()):
         n = int(max(scores.values()))
         if n <= 2:
-            return Span(one_of(rng, "I can't stand any of the party leaders.", "I've no time at all for any of the party leaders.", "I can't abide a single one of the party leaders."))
+            return Span(one_of(rng, "I can't stand any of the party leaders.", "I've no time at all for any of the party leaders.", "Every one of the party leaders puts me off."))
         if n <= 4:
             return Span(one_of(rng, "I don't much like any of the party leaders.", "I'm not that keen on any of the party leaders.", "I don't think much of any of the party leaders."))
         if n >= 7:
             return Span(one_of(rng, "I like all the party leaders about the same.", "I've got time for all the party leaders, and about the same for each.", "I like every one of the party leaders, and much the same amount."))
-        return Span(one_of(rng, "I'm lukewarm about all the party leaders - none of them stands out.", "I could take or leave any of the party leaders - they're all much of a muchness to me.", "I'm neither here nor there on the party leaders, and none of them stands out from the rest."))
+        return Span(one_of(rng, "I'm lukewarm about all the party leaders - none of them stands out.", "I could take or leave any of the party leaders - they're all much the same to me.", "I'm neither here nor there on the party leaders, and none of them stands out from the rest."))
     party_id = value(row, "partyIdW31")
     preferred = {intention_party, int(party_id) if party_id is not None else None}
 

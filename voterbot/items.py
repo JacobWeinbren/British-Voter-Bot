@@ -2,8 +2,10 @@
 
 Each `Item` knows which columns hold the answer (most recent wave first), which
 nations it applies to, a topic (so one card never carries two bubbles on the
-same subject) and how to phrase each answer. Neutral answers usually return
-None so bubbles carry an actual view.
+same subject) and how to phrase each answer. Middling answers either return
+None or read as an explicit mixed verdict; either way a clear view comes
+first - fence-sitting statements are drawn at NEUTRAL_WEIGHT, because surveys
+nudge people towards the middle option.
 
 House style: UK spelling, plain hyphens, short sentences, no more than about
 90 characters, and nothing a real person would not say out loud.
@@ -97,14 +99,14 @@ def worse_better5(lot_worse: str, little_worse: str, little_better: str, lot_bet
 
 def handling5(subject: str) -> Phraser:
     return by_code({
-        1: (f"The government is handling {subject} very badly.", f"The government is making a real mess of {subject}.",
-            f"The government is doing a very bad job on {subject}."),
-        2: (f"The government is handling {subject} fairly badly.", f"The government isn't doing a great job on {subject}.",
-            f"The government is doing a fairly poor job on {subject}."),
-        4: (f"The government is handling {subject} fairly well.", f"The government is doing a fairly good job on {subject}.",
-            f"The government has {subject} reasonably well in hand."),
-        5: (f"The government is handling {subject} very well.", f"The government is doing a very good job on {subject}.",
-            f"The government has {subject} well in hand."),
+        1: (f"The UK government is handling {subject} very badly.", f"The UK government is making a real mess of {subject}.",
+            f"The UK government is doing a very bad job on {subject}."),
+        2: (f"The UK government is handling {subject} fairly badly.", f"The UK government isn't doing a great job on {subject}.",
+            f"The UK government is doing a fairly poor job on {subject}."),
+        4: (f"The UK government is handling {subject} fairly well.", f"The UK government is doing a fairly good job on {subject}.",
+            f"The UK government has {subject} reasonably well in hand."),
+        5: (f"The UK government is handling {subject} very well.", f"The UK government is doing a very good job on {subject}.",
+            f"The UK government has {subject} well in hand."),
     })
 
 
@@ -404,11 +406,25 @@ IMPACT_BATTERY = {  # the "how much impact on Britain's economy" grid, per wave,
 }
 
 
-def impact_item(cols: tuple[str, ...], lot_damage: str, some_damage: str, good: str, very_good: str) -> Callable:
+MISREAD_CHECK = {  # a positive score for wars means the slider was read as sheer size of impact, not negative-to-positive
+    "W31": ("conflictEconImpactW31", "conflictEconImpactScotW31", "conflictEconImpactWalesW31"),
+    "W30": ("ukraineEconImpactW30", "ukraineEconImpactScotW30", "ukraineEconImpactWalesW30"),
+}
+
+
+def impact_item(cols: tuple[str, ...], lot_damage: str, some_damage: str, good: str, very_good: str,
+                mixed: str | tuple[str, ...] | None = None) -> Callable:
     """BES economic-impact scale, 0 (large negative impact) to 100 (large positive).
 
-    The middle (41-59) says nothing. Someone who gave the identical answer to
-    every item in the grid is skipped - that is a straight-liner, not a view.
+    The middle (41-59) reads as the `mixed` wordings, which is_neutral() picks up
+    so they are drawn at NEUTRAL_WEIGHT. Two kinds of answer are dropped outright:
+    a straight-liner who gave the identical answer to every item in the grid, and
+    anyone who scored global conflicts (in 2025, the invasion of Ukraine) as a
+    positive for the economy. Nobody believes wars have done Britain's economy
+    good: a 60+ there means the slider was read as "how much impact" rather than
+    negative-to-positive, so none of that person's impact answers can be trusted
+    (76% of rejoin supporters who put Brexit at 60+ also put conflicts at 60+,
+    against 14% of stay-out supporters).
     """
     def custom(row, country: int) -> str | None:
         answer, col = latest(row, cols)
@@ -419,6 +435,8 @@ def impact_item(cols: tuple[str, ...], lot_damage: str, some_damage: str, good: 
         grid = [g for g in grid if g is not None]
         if len(grid) >= 3 and len(set(grid)) == 1:
             return None
+        if any((value(row, c) or 0) >= 60 for c in MISREAD_CHECK.get(wave, ())):
+            return None
         n = int(answer)
         if n <= 20:
             return lot_damage
@@ -428,7 +446,7 @@ def impact_item(cols: tuple[str, ...], lot_damage: str, some_damage: str, good: 
             return very_good
         if n >= 60:
             return good
-        return None
+        return mixed
     return custom
 
 
@@ -518,7 +536,7 @@ ITEMS: list[Item] = [
                 ("I'm not keen on the government taking from the well-off to give to others.", "I don't think it's the government's job to redistribute income."),
                 ("The government has no business redistributing income from the well-off.", "Taking from the better off to give to the less well off is wrong."))),
     Item("lr2", "big-business", ("lr2W31",),
-         agree5(("Big business takes advantage of ordinary people at every turn.", "Big business rides roughshod over ordinary people."),
+         agree5(("Big business takes advantage of ordinary people at every turn.", "Big business walks all over ordinary people."),
                 ("Big business takes advantage of ordinary people.", "Ordinary people get taken advantage of by big business."),
                 ("I don't think big business takes advantage of ordinary people.", "Big business doesn't take advantage of ordinary people, as a rule."),
                 ("The idea that big business exploits ordinary people is wrong.", "Big business doesn't take advantage of ordinary people - that's a myth."))),
@@ -671,7 +689,7 @@ ITEMS: list[Item] = [
                 ("I'd never want a leader who ignored parliament and elections.", "The last thing Britain needs is a strong leader who ignores parliament and elections.", "I'm dead against the idea of a strong leader who doesn't have to bother with parliament or elections."))),
     Item("trustMPs", "trust", ("trustMPsW31",), trust_mps),
     Item("efficacyPolCare", "politicians", ("efficacyPolCareW31", "efficacyPolCareW30", "efficacyPolCareW27"),
-         agree5(("Politicians couldn't care less what people like me think.", "Politicians don't give two hoots what people like me think.", "Politicians have absolutely no interest in what people like me think."),
+         agree5(("Politicians couldn't care less what people like me think.", "Politicians aren't the least bit interested in what people like me think.", "Politicians have absolutely no interest in what people like me think."),
                 ("Politicians don't care what people like me think.", "Politicians aren't interested in what people like me think.", "I don't think politicians care what people like me think."),
                 ("I think politicians do care what people like me think.", "I'd say politicians do care what people like me think.", "On the whole, politicians care what people like me think."),
                 ("Politicians really do care what people like me think.", "I'm certain politicians care what people like me think.", "Politicians absolutely do care what people like me think."))),
@@ -1005,13 +1023,20 @@ ITEMS: list[Item] = [
                   5: ("Brexit has made the economy much better.", "The economy is much better off because of Brexit.", "Brexit has done the economy a lot of good.")})),
     Item("brexitNHS", "brexit-effects", ("effectsNHSRetroW27",),
          by_code({1: ("Brexit has made the NHS much worse.", "The NHS is much worse off because of Brexit.", "Brexit has done the NHS a lot of harm."), 2: ("Brexit has made the NHS worse.", "The NHS is worse off because of Brexit.", "Brexit has done the NHS harm."),
+                  3: ("Brexit hasn't made much difference to the NHS.", "The NHS is about the same as it was before Brexit.", "Brexit has made little difference to the NHS either way."),
                   4: ("Brexit has been good for the NHS.", "The NHS is better off because of Brexit.", "Brexit has done the NHS good."), 5: ("Brexit has been very good for the NHS.", "The NHS is much better off because of Brexit.", "Brexit has done the NHS a lot of good.")}), weight=0.6),
+    # The wave-27 questionnaire (effectsEURetro grid) asks whether immigration is higher or
+    # lower because the UK left the EU; the SPSS value labels ("Much worse ... Much better")
+    # are a copy-paste error from the neighbouring better/worse grid.
     Item("brexitImmigration", "brexit-effects", ("effectsEUImmigrationRetroW27",),
-         by_code({1: ("Brexit has made immigration much worse.", "Immigration is much worse because of Brexit.", "Brexit has made the immigration situation a lot worse."), 2: ("Brexit has made immigration worse.", "Immigration is worse because of Brexit.", "Brexit has made the immigration situation worse."),
-                  3: ("Brexit hasn't made much difference to immigration.", "Immigration is neither better nor worse for Brexit.", "Brexit has made little difference to immigration either way."), 4: ("Brexit has made immigration better.", "Immigration is better because of Brexit.", "Brexit has improved the immigration situation."),
-                  5: ("Brexit has made immigration much better.", "Immigration is much better because of Brexit.", "Brexit has improved the immigration situation a lot.")}), weight=0.6),
+         by_code({1: ("Brexit has made immigration to Britain much lower.", "Immigration is much lower because of Brexit.", "Brexit has cut immigration a great deal."),
+                  2: ("Brexit has made immigration to Britain lower.", "Immigration is lower because of Brexit.", "Brexit has brought immigration down."),
+                  3: ("Brexit hasn't made much difference to immigration levels.", "Immigration is about the same as it was before Brexit.", "Brexit has left immigration levels about the same."),
+                  4: ("Brexit has made immigration to Britain higher.", "Immigration is higher because of Brexit.", "Brexit has pushed immigration up."),
+                  5: ("Brexit has made immigration to Britain much higher.", "Immigration is much higher because of Brexit.", "Brexit has pushed immigration up a great deal.")}), weight=0.6),
     Item("brexitVoice", "brexit-effects", ("euLeaveVoiceRetroW27",),
          by_code({1: ("Brexit has left Britain with far less clout in the world.", "Britain has much less of a voice in the world since Brexit.", "Brexit has badly weakened Britain's voice in the world."), 2: ("Brexit has left Britain with less clout in the world.", "Britain has less of a voice in the world since Brexit.", "Brexit has weakened Britain's voice in the world."),
+                  3: ("Brexit hasn't made much difference to Britain's influence in the world.", "Britain has about the same influence in the world as before Brexit.", "Brexit has made little difference to Britain's clout either way."),
                   4: ("Brexit has given Britain more clout in the world.", "Britain has more of a voice in the world since Brexit.", "Brexit has strengthened Britain's voice in the world."), 5: ("Brexit has given Britain far more clout in the world.", "Britain has much more of a voice in the world since Brexit.", "Brexit has greatly strengthened Britain's voice in the world.")}), weight=0.6),
     Item("brexitFinance", "brexit-effects", ("effectsEUFinanceRetroW27",),
          by_code({1: ("Brexit has left me personally much worse off.", "My own finances are much worse because of Brexit.", "Brexit has hit my own finances hard."), 2: ("Brexit has left me personally worse off.", "My own finances are worse because of Brexit.", "Brexit has left my own finances worse off."),
@@ -1019,6 +1044,7 @@ ITEMS: list[Item] = [
                   5: ("Brexit has left me personally much better off.", "My own finances are much better because of Brexit.", "Brexit has done my own finances a lot of good.")}), weight=0.6),
     Item("handleEUPost", "brexit-effects", ("handleEUPostW27",),
          by_code({1: ("The government made a complete mess of taking Britain out of the EU.", "The government handled Britain's exit from the EU very badly.", "Britain's exit from the EU was handled terribly by the government."), 2: ("The government made a mess of taking Britain out of the EU.", "The government handled Britain's exit from the EU badly.", "Britain's exit from the EU was handled badly by the government."),
+                  3: ("The government handled leaving the EU neither well nor badly.", "The government's handling of Brexit was neither good nor bad.", "The government took Britain out of the EU neither well nor badly, as I see it."),
                   4: ("The government handled leaving the EU well.", "The government did a good job of taking Britain out of the EU.", "Britain's exit from the EU was handled well by the government."), 5: ("The government handled leaving the EU very well.", "The government did a very good job of taking Britain out of the EU.", "Britain's exit from the EU was handled very well by the government.")}), weight=0.5),
     Item("euRefDoOver", "europe", ("euRefDoOverW29",),
          by_code({1: ("I'd like another referendum on EU membership.", "There should be another referendum on EU membership.", "I want another EU referendum."), 0: ("I don't want another EU referendum.", "There shouldn't be another referendum on EU membership.", "I'm against holding another EU referendum.")}), weight=0.7),
@@ -1123,37 +1149,48 @@ ITEMS: list[Item] = [
     # --- added after the wave-20+ audit (docs/unused-questions.md) ---
     Item("brexitEcon", "economy-blame", (), custom=impact_item(("brexitEconImpactW31", "brexitEconImpactW30"),
          ("Brexit has done the economy a lot of damage.", "Brexit has had a big negative impact on Britain's economy.", "Brexit has really hurt the economy."), ("Brexit has done the economy some damage.", "Brexit has had a fairly negative impact on Britain's economy.", "Brexit has hurt the economy somewhat."),
-         ("Brexit has been good for the economy.", "Brexit has had a positive impact on Britain's economy.", "Brexit has helped the economy."), ("Brexit has been very good for the economy.", "Brexit has had a big positive impact on Britain's economy.", "Brexit has done the economy a lot of good.")), weight=0.8),
+         ("Brexit has been good for the economy.", "Brexit has had a positive impact on Britain's economy.", "Brexit has helped the economy."), ("Brexit has been very good for the economy.", "Brexit has had a big positive impact on Britain's economy.", "Brexit has done the economy a lot of good."),
+         ("Brexit has had mixed effects on the economy.", "Brexit has done the economy about as much good as harm.", "Brexit hasn't had much impact on the economy either way.")), weight=0.8),
     Item("worldEcon", "economy-blame", (), custom=impact_item(("globalEconomyEconImpactW31", "globalEconomyEconImpactW30"),
          ("The state of the world economy has hit Britain hard.", "The global economy has had a big negative impact on Britain.", "Britain has been badly hurt by the state of the global economy."), ("The state of the world economy has hurt Britain a bit.", "The global economy has had a fairly negative impact on Britain.", "Britain has suffered somewhat from the state of the global economy."),
-         ("The world economy has been good for Britain.", "The global economy has had a positive impact on Britain.", "Britain has done well out of the state of the world economy."), ("The world economy has been very good for Britain.", "The global economy has had a big positive impact on Britain.", "Britain has done really well out of the state of the world economy.")), weight=0.5),
+         ("The world economy has been good for Britain.", "The global economy has had a positive impact on Britain.", "Britain has done well out of the state of the world economy."), ("The world economy has been very good for Britain.", "The global economy has had a big positive impact on Britain.", "Britain has done really well out of the state of the world economy."),
+         ("The state of the world economy has cut both ways for Britain.", "The global economy has done Britain about as much good as harm.", "The world economy hasn't had much impact on Britain either way.")), weight=0.5),
     Item("conflictEcon", "economy-blame", (), custom=impact_item(("conflictEconImpactW31",),
          ("Global conflicts like Iran and Ukraine have hit the economy hard.", "Conflicts around the world, like Iran and Ukraine, have had a big negative impact on our economy.", "The economy has been badly hurt by global conflicts like Iran and Ukraine."), ("Global conflicts like Iran and Ukraine have hurt the economy a bit.", "Conflicts around the world, like Iran and Ukraine, have had a fairly negative impact on our economy.", "The economy has suffered somewhat because of global conflicts like Iran and Ukraine."),
-         ("Global conflicts like Iran and Ukraine have been good for the economy.", "Conflicts around the world, like Iran and Ukraine, have had a positive impact on our economy.", "The economy has benefited from global conflicts like Iran and Ukraine."), ("Global conflicts like Iran and Ukraine have been very good for the economy.", "Conflicts around the world, like Iran and Ukraine, have had a big positive impact on our economy.", "The economy has benefited a great deal from global conflicts like Iran and Ukraine.")), weight=0.7),
+         ("Global conflicts like Iran and Ukraine have been good for the economy.", "Conflicts around the world, like Iran and Ukraine, have had a positive impact on our economy.", "The economy has benefited from global conflicts like Iran and Ukraine."), ("Global conflicts like Iran and Ukraine have been very good for the economy.", "Conflicts around the world, like Iran and Ukraine, have had a big positive impact on our economy.", "The economy has benefited a great deal from global conflicts like Iran and Ukraine."),
+         ("Global conflicts like Iran and Ukraine haven't had much impact on our economy either way.", "Conflicts around the world, like Iran and Ukraine, have done our economy about as much good as harm.", "Global conflicts like Iran and Ukraine have had mixed effects on our economy.")), weight=0.7),
     Item("govtEconImpact", "economy-blame", (), custom=impact_item(("ukGovtEconImpactW31", "ukGovtEconImpactW30"),
-         ("This government has done the economy a lot of damage.", "The current government has had a big negative impact on the economy.", "This government has really hurt the economy."), ("This government has done the economy some damage.", "The current government has had a fairly negative impact on the economy.", "This government has hurt the economy somewhat."),
-         ("This government has been good for the economy.", "The current government has had a positive impact on the economy.", "This government has helped the economy."), ("This government has been very good for the economy.", "The current government has had a big positive impact on the economy.", "This government has done the economy a lot of good.")), weight=0.7),
+         ("The UK government has done the economy a lot of damage.", "The current UK government has had a big negative impact on the economy.", "The UK government has really hurt the economy."), ("The UK government has done the economy some damage.", "The current UK government has had a fairly negative impact on the economy.", "The UK government has hurt the economy somewhat."),
+         ("The UK government has been good for the economy.", "The current UK government has had a positive impact on the economy.", "The UK government has helped the economy."), ("The UK government has been very good for the economy.", "The current UK government has had a big positive impact on the economy.", "The UK government has done the economy a lot of good."),
+         ("The UK government has had mixed effects on the economy.", "The current UK government has done the economy about as much good as harm.", "The UK government hasn't had much impact on the economy either way.")), weight=0.7),
     Item("lastGovtEconImpact", "economy-blame", (), custom=impact_item(("ukLastGovtEconImpactW31", "ukLastGovtEconImpactW30"),
-         ("The last government did the economy a lot of damage.", "The previous government had a big negative impact on the economy.", "The last government really hurt the economy."), ("The last government did the economy some damage.", "The previous government had a fairly negative impact on the economy.", "The last government hurt the economy somewhat."),
-         ("The last government was good for the economy.", "The previous government had a positive impact on the economy.", "The last government helped the economy."), ("The last government was very good for the economy.", "The previous government had a big positive impact on the economy.", "The last government did the economy a lot of good.")), weight=0.6),
+         ("The last UK government did the economy a lot of damage.", "The previous UK government had a big negative impact on the economy.", "The last UK government really hurt the economy."), ("The last UK government did the economy some damage.", "The previous UK government had a fairly negative impact on the economy.", "The last UK government hurt the economy somewhat."),
+         ("The last UK government was good for the economy.", "The previous UK government had a positive impact on the economy.", "The last UK government helped the economy."), ("The last UK government was very good for the economy.", "The previous UK government had a big positive impact on the economy.", "The last UK government did the economy a lot of good."),
+         ("The last UK government had mixed effects on the economy.", "The previous UK government did the economy about as much good as harm.", "The last UK government didn't have much impact on the economy either way.")), weight=0.6),
     Item("brexitEconScot", "economy-blame", (), custom=impact_item(("brexitEconImpactScotW31", "brexitEconImpactScotW30"),
          ("Brexit has done Scotland's economy a lot of damage.", "Brexit has had a big negative impact on the Scottish economy.", "Brexit has really hurt Scotland's economy."), ("Brexit has done Scotland's economy some damage.", "Brexit has had a fairly negative impact on the Scottish economy.", "Brexit has hurt Scotland's economy somewhat."),
-         ("Brexit has been good for Scotland's economy.", "Brexit has had a positive impact on the Scottish economy.", "Brexit has helped Scotland's economy."), ("Brexit has been very good for Scotland's economy.", "Brexit has had a big positive impact on the Scottish economy.", "Brexit has done Scotland's economy a lot of good.")), nations=(2,), weight=0.6),
+         ("Brexit has been good for Scotland's economy.", "Brexit has had a positive impact on the Scottish economy.", "Brexit has helped Scotland's economy."), ("Brexit has been very good for Scotland's economy.", "Brexit has had a big positive impact on the Scottish economy.", "Brexit has done Scotland's economy a lot of good."),
+         ("Brexit has had mixed effects on Scotland's economy.", "Brexit has done the Scottish economy about as much good as harm.", "Brexit hasn't had much impact on Scotland's economy either way.")), nations=(2,), weight=0.6),
     Item("scotGovtEcon", "scottish-government", (), custom=impact_item(("scotGovtEconImpactScotW31", "scotGovtEconImpactScotW30"),
          ("The Scottish Government has done Scotland's economy a lot of damage.", "The Scottish Government has had a big negative impact on Scotland's economy.", "The Scottish Government has really hurt the Scottish economy."), ("The Scottish Government has done Scotland's economy some damage.", "The Scottish Government has had a fairly negative impact on Scotland's economy.", "The Scottish Government has hurt the Scottish economy somewhat."),
-         ("The Scottish Government has been good for Scotland's economy.", "The Scottish Government has had a positive impact on Scotland's economy.", "The Scottish Government has helped the Scottish economy."), ("The Scottish Government has been very good for Scotland's economy.", "The Scottish Government has had a big positive impact on Scotland's economy.", "The Scottish Government has done the Scottish economy a lot of good.")), nations=(2,), weight=0.7),
+         ("The Scottish Government has been good for Scotland's economy.", "The Scottish Government has had a positive impact on Scotland's economy.", "The Scottish Government has helped the Scottish economy."), ("The Scottish Government has been very good for Scotland's economy.", "The Scottish Government has had a big positive impact on Scotland's economy.", "The Scottish Government has done the Scottish economy a lot of good."),
+         ("The Scottish Government has had mixed effects on Scotland's economy.", "The Scottish Government has done Scotland's economy about as much good as harm.", "The Scottish Government hasn't had much impact on the Scottish economy either way.")), nations=(2,), weight=0.7),
     Item("conflictEconScot", "economy-blame", (), custom=impact_item(("conflictEconImpactScotW31",),
          ("Global conflicts like Iran and Ukraine have hit Scotland's economy hard.", "Conflicts around the world, like Iran and Ukraine, have had a big negative impact on Scotland's economy.", "Scotland's economy has been badly hurt by global conflicts like Iran and Ukraine."), ("Global conflicts like Iran and Ukraine have hurt Scotland's economy a bit.", "Conflicts around the world, like Iran and Ukraine, have had a fairly negative impact on Scotland's economy.", "Scotland's economy has suffered somewhat because of global conflicts like Iran and Ukraine."),
-         ("Global conflicts like Iran and Ukraine have been good for Scotland's economy.", "Conflicts around the world, like Iran and Ukraine, have had a positive impact on Scotland's economy.", "Scotland's economy has benefited from global conflicts like Iran and Ukraine."), ("Global conflicts like Iran and Ukraine have been very good for Scotland's economy.", "Conflicts around the world, like Iran and Ukraine, have had a big positive impact on Scotland's economy.", "Scotland's economy has benefited a great deal from global conflicts like Iran and Ukraine.")), nations=(2,), weight=0.5),
+         ("Global conflicts like Iran and Ukraine have been good for Scotland's economy.", "Conflicts around the world, like Iran and Ukraine, have had a positive impact on Scotland's economy.", "Scotland's economy has benefited from global conflicts like Iran and Ukraine."), ("Global conflicts like Iran and Ukraine have been very good for Scotland's economy.", "Conflicts around the world, like Iran and Ukraine, have had a big positive impact on Scotland's economy.", "Scotland's economy has benefited a great deal from global conflicts like Iran and Ukraine."),
+         ("Global conflicts like Iran and Ukraine haven't had much impact on Scotland's economy either way.", "Conflicts around the world, like Iran and Ukraine, have done Scotland's economy about as much good as harm.", "Global conflicts like Iran and Ukraine have had mixed effects on Scotland's economy.")), nations=(2,), weight=0.5),
     Item("conflictEconWales", "economy-blame", (), custom=impact_item(("conflictEconImpactWalesW31",),
          ("Global conflicts like Iran and Ukraine have hit Wales's economy hard.", "Conflicts around the world, like Iran and Ukraine, have had a big negative impact on the Welsh economy.", "Wales's economy has been badly hurt by global conflicts like Iran and Ukraine."), ("Global conflicts like Iran and Ukraine have hurt Wales's economy a bit.", "Conflicts around the world, like Iran and Ukraine, have had a fairly negative impact on the Welsh economy.", "Wales's economy has suffered somewhat because of global conflicts like Iran and Ukraine."),
-         ("Global conflicts like Iran and Ukraine have been good for Wales's economy.", "Conflicts around the world, like Iran and Ukraine, have had a positive impact on the Welsh economy.", "Wales's economy has benefited from global conflicts like Iran and Ukraine."), ("Global conflicts like Iran and Ukraine have been very good for Wales's economy.", "Conflicts around the world, like Iran and Ukraine, have had a big positive impact on the Welsh economy.", "Wales's economy has benefited a great deal from global conflicts like Iran and Ukraine.")), nations=(3,), weight=0.5),
+         ("Global conflicts like Iran and Ukraine have been good for Wales's economy.", "Conflicts around the world, like Iran and Ukraine, have had a positive impact on the Welsh economy.", "Wales's economy has benefited from global conflicts like Iran and Ukraine."), ("Global conflicts like Iran and Ukraine have been very good for Wales's economy.", "Conflicts around the world, like Iran and Ukraine, have had a big positive impact on the Welsh economy.", "Wales's economy has benefited a great deal from global conflicts like Iran and Ukraine."),
+         ("Global conflicts like Iran and Ukraine haven't had much impact on Wales's economy either way.", "Conflicts around the world, like Iran and Ukraine, have done the Welsh economy about as much good as harm.", "Global conflicts like Iran and Ukraine have had mixed effects on Wales's economy.")), nations=(3,), weight=0.5),
     Item("brexitEconWales", "economy-blame", (), custom=impact_item(("brexitEconImpactWalesW31", "brexitEconImpactWalesW30"),
          ("Brexit has done Wales's economy a lot of damage.", "Brexit has had a big negative impact on the Welsh economy.", "Brexit has really hurt Wales's economy."), ("Brexit has done Wales's economy some damage.", "Brexit has had a fairly negative impact on the Welsh economy.", "Brexit has hurt Wales's economy somewhat."),
-         ("Brexit has been good for Wales's economy.", "Brexit has had a positive impact on the Welsh economy.", "Brexit has helped Wales's economy."), ("Brexit has been very good for Wales's economy.", "Brexit has had a big positive impact on the Welsh economy.", "Brexit has done Wales's economy a lot of good.")), nations=(3,), weight=0.6),
+         ("Brexit has been good for Wales's economy.", "Brexit has had a positive impact on the Welsh economy.", "Brexit has helped Wales's economy."), ("Brexit has been very good for Wales's economy.", "Brexit has had a big positive impact on the Welsh economy.", "Brexit has done Wales's economy a lot of good."),
+         ("Brexit has had mixed effects on Wales's economy.", "Brexit has done the Welsh economy about as much good as harm.", "Brexit hasn't had much impact on Wales's economy either way.")), nations=(3,), weight=0.6),
     Item("welshGovtEcon", "welsh-government", (), custom=impact_item(("welshGovtEconImpactWalesW31", "welshGovtEconImpactWalesW30"),
          ("The Welsh Government has done Wales's economy a lot of damage.", "The Welsh Government has had a big negative impact on Wales's economy.", "The Welsh Government has really hurt the Welsh economy."), ("The Welsh Government has done Wales's economy some damage.", "The Welsh Government has had a fairly negative impact on Wales's economy.", "The Welsh Government has hurt the Welsh economy somewhat."),
-         ("The Welsh Government has been good for Wales's economy.", "The Welsh Government has had a positive impact on Wales's economy.", "The Welsh Government has helped the Welsh economy."), ("The Welsh Government has been very good for Wales's economy.", "The Welsh Government has had a big positive impact on Wales's economy.", "The Welsh Government has done the Welsh economy a lot of good.")), nations=(3,), weight=0.7),
+         ("The Welsh Government has been good for Wales's economy.", "The Welsh Government has had a positive impact on Wales's economy.", "The Welsh Government has helped the Welsh economy."), ("The Welsh Government has been very good for Wales's economy.", "The Welsh Government has had a big positive impact on Wales's economy.", "The Welsh Government has done the Welsh economy a lot of good."),
+         ("The Welsh Government has had mixed effects on Wales's economy.", "The Welsh Government has done Wales's economy about as much good as harm.", "The Welsh Government hasn't had much impact on the Welsh economy either way.")), nations=(3,), weight=0.7),
     Item("freeSpeechRacistElection", "free-speech", ("freeSpeechRacistElectionW30",),
          by_code({1: ("A white supremacist should never be allowed to stand for election.", "I'd never let a white supremacist stand as a candidate in an election.", "There's no way a white supremacist should be allowed to stand for election."), 2: ("A white supremacist probably shouldn't be allowed to stand for election.", "I probably wouldn't let a white supremacist stand as a candidate in an election.", "On balance, a white supremacist shouldn't be allowed to stand for election."),
                   3: ("Even a white supremacist should probably be allowed to stand for election.", "I'd probably let even a white supremacist stand as a candidate in an election.", "On balance, even a white supremacist should be allowed to stand for election."), 4: ("Even a white supremacist should be free to stand for election.", "Even a white supremacist should definitely be allowed to stand as a candidate.", "A white supremacist has every right to stand for election, as far as I'm concerned.")}), weight=0.4),
@@ -1257,16 +1294,20 @@ ITEMS: list[Item] = [
                 ("The buildings and public spaces round here are a bit run down.", "The buildings and public spaces in my area could do with better upkeep.", "The buildings and public spaces near me aren't that well looked after."), ("The buildings and public spaces round here are badly run down.", "The buildings and public spaces in my area are in a terrible state.", "The buildings and public spaces near me are seriously neglected.")), weight=0.5),
     Item("ukGovtEconScot", "economy-blame", (), custom=impact_item(("ukGovtEconImpactScotW31", "ukGovtEconImpactScotW30"),
          ("The UK government has done Scotland's economy a lot of damage.", "The UK government has been really bad for Scotland's economy.", "The UK government has done serious harm to Scotland's economy."), ("The UK government has done Scotland's economy some damage.", "The UK government has been fairly bad for Scotland's economy.", "The UK government has harmed Scotland's economy somewhat."),
-         ("The UK government has been good for Scotland's economy.", "The UK government has had a positive effect on Scotland's economy.", "The UK government has helped Scotland's economy."), ("The UK government has been very good for Scotland's economy.", "The UK government has had a really positive effect on Scotland's economy.", "The UK government has done Scotland's economy a lot of good.")), nations=(2,), weight=0.6),
+         ("The UK government has been good for Scotland's economy.", "The UK government has had a positive effect on Scotland's economy.", "The UK government has helped Scotland's economy."), ("The UK government has been very good for Scotland's economy.", "The UK government has had a really positive effect on Scotland's economy.", "The UK government has done Scotland's economy a lot of good."),
+         ("The UK government has had mixed effects on Scotland's economy.", "The UK government has done Scotland's economy about as much good as harm.", "The UK government hasn't had much impact on Scotland's economy either way.")), nations=(2,), weight=0.6),
     Item("lastGovtEconScot", "economy-blame", (), custom=impact_item(("ukLastGovtEconImpactScotW31", "ukLastGovtEconImpactScotW30"),
          ("The last UK government did Scotland's economy a lot of damage.", "The last UK government was really bad for Scotland's economy.", "The last UK government did serious harm to Scotland's economy."), ("The last UK government did Scotland's economy some damage.", "The last UK government was fairly bad for Scotland's economy.", "The last UK government harmed Scotland's economy somewhat."),
-         ("The last UK government was good for Scotland's economy.", "The last UK government had a positive effect on Scotland's economy.", "The last UK government helped Scotland's economy."), ("The last UK government was very good for Scotland's economy.", "The last UK government had a really positive effect on Scotland's economy.", "The last UK government did Scotland's economy a lot of good.")), nations=(2,), weight=0.5),
+         ("The last UK government was good for Scotland's economy.", "The last UK government had a positive effect on Scotland's economy.", "The last UK government helped Scotland's economy."), ("The last UK government was very good for Scotland's economy.", "The last UK government had a really positive effect on Scotland's economy.", "The last UK government did Scotland's economy a lot of good."),
+         ("The last UK government had mixed effects on Scotland's economy.", "The last UK government did Scotland's economy about as much good as harm.", "The last UK government didn't have much impact on Scotland's economy either way.")), nations=(2,), weight=0.5),
     Item("ukGovtEconWales", "economy-blame", (), custom=impact_item(("ukGovtEconImpactWalesW31", "ukGovtEconImpactWalesW30"),
          ("The UK government has done Wales's economy a lot of damage.", "The UK government has been really bad for Wales's economy.", "The UK government has done serious harm to Wales's economy."), ("The UK government has done Wales's economy some damage.", "The UK government has been fairly bad for Wales's economy.", "The UK government has harmed Wales's economy somewhat."),
-         ("The UK government has been good for Wales's economy.", "The UK government has had a positive effect on Wales's economy.", "The UK government has helped Wales's economy."), ("The UK government has been very good for Wales's economy.", "The UK government has had a really positive effect on Wales's economy.", "The UK government has done Wales's economy a lot of good.")), nations=(3,), weight=0.6),
+         ("The UK government has been good for Wales's economy.", "The UK government has had a positive effect on Wales's economy.", "The UK government has helped Wales's economy."), ("The UK government has been very good for Wales's economy.", "The UK government has had a really positive effect on Wales's economy.", "The UK government has done Wales's economy a lot of good."),
+         ("The UK government has had mixed effects on Wales's economy.", "The UK government has done Wales's economy about as much good as harm.", "The UK government hasn't had much impact on Wales's economy either way.")), nations=(3,), weight=0.6),
     Item("lastGovtEconWales", "economy-blame", (), custom=impact_item(("ukLastGovtEconImpactWalesW31", "ukLastGovtEconImpactWalesW30"),
          ("The last UK government did Wales's economy a lot of damage.", "The last UK government was really bad for Wales's economy.", "The last UK government did serious harm to Wales's economy."), ("The last UK government did Wales's economy some damage.", "The last UK government was fairly bad for Wales's economy.", "The last UK government harmed Wales's economy somewhat."),
-         ("The last UK government was good for Wales's economy.", "The last UK government had a positive effect on Wales's economy.", "The last UK government helped Wales's economy."), ("The last UK government was very good for Wales's economy.", "The last UK government had a really positive effect on Wales's economy.", "The last UK government did Wales's economy a lot of good.")), nations=(3,), weight=0.5),
+         ("The last UK government was good for Wales's economy.", "The last UK government had a positive effect on Wales's economy.", "The last UK government helped Wales's economy."), ("The last UK government was very good for Wales's economy.", "The last UK government had a really positive effect on Wales's economy.", "The last UK government did Wales's economy a lot of good."),
+         ("The last UK government had mixed effects on Wales's economy.", "The last UK government did Wales's economy about as much good as harm.", "The last UK government didn't have much impact on Wales's economy either way.")), nations=(3,), weight=0.5),
     Item("warmMuslim", "warmth", ("warmMuslimW26",), warmth_item("Muslims"), weight=0.4),
     Item("warmJewish", "warmth", ("warmJewishW26",), warmth_item("Jewish people"), weight=0.4),
     Item("warmChristian", "warmth", ("warmChristianW26",), warmth_item("Christians"), weight=0.4),
@@ -1395,7 +1436,10 @@ def theme_of(topic: str) -> str:
 NATION_TOPICS = {"identity", "independence", "fair-share", "scottish-government", "welsh-government"}
 
 
-NEUTRAL = re.compile(r"more or less its fair share|about right|in equal measure|not sure I'd bother")
+NEUTRAL = re.compile(r"more or less its fair share|about right|in equal measure|not sure I'd bother"
+                     r"|as much good as harm|mixed effects|much impact|hasn't made much difference|hasn't made any difference"
+                     r"|made little difference|made no difference|about the same|neither better nor worse|don't take either side"
+                     r"|stay about where they are|a mix of public and private|neither well nor badly|neither good nor bad|cut both ways")
 NEUTRAL_WEIGHT = 0.2  # a middling answer is drawn at a fifth of the weight of a view either way
 
 
