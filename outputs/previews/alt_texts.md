@@ -254,11 +254,11 @@ Voter card. A map of England with a dot on Croydon East. About them, in their wo
 
 **Post text**
 
-I'm a White British non-religious woman from Hornchurch and Upminster, aged 34. My top issue is the cost of living. In 2024 I voted Lib Dem. Today I'd vote Green.
+I'm a British Indian Muslim woman from Ruislip, Northwood and Pinner, aged 25. My top issue is the economy. In 2024 I didn't vote. Today I'd vote Green.
 
-**Alt text** (908 characters)
+**Alt text** (909 characters)
 
-Voter card. A map of England with a dot on Hornchurch and Upminster. About them, in their words: I'm still paying the mortgage on my place. My finances have got a little worse over the last twelve months. I'm working full-time and have a skilled trade in the public sector at a place with 500-plus staff. If you asked, I'd say I'm working class. News habits: I follow politics closely. Her views, from her survey answers, in four speech bubbles: Top of the leaders for me is Ed Davey, bottom is Nigel Farage. Living costs are still rising sharply. Working people are a long way from getting their fair share of the nation's wealth. England gets a little less than its fair share from the Union. Where they sit on the BES 0 to 10 value scales: economic, left to right, 1 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 5.5 out of 10, within the middle half of voters.
+Voter card. A map of England with a dot on Ruislip, Northwood and Pinner. About them, in their words: I'm still paying the mortgage on my place. I think I'll be a bit worse off this time next year. I'm not doing paid work right now. Before this I had a professional or technical job. I'm expecting an inheritance that will change things for me. I'm middle class, I'd say. News habits: I take a passing interest in politics. Her views, from her survey answers, in four speech bubbles: Top of the leaders for me is Zack Polanski, bottom is Nigel Farage. I don't think politicians care what people like me think. The economy is getting a bit worse. I'm gutted that Trump is back in the White House. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3 out of 10, within the middle half of voters; social, liberal to authoritarian, 4.5 out of 10, more liberal than the middle half of voters.
 
 ## card_26.webp
 
@@ -284,11 +284,11 @@ Voter card. A map of Wales with a dot on Caerphilly. About them, in their words:
 
 **Post text**
 
-I'm a British Indian Muslim woman from Ruislip, Northwood and Pinner, aged 25. My top issue is the economy. In 2024 I didn't vote. Today I'd vote Green.
+I'm a White British non-religious woman from Hornchurch and Upminster, aged 34. My top issue is the cost of living. In 2024 I voted Lib Dem. Today I'd vote Green.
 
-**Alt text** (909 characters)
+**Alt text** (908 characters)
 
-Voter card. A map of England with a dot on Ruislip, Northwood and Pinner. About them, in their words: I'm still paying the mortgage on my place. I think I'll be a bit worse off this time next year. I'm not doing paid work right now. Before this I had a professional or technical job. I'm expecting an inheritance that will change things for me. I'm middle class, I'd say. News habits: I take a passing interest in politics. Her views, from her survey answers, in four speech bubbles: Top of the leaders for me is Zack Polanski, bottom is Nigel Farage. I don't think politicians care what people like me think. The economy is getting a bit worse. I'm gutted that Trump is back in the White House. Where they sit on the BES 0 to 10 value scales: economic, left to right, 3 out of 10, within the middle half of voters; social, liberal to authoritarian, 4.5 out of 10, more liberal than the middle half of voters.
+Voter card. A map of England with a dot on Hornchurch and Upminster. About them, in their words: I'm still paying the mortgage on my place. My finances have got a little worse over the last twelve months. I'm working full-time and have a skilled trade in the public sector at a place with 500-plus staff. If you asked, I'd say I'm working class. News habits: I follow politics closely. Her views, from her survey answers, in four speech bubbles: Top of the leaders for me is Ed Davey, bottom is Nigel Farage. Living costs are still rising sharply. Working people are a long way from getting their fair share of the nation's wealth. England gets a little less than its fair share from the Union. Where they sit on the BES 0 to 10 value scales: economic, left to right, 1 out of 10, further left than the middle half of voters; social, liberal to authoritarian, 5.5 out of 10, within the middle half of voters.
 
 ## card_29.webp
 

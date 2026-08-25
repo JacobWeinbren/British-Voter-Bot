@@ -33,7 +33,7 @@ def eligible_rows(panel: pd.DataFrame) -> pd.DataFrame:
 
 
 def build_profiles(panel: pd.DataFrame, count: int | None = config.PROFILE_COUNT, seed: int = config.RANDOM_SEED,
-                   out_path: Path = config.PROFILES_PATH, verbose: bool = True) -> list[dict]:
+                   out_path: Path = config.PROFILES_PATH, position: int | None = None, verbose: bool = True) -> list[dict]:
     """Build the posting queue as a run of yearly cycles, each a weighted draw from everyone.
 
     A single weighted draw without replacement starts representative and drifts
@@ -42,7 +42,13 @@ def build_profiles(panel: pd.DataFrame, count: int | None = config.PROFILE_COUNT
     eligible pool in proportion to the survey weights, leaving out anyone shown
     in the last few cycles. Every stretch of the feed then matches the weights,
     nobody is capped out, and a returning voter gets a fresh set of bubbles.
+
+    A rebuild keeps the posting position (outputs/position.txt), so the feed
+    carries straight on into the new queue; the card at that position is made
+    an ethnic-minority voter.
     """
+    if position is None:
+        position = read_position()
     pool = eligible_rows(panel).reset_index(drop=True)
     builder = ProfileBuilder(pool)
     weights = card_weights(pool, builder, seed, verbose)
@@ -61,6 +67,8 @@ def build_profiles(panel: pd.DataFrame, count: int | None = config.PROFILE_COUNT
         take = min(cycle_size, len(idx)) if count is None else min(cycle_size, len(idx), count - len(profiles))
         chosen = draw_cycle(rng, idx, weights, minority, take)
         rng.shuffle(chosen)  # the draw comes minorities-first and heavy-weights-first; shuffling makes the year uniform
+        if len(profiles) <= position < len(profiles) + take:
+            lead_with_minority(chosen, minority, position - len(profiles))
         for i in chosen:
             row = pool.iloc[i]
             profile = builder.build(row, seed=seed * 100_003 + int(row["id"]) * 31 + cycle)
@@ -132,6 +140,20 @@ def draw_cycle(rng: np.random.Generator, idx: np.ndarray, weights: np.ndarray, m
         return rng.choice(pool_idx, size=n, replace=False, p=weights[pool_idx] / weights[pool_idx].sum())
 
     return np.concatenate([draw(minority_idx, n_minority), draw(rest_idx, n_rest)]).astype(int)
+
+
+def lead_with_minority(chosen: np.ndarray, minority: np.ndarray, at: int) -> None:
+    """Swap the first ethnic-minority card at or after slot `at` into that slot, in place.
+
+    Applied to the card that will be posted next, so a rebuilt queue opens
+    with a minority voter. A single swap within a shuffled year leaves the
+    order otherwise uniform; if the slot already holds a minority voter,
+    nothing moves.
+    """
+    later = np.flatnonzero(minority[chosen[at:]])
+    if len(later):
+        j = at + int(later[0])
+        chosen[[at, j]] = chosen[[j, at]]
 
 
 def _open(path: Path, mode: str):
