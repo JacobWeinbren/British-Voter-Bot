@@ -4,6 +4,7 @@
   render    render one or more profiles to PNG (for checking the design)
   preview   fifty varied cards in posting form (1600x2000 lossless WebP) plus post and alt text
   post      render the next profile in the queue, post it to Bluesky, advance the queue
+  due       exit 0 if the latest posting slot has not been posted yet, 3 if it has (the workflow's gate)
   alt       print the post text and alt text for a queued card
   brand     regenerate the Bluesky banner, avatar and pinned intro poster (with alt text files) in outputs/brand
   stats     summarise the queue (nations, parties, issues)
@@ -15,6 +16,7 @@ from __future__ import annotations
 import argparse
 import collections
 import sys
+from datetime import datetime, timezone
 
 from . import config
 
@@ -89,6 +91,7 @@ def cmd_post(args) -> None:
     from .bluesky import post_card
     from .render import render_card
     from .sample import load_profiles, read_position, write_position
+    from .schedule import write_last_post
 
     profiles = load_profiles()
     position = read_position()
@@ -103,7 +106,29 @@ def cmd_post(args) -> None:
         return
     uri = post_card(profile["post_text"], webp, profile["alt_text"], fallback_path=png)
     write_position(position + 1)
+    write_last_post(datetime.now(timezone.utc))
     print(f"Posted profile {position} ({profile['constituency']}) with {len(profile['alt_text'])}-character alt text: {uri}")
+
+
+NOT_DUE = 3  # a distinct exit status, so the workflow can tell "nothing to post" from a crash
+
+
+def cmd_due(args) -> None:
+    """Has the most recent posting slot been posted yet? Exit 0 if a card is due, NOT_DUE if not.
+
+    The scheduled workflow runs this every twenty minutes: it is what lets a
+    late or dropped cron run still post (see voterbot/schedule.py).
+    """
+    from .schedule import describe, is_due, latest_slot, read_last_post
+
+    now = datetime.now(timezone.utc)
+    last_post = read_last_post()
+    slot = latest_slot(now)
+    if is_due(now, last_post):
+        print(f"due: the {describe(slot)} slot has not been posted (last post {describe(last_post)}; now {describe(now)})")
+    else:
+        print(f"not due: the {describe(slot)} slot was posted at {describe(last_post)} (now {describe(now)})")
+        sys.exit(NOT_DUE)
 
 
 def cmd_alt(args) -> None:
@@ -164,6 +189,8 @@ def main(argv=None) -> None:
     post = sub.add_parser("post", help="post the next card to Bluesky")
     post.add_argument("--dry-run", action="store_true", help="render but do not post or advance the queue")
     post.set_defaults(func=cmd_post)
+
+    sub.add_parser("due", help="exit 0 if the latest posting slot has not been posted yet, 3 if it has").set_defaults(func=cmd_due)
 
     preview = sub.add_parser("preview", help="render varied cards in posting form (lossless WebP) with their alt text")
     preview.add_argument("--count", type=int, default=50)

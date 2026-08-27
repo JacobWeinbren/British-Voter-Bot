@@ -2,10 +2,13 @@ name: Post the next voter card
 
 on:
   schedule:
-    # 10:00, 13:00, 17:00 and 21:00 UK time. GitHub cron runs in UTC with no timezone setting, so this
-    # fires at both the GMT hour and the BST hour for each slot (8 triggers a day) and the `slot` job
-    # lets the post go ahead only when the clock in Europe/London reads one of the four hours.
-    - cron: "0 9,10,12,13,16,17,20,21 * * *"
+    # The feed posts at 10:00, 13:00, 17:00 and 21:00 UK time. GitHub's cron is best effort - runs
+    # start late (top-of-the-hour crons by half an hour or more, during an incident by hours) and are
+    # sometimes dropped altogether - so the schedule does not try to land on those hours. It runs a
+    # cheap check every twenty minutes through the UK day, and the `slot` job posts only when the
+    # latest slot has not been posted yet (`python -m voterbot due`, see voterbot/schedule.py). A late
+    # run still posts, a dropped run is made up by the next one, and nothing is ever posted twice.
+    - cron: "3,23,43 8-23 * * *"
   workflow_dispatch:
 
 permissions:
@@ -19,19 +22,27 @@ jobs:
   slot:
     runs-on: ubuntu-latest
     outputs:
-      go: ${{ steps.uk.outputs.go }}
+      go: ${{ steps.due.outputs.go }}
     steps:
-      - name: Is it 10am, 1pm, 5pm or 9pm in the UK?
-        id: uk
+      - uses: actions/checkout@v4
+
+      - name: Is a card due?
+        id: due
+        # `due` needs only the standard library, so the runner's own python3 will do.
         run: |
-          hour=$(TZ=Europe/London date +%-H)
-          case "${{ github.event_name }}:$hour" in
-            workflow_dispatch:*|schedule:10|schedule:13|schedule:17|schedule:21)
-              echo "go=true" >> "$GITHUB_OUTPUT"
-              echo "UK time is ${hour}:00 - posting" ;;
-            *)
-              echo "go=false" >> "$GITHUB_OUTPUT"
-              echo "UK time is ${hour}:00 - the other clock-change hour for this slot, skipping" ;;
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "run by hand - posting"
+            echo "go=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          set +e
+          python3 -m voterbot due
+          status=$?
+          set -e
+          case "$status" in
+            0) echo "go=true" >> "$GITHUB_OUTPUT" ;;
+            3) echo "go=false" >> "$GITHUB_OUTPUT" ;;
+            *) echo "::error::voterbot due failed with status $status"; exit "$status" ;;
           esac
 
   post:
@@ -60,11 +71,11 @@ jobs:
           BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD || vars.BLUESKY_PASSWORD }}
         run: python -m voterbot post
 
-      - name: Save the queue position
+      - name: Save the queue position and the time of the post
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add outputs/position.txt
+          git add outputs/position.txt outputs/last_post.txt
           git commit -m "Advance the posting queue" || echo "nothing to commit"
           git pull --rebase origin ${{ github.ref_name }}
           git push
