@@ -51,7 +51,7 @@ def read_last_post(path: Path = config.LAST_POST_PATH) -> datetime | None:
         return None
     if not text:
         return None
-    when = datetime.fromisoformat(text)
+    when = datetime.fromisoformat(text.replace("Z", "+00:00"))  # a trailing Z is only understood from Python 3.11
     if when.tzinfo is None:
         when = when.replace(tzinfo=timezone.utc)
     return when
