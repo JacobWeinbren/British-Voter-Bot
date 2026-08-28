@@ -1,81 +1,118 @@
 name: Post the next voter card
 
 on:
-  schedule:
-    # The feed posts at 10:00, 13:00, 17:00 and 21:00 UK time. GitHub's cron is best effort - runs
-    # start late (top-of-the-hour crons by half an hour or more, during an incident by hours) and are
-    # sometimes dropped altogether - so the schedule does not try to land on those hours. It runs a
-    # cheap check every twenty minutes through the UK day, and the `slot` job posts only when the
-    # latest slot has not been posted yet (`python -m voterbot due`, see voterbot/schedule.py). A late
-    # run still posts, a dropped run is made up by the next one, and nothing is ever posted twice.
-    - cron: "3,23,43 8-23 * * *"
-  workflow_dispatch:
+    schedule:
+        # GitHub's cron is UTC and ignores the TZ set below. The feed posts at 10:00, 13:00, 17:00 and
+        # 21:00 UK time, which is 09:00-20:00 UTC in summer and 10:00-21:00 UTC in winter, so the window
+        # has to cover both. GitHub's cron is also best effort - runs start late (top-of-the-hour crons
+        # by half an hour or more, during an incident by hours) and are sometimes dropped altogether - so
+        # the schedule does not try to land on those hours. It runs a cheap check every twenty minutes
+        # and the `slot` job posts only when the latest slot has not been posted yet (`python -m voterbot
+        # due`, see voterbot/schedule.py). A late run still posts, a dropped run is made up by the next
+        # one, and nothing is ever posted twice.
+        - cron: "3,23,43 8-23 * * *"
+    workflow_dispatch:
 
 permissions:
-  contents: write
+    contents: write
 
 concurrency:
-  group: post-card
-  cancel-in-progress: false
+    group: post-card
+    cancel-in-progress: false
+
+env:
+    # The runner's clock is UTC. Without this every local time voterbot computes is an hour behind UK
+    # time from late March to late October, so the 10:00 slot is not due until 11:00 UK and the feed
+    # drifts by an hour for most of the year. This makes Python's local time UK time.
+    TZ: Europe/London
 
 jobs:
-  slot:
-    runs-on: ubuntu-latest
-    outputs:
-      go: ${{ steps.due.outputs.go }}
-    steps:
-      - uses: actions/checkout@v4
+    slot:
+        runs-on: ubuntu-latest
+        outputs:
+            go: ${{ steps.due.outputs.go }}
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  # A delayed or queued run checks out the commit that existed when it was triggered, which
+                  # can predate the last post's commit. Naming the branch gets the current tip, so `due`
+                  # reads the real outputs/last_post.txt instead of a stale one.
+                  ref: ${{ github.ref_name }}
 
-      - name: Is a card due?
-        id: due
-        # `due` needs only the standard library, so the runner's own python3 will do.
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "run by hand - posting"
-            echo "go=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          set +e
-          python3 -m voterbot due
-          status=$?
-          set -e
-          case "$status" in
-            0) echo "go=true" >> "$GITHUB_OUTPUT" ;;
-            3) echo "go=false" >> "$GITHUB_OUTPUT" ;;
-            *) echo "::error::voterbot due failed with status $status"; exit "$status" ;;
-          esac
+            - name: Is a card due?
+              id: due
+              # `due` needs only the standard library, so the runner's own python3 will do.
+              run: |
+                  echo "runner local time: $(date -Is)"
+                  if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+                    echo "run by hand - posting"
+                    echo "go=true" >> "$GITHUB_OUTPUT"
+                    exit 0
+                  fi
+                  set +e
+                  python3 -m voterbot due
+                  status=$?
+                  set -e
+                  case "$status" in
+                    0) echo "go=true" >> "$GITHUB_OUTPUT" ;;
+                    3) echo "go=false" >> "$GITHUB_OUTPUT" ;;
+                    *) echo "::error::voterbot due failed with status $status"; exit "$status" ;;
+                  esac
 
-  post:
-    needs: slot
-    if: needs.slot.outputs.go == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    post:
+        needs: slot
+        if: needs.slot.outputs.go == 'true'
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  ref: ${{ github.ref_name }}
+                  # Full history so the rebase below is reliable; rebasing onto a shallow clone is fragile.
+                  fetch-depth: 0
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: pip
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+                  cache: pip
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          python -m playwright install --with-deps chromium
+            - name: Install dependencies
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install -r requirements.txt
+                  python -m playwright install --with-deps chromium
 
-      - name: Render and post
-        # Set both under Settings > Secrets and variables > Actions. Either tab works; the app
-        # password belongs in Secrets, which GitHub masks in logs (Variables are printed in clear).
-        env:
-          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE || vars.BLUESKY_HANDLE }}
-          BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD || vars.BLUESKY_PASSWORD }}
-        run: python -m voterbot post
+            - name: Render and post
+              # Set both under Settings > Secrets and variables > Actions. Either tab works; the app
+              # password belongs in Secrets, which GitHub masks in logs (Variables are printed in clear).
+              env:
+                  BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE || vars.BLUESKY_HANDLE }}
+                  BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD || vars.BLUESKY_PASSWORD }}
+              run: python -m voterbot post
 
-      - name: Save the queue position and the time of the post
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add outputs/position.txt outputs/last_post.txt
-          git commit -m "Advance the posting queue" || echo "nothing to commit"
-          git pull --rebase origin ${{ github.ref_name }}
-          git push
+            - name: Save the queue position and the time of the post
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+
+                  # -A rather than named paths: a named path that does not exist aborts the whole step.
+                  git add -A -- outputs/position.txt outputs/last_post.txt
+
+                  if git diff --cached --quiet; then
+                    echo "::warning::the post ran but left no queue position to commit"
+                    exit 0
+                  fi
+
+                  git commit -m "Advance the posting queue"
+
+                  # The card is already on the feed at this point. If the position never lands, the next run
+                  # posts the same card again, so retry and fail loudly rather than swallowing the error.
+                  for attempt in 1 2 3; do
+                    if git pull --rebase origin "${{ github.ref_name }}" && git push; then
+                      exit 0
+                    fi
+                    echo "push attempt $attempt failed, retrying"
+                    sleep 5
+                  done
+
+                  echo "::error::posted the card but could not push the queue position"
+                  exit 1
