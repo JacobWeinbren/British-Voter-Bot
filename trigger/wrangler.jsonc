@@ -3,6 +3,13 @@
 	"main": "src/index.js",
 	"compatibility_date": "2026-08-25",
 
+	// Named explicitly: the token reaches more than one account and wrangler picks the wrong one,
+	// which fails the deploy with "Authentication error [code: 10000]".
+	"account_id": "0670f1a741fccce8d795d75e8c858af7",
+
+	// Cron only. There is no fetch handler, so a workers.dev URL would serve nothing but errors.
+	"workers_dev": false,
+
 	// The UK posting slots are 10:00, 13:00, 17:00 and 21:00 (config.SLOT_HOURS). Cron here is UTC,
 	// as it is on GitHub, so the window has to cover the slots in both BST and GMT - 09:00-20:00 UTC
 	// in summer, 10:00-21:00 UTC in winter - with headroom at the end so a card missed at 21:00 has
