@@ -130,7 +130,7 @@ def cmd_due(args) -> None:
     print(f"{'due' if decision.post else 'not due'}: {decision.reason} (now {describe(now)})")
     if decision.repair is not None:
         write_last_post(decision.repair)
-        print(f"wrote {config.LAST_POST_PATH.relative_to(config.ROOT)} as {describe(decision.repair)}")
+        print(f"repaired outputs/last_post.txt to {describe(decision.repair)}")
     if not decision.post:
         sys.exit(NOT_DUE)
 

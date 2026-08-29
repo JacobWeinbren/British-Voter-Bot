@@ -186,12 +186,14 @@ def fake_urlopen(body: dict):
     return opener
 
 
-def test_due_repairs_the_ledger_when_the_card_is_already_up(monkeypatch, capsys, tmp_path):
-    ledger = tmp_path / "last_post.txt"
-    write_last_post(utc("2026-08-26 11:55"), ledger)
-    monkeypatch.setattr(config, "LAST_POST_PATH", ledger)
+def test_due_repairs_the_ledger_when_the_card_is_already_up(monkeypatch, capsys):
+    # read_last_post and write_last_post take the ledger path as a default argument, bound at
+    # import: patching config.LAST_POST_PATH would not redirect them and the real file would be
+    # rewritten. Patch the pair themselves.
+    written: list[datetime] = []
     monkeypatch.setenv("BLUESKY_HANDLE", HANDLE)
     monkeypatch.setattr(schedule, "read_last_post", lambda: utc("2026-08-26 11:55"))
+    monkeypatch.setattr(schedule, "write_last_post", lambda when: written.append(when))
     monkeypatch.setattr(schedule, "latest_slot", lambda now: utc("2026-08-26 16:00"))
     feed(monkeypatch, posted=utc("2026-08-26 16:05"))
 
@@ -199,4 +201,13 @@ def test_due_repairs_the_ledger_when_the_card_is_already_up(monkeypatch, capsys,
         cli.main(["due"])
     assert stop.value.code == cli.NOT_DUE
     assert "already on the feed" in capsys.readouterr().out
-    assert read_last_post(ledger) == utc("2026-08-26 16:05")  # repaired, so the next hour stops asking
+    assert written == [utc("2026-08-26 16:05")]  # repaired, so the next hour stops asking
+
+
+def test_due_posts_when_the_feed_is_empty_since_the_slot(monkeypatch, capsys):
+    monkeypatch.setenv("BLUESKY_HANDLE", HANDLE)
+    monkeypatch.setattr(schedule, "read_last_post", lambda: utc("2026-08-26 11:55"))
+    monkeypatch.setattr(schedule, "latest_slot", lambda now: utc("2026-08-26 16:00"))
+    feed(monkeypatch, posted=utc("2026-08-26 11:55"))
+    cli.main(["due"])  # exit 0: a card is due
+    assert capsys.readouterr().out.startswith("due:")
