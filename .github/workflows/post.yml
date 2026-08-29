@@ -4,13 +4,19 @@ on:
     schedule:
         # GitHub's cron is UTC and ignores the TZ set below. The feed posts at 10:00, 13:00, 17:00 and
         # 21:00 UK time, which is 09:00-20:00 UTC in summer and 10:00-21:00 UTC in winter, so the window
-        # has to cover both. GitHub's cron is also best effort - runs start late (top-of-the-hour crons
-        # by half an hour or more, during an incident by hours) and are sometimes dropped altogether - so
-        # the schedule does not try to land on those hours. It runs a cheap check every twenty minutes
-        # and the `slot` job posts only when the latest slot has not been posted yet (`python -m voterbot
-        # due`, see voterbot/schedule.py). A late run still posts, a dropped run is made up by the next
-        # one, and nothing is ever posted twice.
-        - cron: "3,23,43 8-23 * * *"
+        # has to cover both, with headroom at the end so a card missed at 21:00 still has a check or two
+        # left to land in before midnight.
+        #
+        # One cheap check an hour, on the hour's third minute rather than the hour itself, which GitHub
+        # asks for and which its scheduler treats more kindly. The `slot` job posts only when the latest
+        # slot has not been posted yet (`python -m voterbot due`, see voterbot/schedule.py), so an hour
+        # whose card is already on the feed costs a few seconds and does nothing.
+        #
+        # This matters because GitHub's cron is best effort: runs start late (during an incident by
+        # hours) and are sometimes dropped altogether. A card missed at 10:00 because the run was late
+        # or never fired goes out at 11:00 instead, then 12:00, and so on until it lands. Nothing is
+        # ever posted twice.
+        - cron: "3 8-23 * * *"
     workflow_dispatch:
 
 permissions:
@@ -32,7 +38,11 @@ jobs:
         outputs:
             go: ${{ steps.due.outputs.go }}
         steps:
-            - uses: actions/checkout@v4
+            # checkout v5 is the first release built on Node 24. Node 20 is removed from the runner on
+            # 16 September 2026, after which a v4 action fails outright rather than warning. Same for
+            # setup-python v6 in the job below. Both need runner v2.327.1 or newer, which every
+            # GitHub-hosted runner is well past.
+            - uses: actions/checkout@v5
               with:
                   # A delayed or queued run checks out the commit that existed when it was triggered, which
                   # can predate the last post's commit. Naming the branch gets the current tip, so `due`
@@ -64,13 +74,13 @@ jobs:
         if: needs.slot.outputs.go == 'true'
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v5
               with:
                   ref: ${{ github.ref_name }}
                   # Full history so the rebase below is reliable; rebasing onto a shallow clone is fragile.
                   fetch-depth: 0
 
-            - uses: actions/setup-python@v5
+            - uses: actions/setup-python@v6
               with:
                   python-version: "3.12"
                   cache: pip
