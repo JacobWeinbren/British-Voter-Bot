@@ -12,9 +12,9 @@ on:
     # between ticks, going from 8 a day to 48 a day meant almost every one was superseded before it
     # ran. Four hourly ticks in a row went undelivered after that.
     #
-    # So the hourly check is driven from outside GitHub (see docs/hourly-trigger.md), which calls the
-    # dispatch API below. `due` decides whether a card actually goes out, exactly as it did under
-    # cron, so a trigger that fires twice or fires late still posts at most one card per slot.
+    # So the clock now sits outside GitHub: a Cloudflare Worker in trigger/ calls the dispatch API
+    # below once an hour (docs/hourly-trigger.md). It knows nothing about slots - `due` still decides
+    # whether a card goes out - so a trigger that fires twice or late posts at most one card a slot.
     workflow_dispatch:
         inputs:
             force:
