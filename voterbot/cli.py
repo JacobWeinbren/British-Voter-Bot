@@ -116,18 +116,22 @@ NOT_DUE = 3  # a distinct exit status, so the workflow can tell "nothing to post
 def cmd_due(args) -> None:
     """Has the most recent posting slot been posted yet? Exit 0 if a card is due, NOT_DUE if not.
 
-    The scheduled workflow runs this every twenty minutes: it is what lets a
-    late or dropped cron run still post (see voterbot/schedule.py).
+    The scheduled workflow runs this once an hour: it is what lets a late or
+    dropped cron run still post (see voterbot/schedule.py). Before it says yes
+    the decision is confirmed against the feed itself, so a card that went up
+    but whose queue position never committed is not posted a second time; when
+    that is what happened, outputs/last_post.txt is repaired here and the
+    workflow commits it, so the next hour does not rediscover the same gap.
     """
-    from .schedule import describe, is_due, latest_slot, read_last_post
+    from .schedule import decide, describe, handle_from_env, read_last_post, write_last_post
 
     now = datetime.now(timezone.utc)
-    last_post = read_last_post()
-    slot = latest_slot(now)
-    if is_due(now, last_post):
-        print(f"due: the {describe(slot)} slot has not been posted (last post {describe(last_post)}; now {describe(now)})")
-    else:
-        print(f"not due: the {describe(slot)} slot was posted at {describe(last_post)} (now {describe(now)})")
+    decision = decide(now, handle_from_env(), read_last_post())
+    print(f"{'due' if decision.post else 'not due'}: {decision.reason} (now {describe(now)})")
+    if decision.repair is not None:
+        write_last_post(decision.repair)
+        print(f"wrote {config.LAST_POST_PATH.relative_to(config.ROOT)} as {describe(decision.repair)}")
+    if not decision.post:
         sys.exit(NOT_DUE)
 
 

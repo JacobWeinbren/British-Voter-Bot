@@ -16,12 +16,15 @@ the post succeeds and the push does not. The workflow retries the push and
 fails loudly, but if all three attempts fail the ledger is stale and the next
 check posts the same card a second time. A duplicate on the feed is permanent;
 a skipped check is made up an hour later. So before posting we confirm against
-the feed itself, and treat anything we cannot confirm as "do not post".
+the feed itself, and treat a feed we cannot read as "do not post". The one
+exception is an unset BLUESKY_HANDLE, which leaves nothing to ask: that falls
+back to the ledger, because a missing secret should not stop the feed dead.
 """
 
 from __future__ import annotations
 
 import json
+import os
 import urllib.parse
 import urllib.request
 from datetime import datetime, time, timedelta, timezone
@@ -81,6 +84,15 @@ def write_last_post(when: datetime, path: Path = config.LAST_POST_PATH) -> None:
     path.write_text(when.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ") + "\n")
 
 
+def handle_from_env() -> str:
+    """The account handle from BLUESKY_HANDLE, tidied as voterbot.bluesky tidies it, or "" if unset.
+
+    Read here rather than imported from voterbot.bluesky, which pulls in atproto:
+    `due` has to keep running on the runner's own python3 with nothing installed.
+    """
+    return (os.environ.get("BLUESKY_HANDLE") or "").strip().lstrip("@").strip()
+
+
 def feed_last_post(handle: str, *, limit: int = FEED_LIMIT, timeout: int = FEED_TIMEOUT) -> datetime | None:
     """The time of the newest post on the account's feed, or None if it has none.
 
@@ -126,6 +138,12 @@ def decide(now: datetime, handle: str, last_post: datetime | None) -> Decision:
 
     if not is_due(now, last_post):
         return Decision(False, f"the {describe(slot)} card went out at {describe(last_post)}")
+
+    if not handle:
+        # Nothing to ask the feed with. Fail open on purpose: this is the behaviour the bot had
+        # before the feed check existed, and a misconfigured handle that stopped the feed dead
+        # would be a worse fault than the duplicate the check is here to prevent.
+        return Decision(True, f"nothing recorded since the {describe(slot)} slot opened; the feed was not checked (BLUESKY_HANDLE is not set)")
 
     try:
         posted = feed_last_post(handle)

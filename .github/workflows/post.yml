@@ -52,6 +52,11 @@ jobs:
             - name: Is a card due?
               id: due
               # `due` needs only the standard library, so the runner's own python3 will do.
+              # The handle is read-only here: it names the account whose feed `due` checks before
+              # it says yes, so a card that went up but never committed is not posted twice. No
+              # app password, and the appview call is unauthenticated.
+              env:
+                  BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE || vars.BLUESKY_HANDLE }}
               run: |
                   echo "runner local time: $(date -Is)"
                   if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
@@ -68,6 +73,23 @@ jobs:
                     3) echo "go=false" >> "$GITHUB_OUTPUT" ;;
                     *) echo "::error::voterbot due failed with status $status"; exit "$status" ;;
                   esac
+
+            - name: Commit a repaired ledger
+              # `due` rewrites outputs/last_post.txt when the feed shows the slot's card is already
+              # up but the queue position never committed. Pushing it here means the next hour reads
+              # the repaired time instead of rediscovering the same gap and asking the feed again.
+              # Best effort on purpose: the repair is recomputed from the feed every hour, so a push
+              # that loses a race costs nothing and must not fail a run that decided correctly.
+              run: |
+                  if git diff --quiet -- outputs/last_post.txt; then
+                    echo "nothing to repair"
+                    exit 0
+                  fi
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+                  git add -- outputs/last_post.txt
+                  git commit -m "Repair the posting ledger"
+                  git push || echo "::warning::could not push the repaired ledger - the next check will work it out again"
 
     post:
         needs: slot
