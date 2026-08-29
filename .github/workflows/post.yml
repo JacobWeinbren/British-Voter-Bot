@@ -1,23 +1,26 @@
 name: Post the next voter card
 
 on:
-    schedule:
-        # GitHub's cron is UTC and ignores the TZ set below. The feed posts at 10:00, 13:00, 17:00 and
-        # 21:00 UK time, which is 09:00-20:00 UTC in summer and 10:00-21:00 UTC in winter, so the window
-        # has to cover both, with headroom at the end so a card missed at 21:00 still has a check or two
-        # left to land in before midnight.
-        #
-        # One cheap check an hour, on the hour's third minute rather than the hour itself, which GitHub
-        # asks for and which its scheduler treats more kindly. The `slot` job posts only when the latest
-        # slot has not been posted yet (`python -m voterbot due`, see voterbot/schedule.py), so an hour
-        # whose card is already on the feed costs a few seconds and does nothing.
-        #
-        # This matters because GitHub's cron is best effort: runs start late (during an incident by
-        # hours) and are sometimes dropped altogether. A card missed at 10:00 because the run was late
-        # or never fired goes out at 11:00 instead, then 12:00, and so on until it lands. Nothing is
-        # ever posted twice.
-        - cron: "3 8-23 * * *"
+    # No `schedule:` block on purpose. GitHub's cron used to deliver this workflow reliably - every
+    # one of the eight daily ticks landed on 23, 24 and 25 August, 20 to 40 minutes late - and then
+    # stopped: 7 of 8 on the 26th with delays stretching to two hours, none at all on the 27th, and
+    # 3 of the ~96 ticks asked for over the 28th and 29th. Nothing in the repo explains it. The cron
+    # was valid, the workflow was active, the concurrency group had been there since the 22nd through
+    # the days that worked, main is the default branch, the repo is public so Actions is unmetered,
+    # and github.com reported no incident. Asking for more ticks made it worse, not better: a run
+    # still pending when the next tick comes due is dropped, so once GitHub's delay grew past the gap
+    # between ticks, going from 8 a day to 48 a day meant almost every one was superseded before it
+    # ran. Four hourly ticks in a row went undelivered after that.
+    #
+    # So the hourly check is driven from outside GitHub (see docs/hourly-trigger.md), which calls the
+    # dispatch API below. `due` decides whether a card actually goes out, exactly as it did under
+    # cron, so a trigger that fires twice or fires late still posts at most one card per slot.
     workflow_dispatch:
+        inputs:
+            force:
+                description: Post the next card even if the latest slot has already been filled
+                type: boolean
+                default: false
 
 permissions:
     contents: write
@@ -59,8 +62,11 @@ jobs:
                   BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE || vars.BLUESKY_HANDLE }}
               run: |
                   echo "runner local time: $(date -Is)"
-                  if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-                    echo "run by hand - posting"
+                  # Every run reaches this workflow by dispatch now, the hourly trigger included, so
+                  # the check has to run by default; `force` is the button for posting a card out of
+                  # turn by hand. A boolean input arrives as the string "true".
+                  if [ "${{ inputs.force }}" = "true" ]; then
+                    echo "forced by hand - posting without checking the slot"
                     echo "go=true" >> "$GITHUB_OUTPUT"
                     exit 0
                   fi
