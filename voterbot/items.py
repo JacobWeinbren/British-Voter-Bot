@@ -1310,7 +1310,6 @@ ITEMS: list[Item] = [
     Item("votingWish", "vote-2024", ("votingWishW29",), custom=wished_vote, weight=0.8),
     # Brexit's effects beyond the headline ones (wave 27, 2024), and what staying in would have meant (2021-23)
     Item("brexitWorkers", "brexit-effects", ("effectsEUWorkersRetroW27",), brexit_effect5("working conditions for British workers"), weight=0.8),
-    Item("brexitUnemployment", "brexit-effects", ("effectsEUUnemploymentRetroW27",), brexit_effect5("unemployment"), weight=0.8),
     Item("brexitTrade", "brexit-effects", ("effectsEUTradeRetroW27",), brexit_effect5("Britain's international trade"), weight=0.8),
     Item("brexitEconScotland", "brexit-effects", ("effectsEUEconScotRetroW27",), brexit_effect5("Scotland's economy"), nations=(codes.SCOTLAND,), weight=0.8),
     Item("brexitEconWales", "brexit-effects", ("effectsEUEconWalesRetroW27",), brexit_effect5("the Welsh economy"), nations=(codes.WALES,), weight=0.8),
