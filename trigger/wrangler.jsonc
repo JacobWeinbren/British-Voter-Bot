@@ -1,0 +1,23 @@
+{
+	"name": "voter-bot-trigger",
+	"main": "src/index.js",
+	"compatibility_date": "2026-08-25",
+
+	// The UK posting slots are 10:00, 13:00, 17:00 and 21:00 (config.SLOT_HOURS). Cron here is UTC,
+	// as it is on GitHub, so the window has to cover the slots in both BST and GMT - 09:00-20:00 UTC
+	// in summer, 10:00-21:00 UTC in winter - with headroom at the end so a card missed at 21:00 has
+	// a check or two left before the day runs out. One check an hour is enough: each one costs a few
+	// seconds on GitHub when the slot is already filled.
+	"triggers": {
+		"crons": ["3 8-23 * * *"]
+	},
+
+	"vars": {
+		"REPO": "JacobWeinbren/British-Voter-Bot",
+		"WORKFLOW": "post.yml",
+		"BRANCH": "main"
+	},
+
+	// GITHUB_TOKEN is a secret, set with `wrangler secret put GITHUB_TOKEN` - never in this file.
+	"observability": { "enabled": true }
+}

@@ -15,5 +15,10 @@ data/processed/
 outputs/cards/
 outputs/previews/*.html
 
+# Cloudflare Worker (the hourly trigger): local build state, never the config or the source
+trigger/node_modules/
+trigger/.wrangler/
+trigger/.dev.vars
+
 # OS
 .DS_Store
