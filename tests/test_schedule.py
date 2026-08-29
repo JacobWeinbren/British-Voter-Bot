@@ -101,3 +101,102 @@ def test_due_command_exit_codes(monkeypatch, capsys):
         cli.main(["due"])
     assert stop.value.code == cli.NOT_DUE
     assert capsys.readouterr().out.startswith("not due:")
+
+
+# --- the feed check: the ledger can lie, so `due` confirms against the feed before it says yes ---
+
+HANDLE = "britishvoterbot.bsky.social"
+
+
+def feed(monkeypatch, posted: datetime | None = None, error: Exception | None = None):
+    def fake(handle, **kwargs):
+        assert handle == HANDLE
+        if error is not None:
+            raise error
+        return posted
+    monkeypatch.setattr(schedule, "feed_last_post", fake)
+
+
+def test_the_feed_is_only_asked_once_the_ledger_says_a_card_is_due(monkeypatch):
+    def never(*args, **kwargs):
+        raise AssertionError("the feed should not be read when the ledger already accounts for the slot")
+    monkeypatch.setattr(schedule, "feed_last_post", never)
+    decision = schedule.decide(utc("2026-08-26 16:23"), HANDLE, utc("2026-08-26 16:05"))
+    assert not decision.post and decision.repair is None
+
+
+def test_an_empty_feed_since_the_slot_opened_posts(monkeypatch):
+    feed(monkeypatch, posted=utc("2026-08-26 11:55"))  # the 13:00 card, not the 17:00 one
+    decision = schedule.decide(utc("2026-08-26 16:03"), HANDLE, utc("2026-08-26 11:55"))
+    assert decision.post and decision.repair is None
+
+
+def test_a_card_already_on_the_feed_is_not_posted_twice(monkeypatch):
+    # The 17:00 card went up at 17:05 BST and the queue position never pushed, so the ledger
+    # still reads 13:00. Without the feed check the next hour would post the same card again.
+    feed(monkeypatch, posted=utc("2026-08-26 16:05"))
+    decision = schedule.decide(utc("2026-08-26 17:03"), HANDLE, utc("2026-08-26 11:55"))
+    assert not decision.post
+    assert decision.repair == utc("2026-08-26 16:05")
+
+
+def test_a_feed_that_cannot_be_read_does_not_post(monkeypatch):
+    feed(monkeypatch, error=OSError("appview timed out"))
+    decision = schedule.decide(utc("2026-08-26 16:03"), HANDLE, utc("2026-08-26 11:55"))
+    assert not decision.post and decision.repair is None
+
+
+def test_no_handle_falls_back_to_the_ledger(monkeypatch):
+    def never(*args, **kwargs):
+        raise AssertionError("there is no handle to ask the feed with")
+    monkeypatch.setattr(schedule, "feed_last_post", never)
+    assert schedule.decide(utc("2026-08-26 16:03"), "", utc("2026-08-26 11:55")).post
+    assert not schedule.decide(utc("2026-08-26 16:23"), "", utc("2026-08-26 16:05")).post
+
+
+def test_handle_from_env_is_tidied_like_the_posting_credentials(monkeypatch):
+    monkeypatch.setenv("BLUESKY_HANDLE", " @britishvoterbot.bsky.social ")
+    assert schedule.handle_from_env() == HANDLE
+    monkeypatch.delenv("BLUESKY_HANDLE", raising=False)
+    assert schedule.handle_from_env() == ""
+
+
+def test_reposts_do_not_count_as_a_slot_filled(monkeypatch):
+    body = {"feed": [
+        {"reason": {"$type": "app.bsky.feed.defs#reasonRepost"},
+         "post": {"record": {"createdAt": "2026-08-26T16:05:00Z"}}},
+        {"post": {"record": {"createdAt": "2026-08-26T11:55:00Z"}}},
+    ]}
+    monkeypatch.setattr(schedule.urllib.request, "urlopen", fake_urlopen(body))
+    assert schedule.feed_last_post(HANDLE) == utc("2026-08-26 11:55")
+
+
+def test_an_empty_feed_reads_as_nothing_posted(monkeypatch):
+    monkeypatch.setattr(schedule.urllib.request, "urlopen", fake_urlopen({"feed": []}))
+    assert schedule.feed_last_post(HANDLE) is None
+
+
+def fake_urlopen(body: dict):
+    import contextlib, io, json
+
+    @contextlib.contextmanager
+    def opener(url, timeout=None):
+        assert HANDLE in url and "posts_no_replies" in url
+        yield io.StringIO(json.dumps(body))
+    return opener
+
+
+def test_due_repairs_the_ledger_when_the_card_is_already_up(monkeypatch, capsys, tmp_path):
+    ledger = tmp_path / "last_post.txt"
+    write_last_post(utc("2026-08-26 11:55"), ledger)
+    monkeypatch.setattr(config, "LAST_POST_PATH", ledger)
+    monkeypatch.setenv("BLUESKY_HANDLE", HANDLE)
+    monkeypatch.setattr(schedule, "read_last_post", lambda: utc("2026-08-26 11:55"))
+    monkeypatch.setattr(schedule, "latest_slot", lambda now: utc("2026-08-26 16:00"))
+    feed(monkeypatch, posted=utc("2026-08-26 16:05"))
+
+    with pytest.raises(SystemExit) as stop:
+        cli.main(["due"])
+    assert stop.value.code == cli.NOT_DUE
+    assert "already on the feed" in capsys.readouterr().out
+    assert read_last_post(ledger) == utc("2026-08-26 16:05")  # repaired, so the next hour stops asking
