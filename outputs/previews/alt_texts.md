@@ -374,7 +374,7 @@ Voter card. A map of England with a dot on Orpington. About them, in their words
 
 **Post text**
 
-I'm a White British Anglican woman from Makerfield, aged 60. My top issue is the NHS. In 2024 I voted Labour. Today I'd rank a smaller party first.
+I'm a White British Anglican woman from Makerfield, aged 60. My top issue is the NHS. In 2024 I voted Labour. Today I'd vote for a smaller party if pushed.
 
 **Alt text** (1022 characters)
 

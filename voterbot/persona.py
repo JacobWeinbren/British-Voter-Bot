@@ -926,9 +926,9 @@ def band(row) -> tuple[str, str | None] | None:
             return None
         past_party, past_sentence = past
         if ranked == 9:
-            return f"{past_sentence} Today I'd rank a smaller party first*", None
+            return f"{past_sentence} Today I'd vote for a smaller party if pushed*", None
         name = codes.PARTIES.get(ranked)
-        return (f"{past_sentence} Today I'd rank {name} first*", name) if name else None
+        return (f"{past_sentence} Today I'd vote {name} if pushed*", name) if name else None
     if intention is None:
         return None
     past_party, past_sentence = past
