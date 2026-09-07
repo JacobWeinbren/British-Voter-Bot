@@ -123,8 +123,8 @@ def faith_is_rare(label: str | None, seat: str | None) -> bool:
     has only a handful of people in that seat, naming it too comes close to naming
     the respondent. Only the census's own minority groups are tested - Christian and
     non-religious are far too large anywhere to narrow anyone down. Where there is
-    nothing to go on the faith stands: no constituency recorded, or a Scottish seat,
-    whose census is run separately and is not in the file.
+    nothing to go on - no constituency recorded, or a seat the census file does not
+    cover - the faith stands.
     """
     if label not in geo.RARE_FAITH_LABELS or not seat:
         return False

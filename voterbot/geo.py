@@ -47,10 +47,12 @@ RARE_FAITH_LABELS = ("Buddhist", "Hindu", "Jewish", "Muslim", "Sikh")  # the cen
 def religion_counts() -> dict[str, dict[str, int]]:
     """How many people of each faith live in each 2024 constituency, keyed by ONS code.
 
-    Census 2021, table TS030 (religion, ten categories), aggregated to post-2019
-    Westminster constituencies. England and Wales only - Scotland's census is run
-    separately by National Records of Scotland and is not in the file - so a Scottish
-    seat has no entry rather than a zero.
+    England and Wales come from Census 2021 table TS030 (religion, ten categories) as
+    published for post-2019 Westminster constituencies. Scotland comes from Scotland's
+    Census 2022 table UV205, published by output area and summed to constituencies through
+    the OA22-to-UKPC24 lookup: NRS perturbs small-area counts to protect confidentiality,
+    so a Scottish seat's figure is within a few tens rather than exact - close enough to
+    tell a handful of people from a community, which is all this is asked to do.
     """
     with open(config.RELIGION_COUNTS_PATH, encoding="utf-8") as fh:
         return {row["code"]: {faith: int(row[faith]) for faith in RARE_FAITH_LABELS} for row in csv.DictReader(fh)}
