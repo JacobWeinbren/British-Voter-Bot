@@ -11,7 +11,7 @@ import random
 import re
 from dataclasses import dataclass, field
 
-from . import codes, geo
+from . import codes, config, geo
 from .data import latest_value, latest, raw_code, text_value, value
 
 
@@ -51,8 +51,8 @@ VARIANTS: dict[str, tuple[str, ...]] = {
     "I've had to borrow money for essentials this year": ("I've borrowed money this year just to cover essentials", "I've needed to borrow to pay for bills and groceries this past year", "this last year I've had to borrow just to get by on the basics"),
     "I've got a degree": ("I'm a graduate", "I went to university and got my degree", "I've a degree to my name"),
     "I've got a postgraduate degree": ("I've done a postgraduate degree", "I stayed on after my degree and did a postgraduate qualification", "I've got a postgrad degree on top of my first one"),
-    "I've got A-levels": ("My highest qualification is A-levels", "I finished school with A-levels", "A-levels are the top qualification I've got"),
-    "I left school with GCSEs": ("GCSEs are my highest qualification", "I finished school with GCSEs", "I've got GCSEs and that's as far as my qualifications go"),
+    "I've got A-levels": ("My highest qualifications are A-levels", "I finished school with A-levels", "A-levels are the top qualifications I've got"),
+    "I left school with GCSEs": ("GCSEs are my highest qualifications", "I finished school with GCSEs", "I've got GCSEs and that's as far as my qualifications go"),
     "I left school with no qualifications": ("I've no formal qualifications", "I came out of school without any qualifications", "I haven't got any qualifications at all"),
     "I'm in a trade union": ("I'm a union member", "I belong to a trade union", "I'm a card-carrying union member"),
     "I'm a parent, though the kids have left home": ("My kids have grown up and left home", "I've got children, but they're grown up and moved out", "I'm a parent, but my kids have flown the nest"),
@@ -116,10 +116,27 @@ def ethnicity_label(row, country: int) -> str | None:
     return codes.ETHNICITY.get(code)
 
 
-def religion_label(row) -> str | None:
-    """The census-level group (see codes.RELIGION), not the denomination."""
+def faith_is_rare(label: str | None, seat: str | None) -> bool:
+    """True when the census counts config.RARE_FAITH_THRESHOLD people or fewer of this faith in that seat.
+
+    A card already names a constituency, an ethnicity and a gender; where a faith
+    has only a handful of people in that seat, naming it too comes close to naming
+    the respondent. Only the census's own minority groups are tested - Christian and
+    non-religious are far too large anywhere to narrow anyone down. Where there is
+    nothing to go on the faith stands: no constituency recorded, or a Scottish seat,
+    whose census is run separately and is not in the file.
+    """
+    if label not in geo.RARE_FAITH_LABELS or not seat:
+        return False
+    counts = geo.religion_counts().get(seat)
+    return counts is not None and counts[label] <= config.RARE_FAITH_THRESHOLD
+
+
+def religion_label(row, seat: str | None = None) -> str | None:
+    """The census-level group (see codes.RELIGION), not the denomination, and nothing where that group is rare in their seat."""
     code = value(row, "p_religionW31")
-    return codes.RELIGION.get(int(code)) if code is not None else None
+    label = codes.RELIGION.get(int(code)) if code is not None else None
+    return None if faith_is_rare(label, seat) else label
 
 
 # The decade of life someone is in, which is as close as a card gets to their age: an exact
@@ -137,9 +154,9 @@ def age_band(age: int) -> str:
     return next((band for below, band in AGE_BANDS if age < below), OLDEST_BAND)
 
 
-def headline(row, country: int, place: str, age: int) -> Span:
+def headline(row, country: int, place: str, age: int, seat: str | None = None) -> Span:
     gender = codes.GENDER[int(value(row, "gender"))]
-    words = [w for w in (ethnicity_label(row, country), religion_label(row)) if w]
+    words = [w for w in (ethnicity_label(row, country), religion_label(row, seat)) if w]
     slots = {}
     template_words = []
     for name, word in zip(("ethnicity", "religion"), words):
@@ -328,7 +345,7 @@ def class_clause(row, rng: random.Random) -> tuple[str, str | None] | None:
     return None
 
 
-def extra_clause(row, country: int, rng: random.Random) -> tuple[str, str] | None:
+def extra_clause(row, country: int, rng: random.Random, seat: str | None = None) -> tuple[str, str] | None:
     """One more human detail, chosen at random from what they told us, tagged by theme (home, money, other)."""
     options: list[tuple[str, str]] = []
     marital = value(row, "p_maritalW31")
@@ -375,7 +392,10 @@ def extra_clause(row, country: int, rng: random.Random) -> tuple[str, str] | Non
     religion = value(row, "p_religionW31")
     if attendance is not None and religion is not None:
         religion = int(religion)
+        # Naming the mosque or the gurdwara names the faith, so it goes wherever the headline's does.
         place = "church" if religion in codes.CHRISTIAN_CODES else codes.PLACE_OF_WORSHIP.get(religion)
+        if faith_is_rare(codes.RELIGION.get(religion), seat):
+            place = None
         if place and attendance == 6:
             options.append(("other", one_of(rng, f"I'm at {place} every week", f"I go to {place} every week", f"I'm at {place} at least once a week")))
         elif place and attendance in (4, 5):
@@ -611,7 +631,7 @@ def join_clauses(first: str, second: str) -> str:
     return first + ", and " + second
 
 
-def life_paragraph(row, country: int, rng: random.Random) -> Span:
+def life_paragraph(row, country: int, rng: random.Random, seat: str | None = None) -> Span:
     """Home, money, work, one extra detail, then class - with each detail kept to its own theme.
 
     A description of the home itself (what it is worth, the bedrooms, when they
@@ -624,7 +644,7 @@ def life_paragraph(row, country: int, rng: random.Random) -> Span:
     home = housing_clause(row, rng)
     money = money_clause(row, rng)
     work = job_clause(row, rng)
-    theme, detail = extra_clause(row, country, rng) or (None, None)
+    theme, detail = extra_clause(row, country, rng, seat) or (None, None)
     sentences: list[str] = []
     if home and detail and theme == "home":
         sentences.append(join_clauses(home, detail))

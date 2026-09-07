@@ -8,11 +8,15 @@ that ships with the repository.
 
 import copy
 import json
+import re
 
 import pytest
 
 from voterbot import anonymise, codes, config, persona
 from voterbot.sample import load_profiles
+
+RARE_SEAT = "E14001424"  # Penrith and Solway: the census counts five Sikhs
+COMMON_SEAT = "E14000585"  # Bradford West: tens of thousands of Muslims
 
 PERMITTED = {"non-religious", "Anglican", "Catholic", "Christian", "Jewish", "Hindu", "Muslim", "Sikh", "Buddhist"}
 BANDS = {band for _, band in persona.AGE_BANDS} | {persona.OLDEST_BAND}
@@ -76,6 +80,69 @@ def test_a_retired_age_band_stops_the_migration_rather_than_being_kept():
     card["headline"]["bold"]["age"] = "late teens or twenties"
     with pytest.raises(ValueError, match="retired age band"):
         anonymise.migrate_card(card)
+
+
+def test_a_faith_with_almost_nobody_of_it_in_the_seat_counts_as_rare():
+    assert persona.faith_is_rare("Sikh", RARE_SEAT) is True
+    assert persona.faith_is_rare("Muslim", RARE_SEAT) is False  # 276 there, well above the threshold
+    assert persona.faith_is_rare("Christian", RARE_SEAT) is False  # never tested: far too large to narrow anyone down
+
+
+def test_a_faith_stands_where_there_is_nothing_to_measure_it_with():
+    assert persona.faith_is_rare("Sikh", None) is False  # no constituency recorded
+    assert persona.faith_is_rare("Sikh", "S14000085") is False  # Scotland: its census is not in the file
+
+
+def test_a_rare_faith_is_dropped_from_the_headline_and_the_article_follows():
+    card = copy.deepcopy(CARD)
+    card["constituency_code"] = RARE_SEAT
+    card["headline"]["bold"].update(ethnicity="Asian", religion="Sikh")
+    anonymise.migrate_card(card)
+    assert anonymise.spoken_headline(card) == "I'm an Asian man from Lothian East, in my forties."
+
+
+def test_dropping_the_only_vowel_word_puts_the_article_right():
+    """With no ethnicity the faith led the sentence, so "an Asian" must not become "an man"."""
+    headline = {"template": "I'm an {religion} {gender} from {place}, in my {age}.",
+                "bold": {"religion": "Asian", "gender": "man", "place": "X", "age": "forties"}}
+    anonymise.drop_religion(headline)
+    assert headline["template"].format(**headline["bold"]) == "I'm a man from X, in my forties."
+
+
+def test_a_rare_faith_takes_the_place_of_worship_with_it():
+    card = copy.deepcopy(CARD)
+    card["constituency_code"] = RARE_SEAT
+    card["headline"]["bold"]["religion"] = "Sikh"
+    card["life"]["template"] = "I rent privately. I get to the gurdwara most months. I work full-time."
+    anonymise.migrate_card(card)
+    assert "gurdwara" not in card["life"]["template"]
+    assert "I rent privately." in card["life"]["template"] and "I work full-time." in card["life"]["template"]
+
+
+def test_a_common_faith_keeps_its_name_and_its_place_of_worship():
+    card = copy.deepcopy(CARD)
+    card["constituency_code"] = COMMON_SEAT
+    card["headline"]["bold"]["religion"] = "Muslim"
+    card["life"]["template"] = "I rent privately. I'm at the mosque every week."
+    anonymise.migrate_card(card)
+    assert card["headline"]["bold"]["religion"] == "Muslim"
+    assert "mosque" in card["life"]["template"]
+
+
+def test_a_plural_qualification_no_longer_takes_a_singular_verb():
+    card = copy.deepcopy(CARD)
+    card["life"]["template"] = "My highest qualification is A-levels. GCSEs are my highest qualification."
+    anonymise.migrate_card(card)
+    assert card["life"]["template"] == "My highest qualifications are A-levels. GCSEs are my highest qualifications."
+    for wording in persona.VARIANTS["I've got A-levels"] + persona.VARIANTS["I left school with GCSEs"]:
+        assert not re.search(r"\bqualification\b", wording), wording  # plural name, plural noun
+
+
+@pytest.mark.skipif(not config.PROFILES_PATH.exists(), reason="no queue built")
+def test_no_queued_card_names_a_faith_that_is_rare_where_they_live():
+    for card in load_profiles():
+        label = card["headline"]["bold"].get("religion")
+        assert not persona.faith_is_rare(label, card.get("constituency_code")), (label, card["constituency"])
 
 
 @pytest.mark.skipif(not config.PROFILES_PATH.exists(), reason="no queue built")

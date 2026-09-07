@@ -130,8 +130,9 @@ class ProfileBuilder:
 
         intention_code = value(row, "generalElectionVoteW31")
         leader = persona.leader_bubble(row, country, int(intention_code) if intention_code is not None else None, rng)
-        head = persona.headline(row, country, place, age)
-        life = persona.life_paragraph(row, country, rng)
+        seat = constituency.code if constituency else None
+        head = persona.headline(row, country, place, age, seat)
+        life = persona.life_paragraph(row, country, rng, seat)
         media = persona.media_paragraph(row, country, rng)
 
         # config.MAX_OPINIONS opinion bubbles besides the leader line (three: four bubbles in all); a layout

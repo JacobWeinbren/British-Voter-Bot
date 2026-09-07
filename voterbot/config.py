@@ -15,6 +15,7 @@ CODEBOOK_PATH = RAW_DIR / "Bes_wave31Documentationv31.05-1.pdf"  # the questionn
 PANEL_CACHE = PROCESSED_DIR / "w31_panel.parquet"
 CONSTITUENCIES_PATH = REFERENCE_DIR / "pcon24_buc.geojson"
 COUNTRIES_PATH = REFERENCE_DIR / "countries24_buc.geojson"
+RELIGION_COUNTS_PATH = REFERENCE_DIR / "religion_pcon24.csv"  # Census 2021 TS030 by 2024 constituency (England and Wales)
 
 # Outputs
 OUTPUT_DIR = ROOT / "outputs"
@@ -35,6 +36,10 @@ WAVE = 31
 WEIGHT_COLUMN = "wt_new_W31"
 FIELDWORK_LABEL = "May-June 2026"  # wave 31 fieldwork, from the codebook introduction
 EARLIEST_WAVE = 20  # rule of thumb: ignore questions last asked before wave 20
+# A faith the census counts at this many people or fewer in someone's constituency is left off
+# their card: where a group is that small, naming it alongside a seat, an ethnicity and a gender
+# comes close to naming the respondent. See persona.faith_is_rare.
+RARE_FAITH_THRESHOLD = 10
 
 # Sampling: no cap - every eligible respondent is queued, in weighted-draw order.
 # Pass --count to `build` to stop early for a test run.
