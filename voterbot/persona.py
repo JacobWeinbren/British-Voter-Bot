@@ -116,19 +116,29 @@ def ethnicity_label(row, country: int) -> str | None:
     return codes.ETHNICITY.get(code)
 
 
-def religion_label(row, country: int) -> str | None:
+def religion_label(row) -> str | None:
+    """The census-level group (see codes.RELIGION), not the denomination."""
     code = value(row, "p_religionW31")
-    if code is None:
-        return None
-    label = codes.RELIGION.get(int(code))
-    if label == "Anglican" and country == codes.SCOTLAND:
-        return "Episcopalian"
-    return label
+    return codes.RELIGION.get(int(code)) if code is not None else None
+
+
+# The decade of life someone is in, which is as close as a card gets to their age: an exact
+# age alongside a named constituency, an ethnicity and a gender comes close to naming a real
+# respondent. The teens sit with the twenties rather than alone, and the eighties are
+# top-coded, because both ends are thin enough to stand out on their own.
+AGE_BANDS = ((30, "late teens or twenties"), (40, "thirties"), (50, "forties"), (60, "fifties"),
+             (70, "sixties"), (80, "seventies"))
+OLDEST_BAND = "eighties or older"
+
+
+def age_band(age: int) -> str:
+    """The band that follows "in my ...", from an exact age."""
+    return next((band for below, band in AGE_BANDS if age < below), OLDEST_BAND)
 
 
 def headline(row, country: int, place: str, age: int) -> Span:
     gender = codes.GENDER[int(value(row, "gender"))]
-    words = [w for w in (ethnicity_label(row, country), religion_label(row, country)) if w]
+    words = [w for w in (ethnicity_label(row, country), religion_label(row)) if w]
     slots = {}
     template_words = []
     for name, word in zip(("ethnicity", "religion"), words):
@@ -137,9 +147,9 @@ def headline(row, country: int, place: str, age: int) -> Span:
     slots["gender"] = gender
     template_words.append("{gender}")
     first_word = words[0] if words else gender
-    template = f"I'm {article(first_word)} " + " ".join(template_words) + " from {place}, aged {age}."
+    template = f"I'm {article(first_word)} " + " ".join(template_words) + " from {place}, in my {age}."
     slots["place"] = place
-    slots["age"] = str(age)
+    slots["age"] = age_band(age)
     return Span(template, slots)
 
 

@@ -4,7 +4,7 @@
 
 **Post text**
 
-I'm a White Scottish man from Cumbernauld and Kirkintilloch, aged 46. My top issue is immigration. In 2024 I didn't vote. Today I'd vote Reform UK.
+I'm a White Scottish man from Cumbernauld and Kirkintilloch, in my forties. My top issue is immigration. In 2024 I didn't vote. Today I'd vote Reform UK.
 
 **Alt text** (976 characters)
 
@@ -14,7 +14,7 @@ Voter card. A map of Scotland with a dot on Cumbernauld and Kirkintilloch. About
 
 **Post text**
 
-I'm a White British Episcopalian man from Lothian East, aged 43. My top issue is the economy. In 2024 I voted Labour. Today I still would.
+I'm a White British Christian man from Lothian East, in my forties. My top issue is the economy. In 2024 I voted Labour. Today I still would.
 
 **Alt text** (1167 characters)
 
@@ -24,7 +24,7 @@ Voter card. A map of Scotland with a dot on Lothian East. About them, in their w
 
 **Post text**
 
-I'm a White Scottish woman from Cowdenbeath and Kirkcaldy, aged 70. My top issue is foreign affairs. In 2024 I voted for a smaller party. Today I wouldn't vote.
+I'm a White Scottish woman from Cowdenbeath and Kirkcaldy, in my seventies. My top issue is foreign affairs. In 2024 I voted for a smaller party. Today I wouldn't vote.
 
 **Alt text** (1114 characters)
 
@@ -34,7 +34,7 @@ Voter card. A map of Scotland with a dot on Cowdenbeath and Kirkcaldy. About the
 
 **Post text**
 
-I'm a White Scottish non-religious woman from Dundee Central, aged 44. My top issue is inflation. In 2024 I voted SNP. Today I still would.
+I'm a White Scottish non-religious woman from Dundee Central, in my forties. My top issue is inflation. In 2024 I voted SNP. Today I still would.
 
 **Alt text** (1092 characters)
 
@@ -44,7 +44,7 @@ Voter card. A map of Scotland with a dot on Dundee Central. About them, in their
 
 **Post text**
 
-I'm a White British non-religious man from Caithness, Sutherland and Easter Ross, aged 57. My top issue is the environment. In 2024 I voted Lib Dem. Today I still would.
+I'm a White British non-religious man from Caithness, Sutherland and Easter Ross, in my fifties. My top issue is the environment. In 2024 I voted Lib Dem. Today I still would.
 
 **Alt text** (1091 characters)
 
@@ -54,7 +54,7 @@ Voter card. A map of Scotland with a dot on Caithness, Sutherland and Easter Ros
 
 **Post text**
 
-I'm a White Scottish non-religious woman from Gordon and Buchan, aged 41. My top issue is the cost of living. In 2024 I voted SNP. Today I still would.
+I'm a White Scottish non-religious woman from Gordon and Buchan, in my forties. My top issue is the cost of living. In 2024 I voted SNP. Today I still would.
 
 **Alt text** (1100 characters)
 
@@ -64,7 +64,7 @@ Voter card. A map of Scotland with a dot on Gordon and Buchan. About them, in th
 
 **Post text**
 
-I'm a White British non-religious woman from Aberafan Maesteg, aged 41. My top issue is poverty. In 2024 I voted Labour. Today I'd vote Green.
+I'm a White British non-religious woman from Aberafan Maesteg, in my forties. My top issue is poverty. In 2024 I voted Labour. Today I'd vote Green.
 
 **Alt text** (1058 characters)
 
@@ -74,7 +74,7 @@ Voter card. A map of Wales with a dot on Aberafan Maesteg. About them, in their 
 
 **Post text**
 
-I'm a White British Anglican man from Mid and South Pembrokeshire, aged 68. My top issue is party politics. In 2024 I voted Conservative. Today I'd vote Reform UK.
+I'm a White British Christian man from Mid and South Pembrokeshire, in my sixties. My top issue is party politics. In 2024 I voted Conservative. Today I'd vote Reform UK.
 
 **Alt text** (1041 characters)
 
@@ -84,7 +84,7 @@ Voter card. A map of Wales with a dot on Mid and South Pembrokeshire. About them
 
 **Post text**
 
-I'm a White British man from Ynys Môn, aged 64. My top issue is the environment. In 2024 I voted Green. Today I'd vote Plaid Cymru.
+I'm a White British man from Ynys Môn, in my sixties. My top issue is the environment. In 2024 I voted Green. Today I'd vote Plaid Cymru.
 
 **Alt text** (835 characters)
 
@@ -94,7 +94,7 @@ Voter card. A map of Wales with a dot on Ynys Môn. About them, in their words: 
 
 **Post text**
 
-I'm a White Catholic man from Brecon, Radnor and Cwm Tawe, aged 46. I couldn't pick a single top issue. In 2024 I didn't vote. Today I'd vote Reform UK.
+I'm a White Christian man from Brecon, Radnor and Cwm Tawe, in my forties. I couldn't pick a single top issue. In 2024 I didn't vote. Today I'd vote Reform UK.
 
 **Alt text** (1014 characters)
 
@@ -104,7 +104,7 @@ Voter card. A map of Wales with a dot on Brecon, Radnor and Cwm Tawe. About them
 
 **Post text**
 
-I'm a White British non-religious woman from Amber Valley, aged 38. My top issue is education. In 2024 I voted Conservative. Today I don't know who I'd vote for.
+I'm a White British non-religious woman from Amber Valley, in my thirties. My top issue is education. In 2024 I voted Conservative. Today I don't know who I'd vote for.
 
 **Alt text** (966 characters)
 
@@ -114,7 +114,7 @@ Voter card. A map of England with a dot on Amber Valley. About them, in their wo
 
 **Post text**
 
-I'm a White British non-religious man from Hertford and Stortford, aged 18. In 2024 I didn't vote. Today I don't know who I'd vote for.
+I'm a White British non-religious man from Hertford and Stortford, in my late teens or twenties. In 2024 I didn't vote. Today I don't know who I'd vote for.
 
 **Alt text** (881 characters)
 
@@ -124,7 +124,7 @@ Voter card. A map of England with a dot on Hertford and Stortford. About them, i
 
 **Post text**
 
-I'm a White British non-religious man from North East Hertfordshire, aged 47. My top issue is immigration. In 2024 I didn't vote. Today I wouldn't either.
+I'm a White British non-religious man from North East Hertfordshire, in my forties. My top issue is immigration. In 2024 I didn't vote. Today I wouldn't either.
 
 **Alt text** (858 characters)
 
@@ -134,7 +134,7 @@ Voter card. A map of England with a dot on North East Hertfordshire. About them,
 
 **Post text**
 
-I'm a Black African woman from Enfield North, aged 79. I couldn't pick a single top issue. In 2024 I didn't vote. Today I wouldn't either.
+I'm a Black African woman from Enfield North, in my seventies. I couldn't pick a single top issue. In 2024 I didn't vote. Today I wouldn't either.
 
 **Alt text** (878 characters)
 
@@ -144,7 +144,7 @@ Voter card. A map of England with a dot on Enfield North. About them, in their w
 
 **Post text**
 
-I'm a White British Anglican woman from Bridgwater, aged 73. My top issue is the economy. In 2024 I voted for a smaller party. Today I'd vote Conservative.
+I'm a White British Christian woman from Bridgwater, in my seventies. My top issue is the economy. In 2024 I voted for a smaller party. Today I'd vote Conservative.
 
 **Alt text** (1049 characters)
 
@@ -154,7 +154,7 @@ Voter card. A map of England with a dot on Bridgwater. About them, in their word
 
 **Post text**
 
-I'm a White Scottish non-religious man from Motherwell, Wishaw and Carluke, aged 31. I'm not sure whether I voted in 2024. Today I'd vote for a smaller party.
+I'm a White Scottish non-religious man from Motherwell, Wishaw and Carluke, in my thirties. I'm not sure whether I voted in 2024. Today I'd vote for a smaller party.
 
 **Alt text** (737 characters)
 
@@ -164,7 +164,7 @@ Voter card. A map of Scotland with a dot on Motherwell, Wishaw and Carluke. Abou
 
 **Post text**
 
-I'm a White English non-religious man from Great Yarmouth, aged 23. In 2024 I voted for a smaller party. Today I wouldn't vote.
+I'm a White English non-religious man from Great Yarmouth, in my late teens or twenties. In 2024 I voted for a smaller party. Today I wouldn't vote.
 
 **Alt text** (1041 characters)
 
@@ -174,7 +174,7 @@ Voter card. A map of England with a dot on Great Yarmouth. About them, in their 
 
 **Post text**
 
-I'm a White British non-religious man from Dorking and Horley, aged 19. My top issue is the cost of living. In 2024 I didn't vote. Today I'd vote Labour.
+I'm a White British non-religious man from Dorking and Horley, in my late teens or twenties. My top issue is the cost of living. In 2024 I didn't vote. Today I'd vote Labour.
 
 **Alt text** (927 characters)
 
@@ -184,7 +184,7 @@ Voter card. A map of England with a dot on Dorking and Horley. About them, in th
 
 **Post text**
 
-I'm a White British non-religious woman from England, aged 59. My top issue is poverty. In 2024 I didn't vote. Today I don't know who I'd vote for.
+I'm a White British non-religious woman from England, in my fifties. My top issue is poverty. In 2024 I didn't vote. Today I don't know who I'd vote for.
 
 **Alt text** (1082 characters)
 
@@ -194,7 +194,7 @@ Voter card. A map of England; their constituency is not recorded. About them, in
 
 **Post text**
 
-I'm a White British Anglican man from Broxtowe, aged 80. My top issue is immigration. In 2024 I voted Conservative. Today I'd vote Reform UK.
+I'm a White British Christian man from Broxtowe, in my eighties or older. My top issue is immigration. In 2024 I voted Conservative. Today I'd vote Reform UK.
 
 **Alt text** (1042 characters)
 
@@ -204,7 +204,7 @@ Voter card. A map of England with a dot on Broxtowe. About them, in their words:
 
 **Post text**
 
-I'm a White British non-religious woman from Oxford East, aged 60. My top issue is the economy. In 2024 I voted Labour. Today I don't know who I'd vote for.
+I'm a White British non-religious woman from Oxford East, in my sixties. My top issue is the economy. In 2024 I voted Labour. Today I don't know who I'd vote for.
 
 **Alt text** (1170 characters)
 
@@ -214,7 +214,7 @@ Voter card. A map of England with a dot on Oxford East. About them, in their wor
 
 **Post text**
 
-I'm a Black African Muslim woman from Stratford and Bow, aged 28. My top issue is the cost of living. In 2024 I didn't vote. Today I'd vote Labour.
+I'm a Black African Muslim woman from Stratford and Bow, in my late teens or twenties. My top issue is the cost of living. In 2024 I didn't vote. Today I'd vote Labour.
 
 **Alt text** (818 characters)
 
@@ -224,7 +224,7 @@ Voter card. A map of England with a dot on Stratford and Bow. About them, in the
 
 **Post text**
 
-I'm a White non-religious woman from Brentwood and Ongar, aged 39. My top issue is the economy. In 2024 I voted Conservative. Today I still would.
+I'm a White non-religious woman from Brentwood and Ongar, in my thirties. My top issue is the economy. In 2024 I voted Conservative. Today I still would.
 
 **Alt text** (1001 characters)
 
@@ -234,7 +234,7 @@ Voter card. A map of England with a dot on Brentwood and Ongar. About them, in t
 
 **Post text**
 
-I'm a White British Catholic woman from Herne Bay and Sandwich, aged 69. My top issue is immigration. In 2024 I voted Conservative. Today I'd vote Reform UK.
+I'm a White British Christian woman from Herne Bay and Sandwich, in my sixties. My top issue is immigration. In 2024 I voted Conservative. Today I'd vote Reform UK.
 
 **Alt text** (1095 characters)
 
@@ -244,7 +244,7 @@ Voter card. A map of England with a dot on Herne Bay and Sandwich. About them, i
 
 **Post text**
 
-I'm a White British Catholic woman from Croydon East, aged 72. My top issue is immigration. In 2024 I voted Labour. Today I'd vote Lib Dem.
+I'm a White British Christian woman from Croydon East, in my seventies. My top issue is immigration. In 2024 I voted Labour. Today I'd vote Lib Dem.
 
 **Alt text** (1100 characters)
 
@@ -254,7 +254,7 @@ Voter card. A map of England with a dot on Croydon East. About them, in their wo
 
 **Post text**
 
-I'm a White British non-religious woman from Hornchurch and Upminster, aged 34. My top issue is the cost of living. In 2024 I voted Lib Dem. Today I'd vote Green.
+I'm a White British non-religious woman from Hornchurch and Upminster, in my thirties. My top issue is the cost of living. In 2024 I voted Lib Dem. Today I'd vote Green.
 
 **Alt text** (908 characters)
 
@@ -264,7 +264,7 @@ Voter card. A map of England with a dot on Hornchurch and Upminster. About them,
 
 **Post text**
 
-I'm a White Scottish non-religious woman from Glasgow South, aged 41. My top issue is the cost of living. In 2024 I voted Labour. Today I'd vote SNP.
+I'm a White Scottish non-religious woman from Glasgow South, in my forties. My top issue is the cost of living. In 2024 I voted Labour. Today I'd vote SNP.
 
 **Alt text** (962 characters)
 
@@ -274,7 +274,7 @@ Voter card. A map of Scotland with a dot on Glasgow South. About them, in their 
 
 **Post text**
 
-I'm a White Welsh non-religious man from Caerphilly, aged 24. My top issue is the cost of living. In 2024 I voted Plaid Cymru. Today I still would.
+I'm a White Welsh non-religious man from Caerphilly, in my late teens or twenties. My top issue is the cost of living. In 2024 I voted Plaid Cymru. Today I still would.
 
 **Alt text** (846 characters)
 
@@ -284,7 +284,7 @@ Voter card. A map of Wales with a dot on Caerphilly. About them, in their words:
 
 **Post text**
 
-I'm a British Indian Muslim woman from Ruislip, Northwood and Pinner, aged 25. My top issue is the economy. In 2024 I didn't vote. Today I'd vote Green.
+I'm a British Indian Muslim woman from Ruislip, Northwood and Pinner, in my late teens or twenties. My top issue is the economy. In 2024 I didn't vote. Today I'd vote Green.
 
 **Alt text** (909 characters)
 
@@ -294,7 +294,7 @@ Voter card. A map of England with a dot on Ruislip, Northwood and Pinner. About 
 
 **Post text**
 
-I'm a White British non-religious man from Dagenham and Rainham, aged 40. My top issue is the economy. In 2024 I voted Reform UK. Today I still would.
+I'm a White British non-religious man from Dagenham and Rainham, in my forties. My top issue is the economy. In 2024 I voted Reform UK. Today I still would.
 
 **Alt text** (1231 characters)
 
@@ -304,7 +304,7 @@ Voter card. A map of England with a dot on Dagenham and Rainham. About them, in 
 
 **Post text**
 
-I'm a White British non-religious man from Hornchurch and Upminster, aged 32. My top issue is the cost of living. In 2024 I voted Green. Today I still would.
+I'm a White British non-religious man from Hornchurch and Upminster, in my thirties. My top issue is the cost of living. In 2024 I voted Green. Today I still would.
 
 **Alt text** (871 characters)
 
@@ -314,7 +314,7 @@ Voter card. A map of England with a dot on Hornchurch and Upminster. About them,
 
 **Post text**
 
-I'm a White English non-religious woman from Warrington South, aged 60. My top issue is the environment. In 2024 I voted Green. Today I still would.
+I'm a White English non-religious woman from Warrington South, in my sixties. My top issue is the environment. In 2024 I voted Green. Today I still would.
 
 **Alt text** (1026 characters)
 
@@ -324,7 +324,7 @@ Voter card. A map of England with a dot on Warrington South. About them, in thei
 
 **Post text**
 
-I'm a White British Anglican man from Pontefract, Castleford and Knottingley, aged 49. My top issue is Britain losing its identity. In 2024 I voted Reform UK. Today I still would.
+I'm a White British Christian man from Pontefract, Castleford and Knottingley, in my forties. My top issue is Britain losing its identity. In 2024 I voted Reform UK. Today I still would.
 
 **Alt text** (1109 characters)
 
@@ -334,7 +334,7 @@ Voter card. A map of England with a dot on Pontefract, Castleford and Knottingle
 
 **Post text**
 
-I'm a White English non-religious man from South Cambridgeshire, aged 52. My top issue is the environment. In 2024 I voted Lib Dem. Today I still would.
+I'm a White English non-religious man from South Cambridgeshire, in my fifties. My top issue is the environment. In 2024 I voted Lib Dem. Today I still would.
 
 **Alt text** (1000 characters)
 
@@ -344,7 +344,7 @@ Voter card. A map of England with a dot on South Cambridgeshire. About them, in 
 
 **Post text**
 
-I'm a Mixed White and Asian non-religious man from Wetherby and Easingwold, aged 60. My top issue is the economy. In 2024 I voted Conservative. Today I still would.
+I'm a Mixed White and Asian non-religious man from Wetherby and Easingwold, in my sixties. My top issue is the economy. In 2024 I voted Conservative. Today I still would.
 
 **Alt text** (890 characters)
 
@@ -354,7 +354,7 @@ Voter card. A map of England with a dot on Wetherby and Easingwold. About them, 
 
 **Post text**
 
-I'm a White British non-religious man from Louth and Horncastle, aged 59. My top issue is immigration. In 2024 I voted Reform UK. Today I still would.
+I'm a White British non-religious man from Louth and Horncastle, in my fifties. My top issue is immigration. In 2024 I voted Reform UK. Today I still would.
 
 **Alt text** (1077 characters)
 
@@ -364,7 +364,7 @@ Voter card. A map of England with a dot on Louth and Horncastle. About them, in 
 
 **Post text**
 
-I'm a White British Anglican man from Orpington, aged 67. My top issue is the economy. In 2024 I voted Labour. Today I still would.
+I'm a White British Christian man from Orpington, in my sixties. My top issue is the economy. In 2024 I voted Labour. Today I still would.
 
 **Alt text** (1134 characters)
 
@@ -374,7 +374,7 @@ Voter card. A map of England with a dot on Orpington. About them, in their words
 
 **Post text**
 
-I'm a White British Anglican woman from Makerfield, aged 60. My top issue is the NHS. In 2024 I voted Labour. Today I'd vote for a smaller party (if pushed).
+I'm a White British Christian woman from Makerfield, in my sixties. My top issue is the NHS. In 2024 I voted Labour. Today I'd vote for a smaller party (if pushed).
 
 **Alt text** (1022 characters)
 
@@ -384,7 +384,7 @@ Voter card. A map of England with a dot on Makerfield. About them, in their word
 
 **Post text**
 
-I'm a White British Anglican man from Harrow East, aged 56. My top issue is the cost of living. In 2024 I voted Conservative. Today I still would.
+I'm a White British Christian man from Harrow East, in my fifties. My top issue is the cost of living. In 2024 I voted Conservative. Today I still would.
 
 **Alt text** (928 characters)
 
@@ -394,7 +394,7 @@ Voter card. A map of England with a dot on Harrow East. About them, in their wor
 
 **Post text**
 
-I'm a White English non-religious man from Exmouth and Exeter East, aged 79. My top issue is big business and the rich. In 2024 I voted Green. Today I still would.
+I'm a White English non-religious man from Exmouth and Exeter East, in my seventies. My top issue is big business and the rich. In 2024 I voted Green. Today I still would.
 
 **Alt text** (1127 characters)
 
@@ -404,7 +404,7 @@ Voter card. A map of England with a dot on Exmouth and Exeter East. About them, 
 
 **Post text**
 
-I'm a Mixed White and Black African Methodist man from Peckham, aged 48. My top issue is the size of the state. In 2024 I voted Conservative. Today I'd vote Green.
+I'm a Mixed White and Black African Christian man from Peckham, in my forties. My top issue is the size of the state. In 2024 I voted Conservative. Today I'd vote Green.
 
 **Alt text** (959 characters)
 
@@ -414,7 +414,7 @@ Voter card. A map of England with a dot on Peckham. About them, in their words: 
 
 **Post text**
 
-I'm a White British Anglican woman from Kingston upon Hull West and Haltemprice, aged 63. My top issue is immigration. In 2024 I voted Reform UK. Today I'd vote Conservative.
+I'm a White British Christian woman from Kingston upon Hull West and Haltemprice, in my sixties. My top issue is immigration. In 2024 I voted Reform UK. Today I'd vote Conservative.
 
 **Alt text** (1227 characters)
 
@@ -424,7 +424,7 @@ Voter card. A map of England with a dot on Kingston upon Hull West and Haltempri
 
 **Post text**
 
-I'm a White British Baptist woman from Morecambe and Lunesdale, aged 68. My top issue is immigration. In 2024 I voted Reform UK. Today I still would.
+I'm a White British Christian woman from Morecambe and Lunesdale, in my sixties. My top issue is immigration. In 2024 I voted Reform UK. Today I still would.
 
 **Alt text** (1173 characters)
 
@@ -434,7 +434,7 @@ Voter card. A map of England with a dot on Morecambe and Lunesdale. About them, 
 
 **Post text**
 
-I'm an Asian non-religious man from Spelthorne, aged 18. My top issue is the cost of living. In 2024 I didn't vote. Today I'd vote Conservative.
+I'm an Asian non-religious man from Spelthorne, in my late teens or twenties. My top issue is the cost of living. In 2024 I didn't vote. Today I'd vote Conservative.
 
 **Alt text** (986 characters)
 
@@ -444,7 +444,7 @@ Voter card. A map of England with a dot on Spelthorne. About them, in their word
 
 **Post text**
 
-I'm a White British Buddhist woman from Sutton Coldfield, aged 47. My top issue is immigration. In 2024 I voted Reform UK. Today I still would.
+I'm a White British Buddhist woman from Sutton Coldfield, in my forties. My top issue is immigration. In 2024 I voted Reform UK. Today I still would.
 
 **Alt text** (772 characters)
 
@@ -454,7 +454,7 @@ Voter card. A map of England with a dot on Sutton Coldfield. About them, in thei
 
 **Post text**
 
-I'm a White British non-religious man from Bootle, aged 77. My top issue is immigration. In 2024 I voted Conservative. Today I'd vote Reform UK.
+I'm a White British non-religious man from Bootle, in my seventies. My top issue is immigration. In 2024 I voted Conservative. Today I'd vote Reform UK.
 
 **Alt text** (1118 characters)
 
@@ -464,7 +464,7 @@ Voter card. A map of England with a dot on Bootle. About them, in their words: I
 
 **Post text**
 
-I'm a White British Anglican woman from City of Durham, aged 43. My top issue is immigration. In 2024 I voted Lib Dem. Today I still would.
+I'm a White British Christian woman from City of Durham, in my forties. My top issue is immigration. In 2024 I voted Lib Dem. Today I still would.
 
 **Alt text** (1068 characters)
 
@@ -474,7 +474,7 @@ Voter card. A map of England with a dot on City of Durham. About them, in their 
 
 **Post text**
 
-I'm a White British Methodist woman from Suffolk Coastal, aged 85. My top issue is the state of our politics. In 2024 I voted Lib Dem. Today I'd vote Reform UK.
+I'm a White British Christian woman from Suffolk Coastal, in my eighties or older. My top issue is the state of our politics. In 2024 I voted Lib Dem. Today I'd vote Reform UK.
 
 **Alt text** (1271 characters)
 
@@ -484,7 +484,7 @@ Voter card. A map of England with a dot on Suffolk Coastal. About them, in their
 
 **Post text**
 
-I'm a White British non-religious woman from Reigate, aged 35. My top issue is the economy. In 2024 I voted Labour. Today I still would.
+I'm a White British non-religious woman from Reigate, in my thirties. My top issue is the economy. In 2024 I voted Labour. Today I still would.
 
 **Alt text** (1054 characters)
 
@@ -494,7 +494,7 @@ Voter card. A map of England with a dot on Reigate. About them, in their words: 
 
 **Post text**
 
-I'm a British Indian Hindu woman from Ruislip, Northwood and Pinner, aged 48. My top issue is the cost of living. In 2024 I voted Labour. Today I wouldn't vote.
+I'm a British Indian Hindu woman from Ruislip, Northwood and Pinner, in my forties. My top issue is the cost of living. In 2024 I voted Labour. Today I wouldn't vote.
 
 **Alt text** (886 characters)
 

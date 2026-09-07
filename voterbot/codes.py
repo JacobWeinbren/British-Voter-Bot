@@ -71,17 +71,22 @@ ETHNICITY = {
 }
 BRITISH_PREFIX_CODES = {9, 10, 11, 12}  # "British Indian" etc. when UK-born
 
-# p_religion -> headline adjective (None = leave out)
+# p_religion -> headline adjective (None = leave out).
+# Census-level groups, not denominations: a card names a real respondent's constituency,
+# ethnicity and gender, and "Free Presbyterian" (five people in the whole panel) or
+# "Brethren" (twelve) would come close to naming them. Every Christian denomination the
+# survey records therefore reads as Christian; what is left are the groups the census itself
+# publishes at constituency level, each of them large enough to keep.
 RELIGION = {
     1: "non-religious",
-    2: "Anglican",
-    3: "Catholic",
-    4: "Presbyterian",
-    5: "Methodist",
-    6: "Baptist",
-    7: "United Reformed",
-    8: "Free Presbyterian",
-    9: "Brethren",
+    2: "Christian",   # Anglican / Church of England
+    3: "Christian",   # Catholic
+    4: "Christian",   # Presbyterian / Church of Scotland
+    5: "Christian",   # Methodist
+    6: "Christian",   # Baptist
+    7: "Christian",   # United Reformed
+    8: "Christian",   # Free Presbyterian
+    9: "Christian",   # Brethren
     10: "Jewish",
     11: "Hindu",
     12: "Muslim",
@@ -89,9 +94,9 @@ RELIGION = {
     14: "Buddhist",
     15: None,  # "other" religion - nothing natural to say in one word
     16: None,
-    17: "Orthodox Christian",
-    18: "Pentecostal",
-    19: "evangelical Christian",
+    17: "Christian",  # Orthodox
+    18: "Christian",  # Pentecostal
+    19: "Christian",  # evangelical
 }
 
 # homeOwn2 (asked in the survey) and p_housing (YouGov profile) -> "I ..." clause
