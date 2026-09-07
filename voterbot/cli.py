@@ -8,6 +8,7 @@
   alt       print the post text and alt text for a queued card
   brand     regenerate the Bluesky banner, avatar and pinned intro poster (with alt text files) in outputs/brand
   stats     summarise the queue (nations, parties, issues)
+  anonymise rewrite an existing queue with coarse religion and banded age (see voterbot/anonymise.py)
   audit     rewrite docs/unused-questions.md: which wave-20+ questions are used and why the rest are not
 """
 
@@ -169,6 +170,16 @@ def cmd_stats(args) -> None:
         print(f"  {n:4d}  {text}...")
 
 
+def cmd_anonymise(args) -> None:
+    """Bring a queue built before the change in line with the current anonymity rules."""
+    from .anonymise import describe, migrate
+
+    summary = migrate(dry_run=args.dry_run)
+    print(describe(summary))
+    if args.dry_run:
+        print(f"\n[dry run] {config.PROFILES_PATH} was not written")
+
+
 def cmd_audit(args) -> None:
     from .audit import write_audit
 
@@ -203,6 +214,10 @@ def main(argv=None) -> None:
     alt = sub.add_parser("alt", help="print the post text and alt text for a queued card")
     alt.add_argument("--index", type=int, default=0)
     alt.set_defaults(func=cmd_alt)
+
+    anonymise = sub.add_parser("anonymise", help="rewrite an existing queue with coarse religion and banded age")
+    anonymise.add_argument("--dry-run", action="store_true", help="report what would change without writing the queue")
+    anonymise.set_defaults(func=cmd_anonymise)
 
     sub.add_parser("brand", help="regenerate banner, avatar and intro poster with their alt text").set_defaults(func=cmd_brand)
     sub.add_parser("stats", help="summarise the profile queue").set_defaults(func=cmd_stats)
