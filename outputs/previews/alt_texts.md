@@ -14,7 +14,7 @@ Voter card. A map of Scotland with a dot on Cumbernauld and Kirkintilloch. About
 
 **Post text**
 
-I'm a White British Christian man from Lothian East, in my forties. My top issue is the economy. In 2024 I voted Labour. Today I still would.
+I'm a White British Anglican man from Lothian East, in my forties. My top issue is the economy. In 2024 I voted Labour. Today I still would.
 
 **Alt text** (1167 characters)
 
@@ -74,7 +74,7 @@ Voter card. A map of Wales with a dot on Aberafan Maesteg. About them, in their 
 
 **Post text**
 
-I'm a White British Christian man from Mid and South Pembrokeshire, in my sixties. My top issue is party politics. In 2024 I voted Conservative. Today I'd vote Reform UK.
+I'm a White British Anglican man from Mid and South Pembrokeshire, in my sixties. My top issue is party politics. In 2024 I voted Conservative. Today I'd vote Reform UK.
 
 **Alt text** (1041 characters)
 
@@ -94,7 +94,7 @@ Voter card. A map of Wales with a dot on Ynys Môn. About them, in their words: 
 
 **Post text**
 
-I'm a White Christian man from Brecon, Radnor and Cwm Tawe, in my forties. I couldn't pick a single top issue. In 2024 I didn't vote. Today I'd vote Reform UK.
+I'm a White Catholic man from Brecon, Radnor and Cwm Tawe, in my forties. I couldn't pick a single top issue. In 2024 I didn't vote. Today I'd vote Reform UK.
 
 **Alt text** (1014 characters)
 
@@ -144,7 +144,7 @@ Voter card. A map of England with a dot on Enfield North. About them, in their w
 
 **Post text**
 
-I'm a White British Christian woman from Bridgwater, in my seventies. My top issue is the economy. In 2024 I voted for a smaller party. Today I'd vote Conservative.
+I'm a White British Anglican woman from Bridgwater, in my seventies. My top issue is the economy. In 2024 I voted for a smaller party. Today I'd vote Conservative.
 
 **Alt text** (1049 characters)
 
@@ -194,7 +194,7 @@ Voter card. A map of England; their constituency is not recorded. About them, in
 
 **Post text**
 
-I'm a White British Christian man from Broxtowe, in my eighties or older. My top issue is immigration. In 2024 I voted Conservative. Today I'd vote Reform UK.
+I'm a White British Anglican man from Broxtowe, in my eighties or older. My top issue is immigration. In 2024 I voted Conservative. Today I'd vote Reform UK.
 
 **Alt text** (1042 characters)
 
@@ -234,7 +234,7 @@ Voter card. A map of England with a dot on Brentwood and Ongar. About them, in t
 
 **Post text**
 
-I'm a White British Christian woman from Herne Bay and Sandwich, in my sixties. My top issue is immigration. In 2024 I voted Conservative. Today I'd vote Reform UK.
+I'm a White British Catholic woman from Herne Bay and Sandwich, in my sixties. My top issue is immigration. In 2024 I voted Conservative. Today I'd vote Reform UK.
 
 **Alt text** (1095 characters)
 
@@ -244,7 +244,7 @@ Voter card. A map of England with a dot on Herne Bay and Sandwich. About them, i
 
 **Post text**
 
-I'm a White British Christian woman from Croydon East, in my seventies. My top issue is immigration. In 2024 I voted Labour. Today I'd vote Lib Dem.
+I'm a White British Catholic woman from Croydon East, in my seventies. My top issue is immigration. In 2024 I voted Labour. Today I'd vote Lib Dem.
 
 **Alt text** (1100 characters)
 
@@ -324,7 +324,7 @@ Voter card. A map of England with a dot on Warrington South. About them, in thei
 
 **Post text**
 
-I'm a White British Christian man from Pontefract, Castleford and Knottingley, in my forties. My top issue is Britain losing its identity. In 2024 I voted Reform UK. Today I still would.
+I'm a White British Anglican man from Pontefract, Castleford and Knottingley, in my forties. My top issue is Britain losing its identity. In 2024 I voted Reform UK. Today I still would.
 
 **Alt text** (1109 characters)
 
@@ -364,7 +364,7 @@ Voter card. A map of England with a dot on Louth and Horncastle. About them, in 
 
 **Post text**
 
-I'm a White British Christian man from Orpington, in my sixties. My top issue is the economy. In 2024 I voted Labour. Today I still would.
+I'm a White British Anglican man from Orpington, in my sixties. My top issue is the economy. In 2024 I voted Labour. Today I still would.
 
 **Alt text** (1134 characters)
 
@@ -374,7 +374,7 @@ Voter card. A map of England with a dot on Orpington. About them, in their words
 
 **Post text**
 
-I'm a White British Christian woman from Makerfield, in my sixties. My top issue is the NHS. In 2024 I voted Labour. Today I'd vote for a smaller party (if pushed).
+I'm a White British Anglican woman from Makerfield, in my sixties. My top issue is the NHS. In 2024 I voted Labour. Today I'd vote for a smaller party (if pushed).
 
 **Alt text** (1022 characters)
 
@@ -384,7 +384,7 @@ Voter card. A map of England with a dot on Makerfield. About them, in their word
 
 **Post text**
 
-I'm a White British Christian man from Harrow East, in my fifties. My top issue is the cost of living. In 2024 I voted Conservative. Today I still would.
+I'm a White British Anglican man from Harrow East, in my fifties. My top issue is the cost of living. In 2024 I voted Conservative. Today I still would.
 
 **Alt text** (928 characters)
 
@@ -414,7 +414,7 @@ Voter card. A map of England with a dot on Peckham. About them, in their words: 
 
 **Post text**
 
-I'm a White British Christian woman from Kingston upon Hull West and Haltemprice, in my sixties. My top issue is immigration. In 2024 I voted Reform UK. Today I'd vote Conservative.
+I'm a White British Anglican woman from Kingston upon Hull West and Haltemprice, in my sixties. My top issue is immigration. In 2024 I voted Reform UK. Today I'd vote Conservative.
 
 **Alt text** (1227 characters)
 
@@ -464,7 +464,7 @@ Voter card. A map of England with a dot on Bootle. About them, in their words: I
 
 **Post text**
 
-I'm a White British Christian woman from City of Durham, in my forties. My top issue is immigration. In 2024 I voted Lib Dem. Today I still would.
+I'm a White British Anglican woman from City of Durham, in my forties. My top issue is immigration. In 2024 I voted Lib Dem. Today I still would.
 
 **Alt text** (1068 characters)
 

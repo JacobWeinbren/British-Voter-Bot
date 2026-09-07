@@ -6,7 +6,10 @@ Rebuilding it from the raw BES file would answer that, but it would also reshuff
 every card and strand the posting position, so the queue is rewritten in place
 instead: same respondents, same order, coarser headline.
 
-Idempotent - a queue that has already been through this is left alone.
+Idempotent - a queue that has already been through this is left alone. What it cannot do is
+take a group back apart: once a card says "Christian" or "in my thirties", the denomination
+and the exact age behind it are gone, so a rule that splits a group needs the queue as it
+stood before anonymising.
 """
 
 from __future__ import annotations
@@ -22,7 +25,7 @@ from .sample import load_profiles, write_profiles
 # The denomination labels cards carried before the change, and nothing else: an unfamiliar
 # label means the queue holds something this migration was not written for, so it stops.
 RETIRED_DENOMINATIONS = {
-    "Anglican": "Christian", "Episcopalian": "Christian", "Catholic": "Christian",
+    "Episcopalian": "Anglican",
     "Presbyterian": "Christian", "Methodist": "Christian", "Baptist": "Christian",
     "United Reformed": "Christian", "Free Presbyterian": "Christian", "Brethren": "Christian",
     "Orthodox Christian": "Christian", "Pentecostal": "Christian", "evangelical Christian": "Christian",

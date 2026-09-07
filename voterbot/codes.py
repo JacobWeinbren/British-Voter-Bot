@@ -72,15 +72,16 @@ ETHNICITY = {
 BRITISH_PREFIX_CODES = {9, 10, 11, 12}  # "British Indian" etc. when UK-born
 
 # p_religion -> headline adjective (None = leave out).
-# Census-level groups, not denominations: a card names a real respondent's constituency,
-# ethnicity and gender, and "Free Presbyterian" (five people in the whole panel) or
-# "Brethren" (twelve) would come close to naming them. Every Christian denomination the
-# survey records therefore reads as Christian; what is left are the groups the census itself
-# publishes at constituency level, each of them large enough to keep.
+# Groups large enough to hide in, not denominations: a card names a real respondent's
+# constituency, ethnicity and gender, and "Free Presbyterian" (five people in the whole
+# panel) or "Brethren" (twelve) would come close to naming them. The two largest churches
+# keep their name - a fifth of the panel is Anglican and a fifteenth Catholic - and every
+# smaller denomination reads as Christian; alongside them are the groups the census itself
+# publishes at constituency level.
 RELIGION = {
     1: "non-religious",
-    2: "Christian",   # Anglican / Church of England
-    3: "Christian",   # Catholic
+    2: "Anglican",    # Church of England, and the Episcopal churches
+    3: "Catholic",
     4: "Christian",   # Presbyterian / Church of Scotland
     5: "Christian",   # Methodist
     6: "Christian",   # Baptist

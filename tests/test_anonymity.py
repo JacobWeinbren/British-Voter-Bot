@@ -14,7 +14,7 @@ import pytest
 from voterbot import anonymise, codes, config, persona
 from voterbot.sample import load_profiles
 
-PERMITTED = {"non-religious", "Christian", "Jewish", "Hindu", "Muslim", "Sikh", "Buddhist"}
+PERMITTED = {"non-religious", "Anglican", "Catholic", "Christian", "Jewish", "Hindu", "Muslim", "Sikh", "Buddhist"}
 BANDS = {band for _, band in persona.AGE_BANDS} | {persona.OLDEST_BAND}
 
 CARD = {
@@ -34,7 +34,8 @@ CARD = {
 }
 
 
-def test_no_denomination_survives_the_religion_map():
+def test_the_religion_map_holds_only_groups_large_enough_to_hide_in():
+    """The two largest churches keep their name; every smaller denomination is folded away."""
     assert set(codes.RELIGION.values()) - {None} == PERMITTED
     assert set(anonymise.RETIRED_DENOMINATIONS) & PERMITTED == set()
 
@@ -51,8 +52,8 @@ def test_age_bands_run_by_decade_and_top_code_the_eighties(age, band):
 def test_migrating_a_card_coarsens_the_headline_and_the_post_text():
     card = copy.deepcopy(CARD)
     assert anonymise.migrate_card(card) is True
-    assert anonymise.spoken_headline(card) == "I'm a White Scottish Christian man from Lothian East, in my forties."
-    assert card["post_text"].startswith("I'm a White Scottish Christian man from Lothian East, in my forties.")
+    assert anonymise.spoken_headline(card) == "I'm a White Scottish Anglican man from Lothian East, in my forties."
+    assert card["post_text"].startswith("I'm a White Scottish Anglican man from Lothian East, in my forties.")
 
 
 def test_migrating_a_card_twice_changes_nothing_the_second_time():
