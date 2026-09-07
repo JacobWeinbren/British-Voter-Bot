@@ -40,7 +40,7 @@ def test_no_denomination_survives_the_religion_map():
 
 
 @pytest.mark.parametrize("age,band", [
-    (18, "late teens or twenties"), (19, "late teens or twenties"), (29, "late teens or twenties"),
+    (18, "late teens"), (19, "late teens"), (20, "twenties"), (29, "twenties"),
     (30, "thirties"), (39, "thirties"), (40, "forties"), (59, "fifties"), (60, "sixties"),
     (79, "seventies"), (80, "eighties or older"), (96, "eighties or older"),
 ])
@@ -66,6 +66,15 @@ def test_migrating_a_card_twice_changes_nothing_the_second_time():
 def test_an_unrecognised_religion_label_stops_the_migration():
     with pytest.raises(ValueError):
         anonymise.coarse_religion("Zoroastrian")
+
+
+def test_a_retired_age_band_stops_the_migration_rather_than_being_kept():
+    """A band that has since been split cannot be rewritten from itself - the exact age is gone."""
+    card = copy.deepcopy(CARD)
+    card["headline"]["template"] = card["headline"]["template"].replace("aged {age}", "in my {age}")
+    card["headline"]["bold"]["age"] = "late teens or twenties"
+    with pytest.raises(ValueError, match="retired age band"):
+        anonymise.migrate_card(card)
 
 
 @pytest.mark.skipif(not config.PROFILES_PATH.exists(), reason="no queue built")

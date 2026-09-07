@@ -28,6 +28,7 @@ RETIRED_DENOMINATIONS = {
     "Orthodox Christian": "Christian", "Pentecostal": "Christian", "evangelical Christian": "Christian",
 }
 CURRENT_LABELS = {label for label in codes.RELIGION.values() if label}
+CURRENT_BANDS = {band for _, band in persona.AGE_BANDS} | {persona.OLDEST_BAND}
 
 
 def coarse_religion(label: str) -> str:
@@ -54,6 +55,10 @@ def migrate_card(card: dict) -> bool:
     if bold.get("age", "").isdigit():
         bold["age"] = persona.age_band(int(bold["age"]))
         headline["template"] = headline["template"].replace("aged {age}", "in my {age}")
+    elif bold.get("age") not in CURRENT_BANDS:
+        # A band that has since been split or renamed cannot be rewritten from itself - the
+        # exact age it came from is gone. Migrate the queue as it was before anonymising.
+        raise ValueError(f"retired age band in the queue: {bold.get('age')!r}")
 
     if (headline["template"], bold) == before:
         return False

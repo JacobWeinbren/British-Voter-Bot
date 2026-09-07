@@ -11,8 +11,9 @@ the edges. Religion is published as the census-level group and never the denomin
 (`voterbot/codes.py`): every Christian denomination the survey records reads as *Christian*,
 because "Free Presbyterian" is five people in the whole panel and "Brethren" twelve. Age is
 published as the decade someone is in and never the exact year (`persona.age_band`), with the
-teens folded in with the twenties and the eighties left open at the top; the exact age is still
-read to decide who is eligible for a card, it is just never printed. The constituency,
+eighties left open at the top and the late teens - the two years a card can start at - a band
+of their own; the exact age is still read to decide who is eligible for a card, it is just
+never printed. The constituency,
 ethnicity and gender stay as the survey records them - together with the coarser two, that
 leaves 19% of the queue unique on those five attributes, against 32% before.
 
