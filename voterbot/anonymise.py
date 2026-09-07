@@ -1,7 +1,9 @@
 """Bringing an already-built queue in line with the current anonymity rules.
 
 The queue in outputs/profiles.jsonl.gz was built before religion was coarsened to
-census-level groups (codes.RELIGION) and age to a decade band (persona.age_band).
+census-level groups (codes.RELIGION), age to a decade band (persona.age_band), and a
+faith with almost no one of it in the respondent's constituency left off altogether
+(persona.faith_is_rare).
 Rebuilding it from the raw BES file would answer that, but it would also reshuffle
 every card and strand the posting position, so the queue is rewritten in place
 instead: same respondents, same order, coarser headline.
@@ -16,6 +18,7 @@ from __future__ import annotations
 
 import collections
 import os
+import re
 from pathlib import Path
 
 from . import codes, config, persona
@@ -33,6 +36,15 @@ RETIRED_DENOMINATIONS = {
 CURRENT_LABELS = {label for label in codes.RELIGION.values() if label}
 CURRENT_BANDS = {band for _, band in persona.AGE_BANDS} | {persona.OLDEST_BAND}
 
+# Sentences whose wording has since been corrected, and what they should read instead.
+RETIRED_WORDINGS = {
+    "My highest qualification is A-levels.": "My highest qualifications are A-levels.",
+    "A-levels are the top qualification I've got.": "A-levels are the top qualifications I've got.",
+    "GCSEs are my highest qualification.": "GCSEs are my highest qualifications.",
+}
+# A whole sentence naming where someone worships, which names their faith along with it.
+WORSHIP_SENTENCE = re.compile(r"[^.]*\b(?:mosque|gurdwara|synagogue|temple)\b[^.]*\.\s*")
+
 
 def coarse_religion(label: str) -> str:
     """A stored religion label as the current rules would write it."""
@@ -47,14 +59,28 @@ def spoken_headline(card: dict) -> str:
     return card["headline"]["template"].format(**card["headline"]["bold"])
 
 
+def drop_religion(headline: dict) -> None:
+    """Take the faith out of a stored headline, and put the article right behind it."""
+    headline["bold"].pop("religion", None)
+    template = headline["template"].replace("{religion} ", "")
+    first = next((headline["bold"][slot] for slot in ("ethnicity", "gender") if slot in headline["bold"]), None)
+    if first:
+        template = re.sub(r"^I'm an? ", f"I'm {persona.article(first)} ", template)
+    headline["template"] = template
+
+
 def migrate_card(card: dict) -> bool:
-    """Coarsen one card's headline in place; True if anything changed."""
+    """Bring one card in line with the current rules, in place; True if anything changed."""
     headline = card["headline"]
     bold = headline["bold"]
-    before = (headline["template"], dict(bold))
+    before = (headline["template"], dict(bold), card["life"]["template"])
 
     if "religion" in bold:
         bold["religion"] = coarse_religion(bold["religion"])
+        if persona.faith_is_rare(bold["religion"], card.get("constituency_code")):
+            drop_religion(headline)
+            card["life"]["template"] = WORSHIP_SENTENCE.sub("", card["life"]["template"]).strip()
+    card["life"]["template"] = _corrected(card["life"]["template"])
     if bold.get("age", "").isdigit():
         bold["age"] = persona.age_band(int(bold["age"]))
         headline["template"] = headline["template"].replace("aged {age}", "in my {age}")
@@ -63,11 +89,18 @@ def migrate_card(card: dict) -> bool:
         # exact age it came from is gone. Migrate the queue as it was before anonymising.
         raise ValueError(f"retired age band in the queue: {bold.get('age')!r}")
 
-    if (headline["template"], bold) == before:
+    if (headline["template"], bold, card["life"]["template"]) == before:
         return False
     card["post_text"] = post_text(card)  # the post text carries the headline; the alt text never has
     card["alt_text"] = alt_text(card)
     return True
+
+
+def _corrected(life: str) -> str:
+    """A stored life paragraph with any since-corrected wording put right."""
+    for was, now in RETIRED_WORDINGS.items():
+        life = life.replace(was, now)
+    return life
 
 
 def migrate(path: Path = config.PROFILES_PATH, dry_run: bool = False) -> dict:

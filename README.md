@@ -18,5 +18,21 @@ never printed. The constituency,
 ethnicity and gender stay as the survey records them - together with the coarser two, that
 leaves 21% of the queue unique on those five attributes, against 32% before.
 
-A queue built before this changed can be brought into line with `python -m voterbot anonymise`,
+A faith is also left off entirely where the census finds almost nobody of it in the
+respondent's constituency (`persona.faith_is_rare`, threshold in `config.RARE_FAITH_THRESHOLD`):
+naming a faith that a few people in the seat hold, next to an ethnicity and a gender, comes
+close to naming the respondent. Where the faith goes, so does any mention of the mosque or the
+gurdwara in the life paragraph, which would otherwise say the same thing a sentence later. The
+rule reads `data/reference/religion_pcon24.csv` and applies to the census's own minority groups
+only - Christian and non-religious are too large anywhere to narrow anyone down. Scotland runs
+its own census, so Scottish seats have no counts and the faith stands.
+
+A queue built before any of this can be brought into line with `python -m voterbot anonymise`,
 which rewrites the headlines in place and leaves the posting order untouched.
+
+### Reference data
+
+`data/reference/religion_pcon24.csv` is Census 2021 table TS030 (religion, ten categories),
+aggregated to post-2019 Westminster constituencies, with the five minority faith counts and the
+usual resident population per seat. Source: Office for National Statistics, released under the
+Open Government Licence v3.0. England and Wales only.

@@ -8,6 +8,7 @@ with a plain Mercator fit to the map box - no external libraries needed.
 
 from __future__ import annotations
 
+import csv
 import json
 import math
 from dataclasses import dataclass
@@ -37,6 +38,22 @@ def constituencies() -> dict[str, Constituency]:
         p = feature["properties"]
         out[p["PCON24CD"]] = Constituency(p["PCON24CD"], p["PCON24NM"], float(p["LONG"]), float(p["LAT"]))
     return out
+
+
+RARE_FAITH_LABELS = ("Buddhist", "Hindu", "Jewish", "Muslim", "Sikh")  # the census's own minority-faith groups
+
+
+@lru_cache(maxsize=1)
+def religion_counts() -> dict[str, dict[str, int]]:
+    """How many people of each faith live in each 2024 constituency, keyed by ONS code.
+
+    Census 2021, table TS030 (religion, ten categories), aggregated to post-2019
+    Westminster constituencies. England and Wales only - Scotland's census is run
+    separately by National Records of Scotland and is not in the file - so a Scottish
+    seat has no entry rather than a zero.
+    """
+    with open(config.RELIGION_COUNTS_PATH, encoding="utf-8") as fh:
+        return {row["code"]: {faith: int(row[faith]) for faith in RARE_FAITH_LABELS} for row in csv.DictReader(fh)}
 
 
 @lru_cache(maxsize=4)
