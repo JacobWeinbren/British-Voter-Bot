@@ -24,15 +24,21 @@ naming a faith that a few people in the seat hold, next to an ethnicity and a ge
 close to naming the respondent. Where the faith goes, so does any mention of the mosque or the
 gurdwara in the life paragraph, which would otherwise say the same thing a sentence later. The
 rule reads `data/reference/religion_pcon24.csv` and applies to the census's own minority groups
-only - Christian and non-religious are too large anywhere to narrow anyone down. Scotland runs
-its own census, so Scottish seats have no counts and the faith stands.
+only - Christian and non-religious are too large anywhere to narrow anyone down.
 
 A queue built before any of this can be brought into line with `python -m voterbot anonymise`,
 which rewrites the headlines in place and leaves the posting order untouched.
 
 ### Reference data
 
-`data/reference/religion_pcon24.csv` is Census 2021 table TS030 (religion, ten categories),
-aggregated to post-2019 Westminster constituencies, with the five minority faith counts and the
-usual resident population per seat. Source: Office for National Statistics, released under the
-Open Government Licence v3.0. England and Wales only.
+`data/reference/religion_pcon24.csv` holds the five minority faith counts and the usual
+resident population for all 632 British constituencies, from each nation's own census.
+
+England and Wales are Census 2021 table TS030 (religion, ten categories) as published for
+post-2019 Westminster constituencies - Office for National Statistics. Scotland is Scotland's
+Census 2022 table UV205, published by output area and summed to constituencies through the
+OA22-to-UKPC24 lookup - National Records of Scotland. NRS perturbs small-area counts to protect
+confidentiality, so the Scottish figures are within a few tens of the published national totals
+rather than exact; that is well inside what a threshold in single figures needs. Both releases
+are under the Open Government Licence v3.0. Northern Ireland has no seats here: the BES panel
+covers Great Britain.

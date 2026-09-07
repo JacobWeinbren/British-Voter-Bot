@@ -12,10 +12,11 @@ import re
 
 import pytest
 
-from voterbot import anonymise, codes, config, persona
+from voterbot import anonymise, codes, config, geo, persona
 from voterbot.sample import load_profiles
 
 RARE_SEAT = "E14001424"  # Penrith and Solway: the census counts five Sikhs
+RARE_SCOTTISH_SEAT = "S14000027"  # Na h-Eileanan an Iar: one Sikh, two Jewish residents
 COMMON_SEAT = "E14000585"  # Bradford West: tens of thousands of Muslims
 
 PERMITTED = {"non-religious", "Anglican", "Catholic", "Christian", "Jewish", "Hindu", "Muslim", "Sikh", "Buddhist"}
@@ -90,7 +91,19 @@ def test_a_faith_with_almost_nobody_of_it_in_the_seat_counts_as_rare():
 
 def test_a_faith_stands_where_there_is_nothing_to_measure_it_with():
     assert persona.faith_is_rare("Sikh", None) is False  # no constituency recorded
-    assert persona.faith_is_rare("Sikh", "S14000085") is False  # Scotland: its census is not in the file
+    assert persona.faith_is_rare("Sikh", "N05000001") is False  # a seat the census file does not cover
+
+
+def test_scotland_is_measured_by_its_own_census_like_anywhere_else():
+    assert persona.faith_is_rare("Sikh", RARE_SCOTTISH_SEAT) is True
+    assert persona.faith_is_rare("Muslim", "S14000030") is False  # Glasgow South West, thousands of Muslims
+
+
+def test_every_british_seat_has_a_count_to_test_against():
+    """A seat with no entry silently keeps its faith, so the file has to cover all of Great Britain."""
+    counts = geo.religion_counts()
+    missing = [c for c in geo.constituencies() if not c.startswith("N") and c not in counts]
+    assert not missing, missing
 
 
 def test_a_rare_faith_is_dropped_from_the_headline_and_the_article_follows():
