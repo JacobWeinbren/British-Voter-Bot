@@ -124,10 +124,11 @@ def religion_label(row) -> str | None:
 
 # The decade of life someone is in, which is as close as a card gets to their age: an exact
 # age alongside a named constituency, an ethnicity and a gender comes close to naming a real
-# respondent. The teens sit with the twenties rather than alone, and the eighties are
-# top-coded, because both ends are thin enough to stand out on their own.
-AGE_BANDS = ((30, "late teens or twenties"), (40, "thirties"), (50, "forties"), (60, "fifties"),
-             (70, "sixties"), (80, "seventies"))
+# respondent. The eighties are top-coded, because the far end of the scale is thin enough to
+# stand out on its own; the late teens are only the two years a card can start at, so they
+# are the one band narrower than a decade.
+AGE_BANDS = ((20, "late teens"), (30, "twenties"), (40, "thirties"), (50, "forties"),
+             (60, "fifties"), (70, "sixties"), (80, "seventies"))
 OLDEST_BAND = "eighties or older"
 
 

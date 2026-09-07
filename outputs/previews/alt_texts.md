@@ -114,7 +114,7 @@ Voter card. A map of England with a dot on Amber Valley. About them, in their wo
 
 **Post text**
 
-I'm a White British non-religious man from Hertford and Stortford, in my late teens or twenties. In 2024 I didn't vote. Today I don't know who I'd vote for.
+I'm a White British non-religious man from Hertford and Stortford, in my late teens. In 2024 I didn't vote. Today I don't know who I'd vote for.
 
 **Alt text** (881 characters)
 
@@ -164,7 +164,7 @@ Voter card. A map of Scotland with a dot on Motherwell, Wishaw and Carluke. Abou
 
 **Post text**
 
-I'm a White English non-religious man from Great Yarmouth, in my late teens or twenties. In 2024 I voted for a smaller party. Today I wouldn't vote.
+I'm a White English non-religious man from Great Yarmouth, in my twenties. In 2024 I voted for a smaller party. Today I wouldn't vote.
 
 **Alt text** (1041 characters)
 
@@ -174,7 +174,7 @@ Voter card. A map of England with a dot on Great Yarmouth. About them, in their 
 
 **Post text**
 
-I'm a White British non-religious man from Dorking and Horley, in my late teens or twenties. My top issue is the cost of living. In 2024 I didn't vote. Today I'd vote Labour.
+I'm a White British non-religious man from Dorking and Horley, in my late teens. My top issue is the cost of living. In 2024 I didn't vote. Today I'd vote Labour.
 
 **Alt text** (927 characters)
 
@@ -214,7 +214,7 @@ Voter card. A map of England with a dot on Oxford East. About them, in their wor
 
 **Post text**
 
-I'm a Black African Muslim woman from Stratford and Bow, in my late teens or twenties. My top issue is the cost of living. In 2024 I didn't vote. Today I'd vote Labour.
+I'm a Black African Muslim woman from Stratford and Bow, in my twenties. My top issue is the cost of living. In 2024 I didn't vote. Today I'd vote Labour.
 
 **Alt text** (818 characters)
 
@@ -274,7 +274,7 @@ Voter card. A map of Scotland with a dot on Glasgow South. About them, in their 
 
 **Post text**
 
-I'm a White Welsh non-religious man from Caerphilly, in my late teens or twenties. My top issue is the cost of living. In 2024 I voted Plaid Cymru. Today I still would.
+I'm a White Welsh non-religious man from Caerphilly, in my twenties. My top issue is the cost of living. In 2024 I voted Plaid Cymru. Today I still would.
 
 **Alt text** (846 characters)
 
@@ -284,7 +284,7 @@ Voter card. A map of Wales with a dot on Caerphilly. About them, in their words:
 
 **Post text**
 
-I'm a British Indian Muslim woman from Ruislip, Northwood and Pinner, in my late teens or twenties. My top issue is the economy. In 2024 I didn't vote. Today I'd vote Green.
+I'm a British Indian Muslim woman from Ruislip, Northwood and Pinner, in my twenties. My top issue is the economy. In 2024 I didn't vote. Today I'd vote Green.
 
 **Alt text** (909 characters)
 
@@ -434,7 +434,7 @@ Voter card. A map of England with a dot on Morecambe and Lunesdale. About them, 
 
 **Post text**
 
-I'm an Asian non-religious man from Spelthorne, in my late teens or twenties. My top issue is the cost of living. In 2024 I didn't vote. Today I'd vote Conservative.
+I'm an Asian non-religious man from Spelthorne, in my late teens. My top issue is the cost of living. In 2024 I didn't vote. Today I'd vote Conservative.
 
 **Alt text** (986 characters)
 
