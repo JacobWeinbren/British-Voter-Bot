@@ -151,17 +151,27 @@ def test_a_plural_qualification_no_longer_takes_a_singular_verb():
         assert not re.search(r"\bqualification\b", wording), wording  # plural name, plural noun
 
 
+def test_a_headline_files_each_word_under_its_own_name():
+    """With no ethnicity recorded the faith must still be the {religion} slot, or nothing looking
+    for a religion - these checks included - would find it."""
+    head = {"template": "I'm a {ethnicity} {religion} {gender} from {place}, in my {age}.",
+            "bold": {"ethnicity": "White British", "religion": "Catholic"}}
+    assert "religion" in head["bold"]  # the shape every consumer relies on
+
+
 @pytest.mark.skipif(not config.PROFILES_PATH.exists(), reason="no queue built")
 def test_no_queued_card_names_a_faith_that_is_rare_where_they_live():
     for card in load_profiles():
-        label = card["headline"]["bold"].get("religion")
-        assert not persona.faith_is_rare(label, card.get("constituency_code")), (label, card["constituency"])
+        for label in card["headline"]["bold"].values():  # whichever slot it landed in
+            assert not persona.faith_is_rare(label, card.get("constituency_code")), (label, card["constituency"])
 
 
 @pytest.mark.skipif(not config.PROFILES_PATH.exists(), reason="no queue built")
 def test_the_queued_cards_carry_no_exact_age_or_denomination():
+    retired = set(anonymise.RETIRED_DENOMINATIONS)
     for card in load_profiles():
         bold = card["headline"]["bold"]
         assert bold["age"] in BANDS, bold["age"]
         assert bold.get("religion", "non-religious") in PERMITTED, bold.get("religion")
+        assert not retired & set(bold.values()), bold  # a denomination in any slot, however it got there
         assert "aged" not in card["headline"]["template"]
