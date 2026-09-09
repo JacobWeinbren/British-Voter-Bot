@@ -4,6 +4,27 @@ The cards are built from the British Election Study Internet Panel. Please cite 
 
 Fieldhouse, E., J. Green, G. Evans, J. Mellon, C. Prosser, J. Bailey, J. Griffiths and S. Perrett (2026). *British Election Study Internet Panel, Waves 1-31 (2014-2026)*, version 31.05. University of Manchester, University of Oxford and Royal Holloway, University of London. Fieldwork by YouGov. https://www.britishelectionstudy.com
 
+## Choosing which views reach a card
+
+A card can only draw from the questions its respondent was actually asked, and the BES asks
+some questions of everyone and others once, years ago, of a subsample. Left flat, the draw
+fills the feed with whatever is most commonly answered. Three corrections shape it instead
+(`ProfileBuilder.pick_opinions`):
+
+- a fence-sitting answer is drawn at `items.NEUTRAL_WEIGHT`, because surveys nudge people
+  towards the middle and a view either way says more about them
+- a topic's items share one topic's worth of weight, so a subject the library happens to
+  phrase nine ways does not get nine times the chances of one phrased once
+- an item is lifted by how rarely it can be said at all, `(1 / availability) ** QUESTION_RARITY`,
+  where availability is measured over a sample of the panel at build time (`item_availability`)
+
+The lift can never push an item past the share of cards it could appear on, so a question few
+people were asked stays uncommon on the feed - it just stops being invisible. `QUESTION_RARITY`
+is the dial: 0 restores the old flat draw, 1 equalises every item's airtime, and the default of
+0.5 keeps the balance honest, since the questions the BES puts to everyone are the ones British
+politics actually turns on. None of this touches the top-issue bubble, which is still drawn
+first whenever the respondent holds a view on the issue they named.
+
 ## Keeping respondents anonymous
 
 Every card is one real BES respondent, so what it says about them is deliberately blunt at
