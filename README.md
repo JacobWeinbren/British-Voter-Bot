@@ -25,6 +25,14 @@ is the dial: 0 restores the old flat draw, 1 equalises every item's airtime, and
 politics actually turns on. None of this touches the top-issue bubble, which is still drawn
 first whenever the respondent holds a view on the issue they named.
 
+The life paragraph is drawn the same way. Home, money, work and class are fixed slots, but the
+money sentence and the `config.LIFE_DETAILS` human details beside it are chosen from pools where
+a housing tenure or an income band is there for nearly everyone and having been on strike is
+there for a handful. Every option carries a key naming the fact it states, `detail_availability`
+measures how often each can be offered, and the same lift applies. Details that join an existing
+sentence are free; one that would stand on its own only lands while the paragraph is still short
+enough to carry it.
+
 ## Keeping respondents anonymous
 
 Every card is one real BES respondent, so what it says about them is deliberately blunt at

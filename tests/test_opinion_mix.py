@@ -1,16 +1,18 @@
-"""What decides which views reach a card, beyond what the respondent happens to have answered.
+"""What decides which views and details reach a card, beyond what the respondent answered.
 
 A card draws from the questions its respondent was asked, so left flat the feed fills up with
-whatever the BES puts to everyone. Three corrections shape the draw, and each is checked here:
-a middling answer is held back, a topic's items share one topic's worth of weight, and an item
-is lifted for being one few people can answer at all.
+whatever the BES puts to everyone. Three corrections shape the opinion draw, and each is checked
+here: a middling answer is held back, a topic's items share one topic's worth of weight, and an
+item is lifted for being one few people can answer at all. The life paragraph gets the same lift
+over the facts it can state.
 """
 
+import collections
 import random
 
 import pytest
 
-from voterbot import config, items
+from voterbot import config, items, persona
 from voterbot.profile import ProfileBuilder
 
 
@@ -96,3 +98,50 @@ def test_every_item_in_the_library_can_be_weighed():
     """rarity() is asked for a key on every draw, so an unmeasured item must not blow up."""
     made = builder({})
     assert all(made.rarity(item.key) == 1.0 for item in items.ITEMS)
+
+
+# ---------------------------------------------------------------------------
+# The life paragraph draws from facts, not items, but the crowding-out is the same
+
+
+def details(*specs):
+    """An extra-detail pool of (key, theme, sentence) triples, as extra_options returns."""
+    return [(key, theme, text) for key, theme, text in specs]
+
+
+def test_a_fact_almost_nobody_can_state_is_lifted_over_one_everybody_can(monkeypatch):
+    pool = details(("common", "other", "Something nearly everyone can say."),
+                   ("rare", "other", "Something hardly anyone can say."))
+    monkeypatch.setattr(persona, "extra_options", lambda *a, **k: list(pool))
+    rarity = {"common": 0.9, "rare": 0.02}.get
+    lift = lambda key: (1 / rarity(key)) ** config.QUESTION_RARITY  # noqa: E731
+    picked = collections.Counter()
+    for seed in range(400):
+        got = persona.extra_clauses(None, 1, random.Random(seed), None, lift, count=1)
+        picked[got[0][1]] += 1
+    assert picked["Something hardly anyone can say."] > picked["Something nearly everyone can say."], picked
+
+
+def test_two_details_are_two_different_facts(monkeypatch):
+    pool = details(("a", "other", "First fact."), ("b", "other", "Second fact."), ("c", "other", "Third fact."))
+    monkeypatch.setattr(persona, "extra_options", lambda *a, **k: list(pool))
+    for seed in range(50):
+        got = persona.extra_clauses(None, 1, random.Random(seed), None, None, count=2)
+        assert len(got) == 2 and got[0][1] != got[1][1], got
+
+
+def test_asking_for_more_details_than_exist_gives_what_there_is(monkeypatch):
+    monkeypatch.setattr(persona, "extra_options", lambda *a, **k: [("a", "other", "The only fact.")])
+    got = persona.extra_clauses(None, 1, random.Random(0), None, None, count=config.LIFE_DETAILS)
+    assert len(got) == 1
+
+
+def test_the_paragraph_carries_both_details(monkeypatch):
+    """With nothing else to say, two drawn details should both reach the sentence list."""
+    for name in ("housing_clause", "money_clause", "job_clause", "class_clause"):
+        monkeypatch.setattr(persona, name, lambda *a, **k: None)
+    monkeypatch.setattr(persona, "extra_options",
+                        lambda *a, **k: [("a", "other", "first fact"), ("b", "other", "second fact")])
+    monkeypatch.setattr(config, "LIFE_DETAILS", 2)
+    said = persona.life_paragraph(None, 1, random.Random(0)).plain()
+    assert said == "First fact. Second fact." or said == "Second fact. First fact.", said

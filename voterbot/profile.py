@@ -84,6 +84,32 @@ class Spectrum:
         return round(min(97.0, max(3.0, (score - 1) / 4 * 100)), 1)
 
 
+def detail_availability(panel: pd.DataFrame, seed: int = config.RANDOM_SEED) -> dict[str, float]:
+    """How often each life detail can be offered at all, as a share of the respondents measured.
+
+    The life paragraph has the same shape of problem as the bubbles: a tenure or an
+    income band is there for nearly everyone, while having been on strike or holding no
+    passport is there for a handful, and a flat draw lets the common facts crowd the rest
+    out. Measured over the same sample, keyed by the fact each option states.
+    """
+    rows = panel.sample(min(config.AVAILABILITY_SAMPLE, len(panel)), random_state=seed)
+    rng = random.Random(seed)  # only picks between wordings of the same fact, which does not affect the key
+    seen: collections.Counter = collections.Counter()
+    measured = 0
+    for _, row in rows.iterrows():
+        country = value(row, "countryW31")
+        if country is None or int(country) not in codes.NATIONS:
+            continue
+        measured += 1
+        for key, _text in persona.money_options(row, rng):
+            seen[key] += 1
+        for key, _theme, _text in persona.extra_options(row, int(country), rng):
+            seen[key] += 1
+    if not measured:
+        return {}
+    return {key: count / measured for key, count in seen.items()}
+
+
 def item_availability(panel: pd.DataFrame, seed: int = config.RANDOM_SEED) -> dict[str, float]:
     """How often each item has something to say, as a share of the respondents measured.
 
@@ -120,6 +146,12 @@ class ProfileBuilder:
         self.economic = Spectrum(econ, weights)
         self.cultural = Spectrum(cult, weights)
         self.availability = item_availability(panel)
+        self.details = detail_availability(panel)
+
+    def detail_rarity(self, key: str) -> float:
+        """The same lift as `rarity`, for the facts the life paragraph draws from."""
+        share = self.details.get(key)
+        return (1 / share) ** config.QUESTION_RARITY if share else 1.0
 
     def rarity(self, key: str) -> float:
         """How much to lift an item for being one few respondents can answer.
@@ -170,7 +202,7 @@ class ProfileBuilder:
         leader = persona.leader_bubble(row, country, int(intention_code) if intention_code is not None else None, rng)
         seat = constituency.code if constituency else None
         head = persona.headline(row, country, place, age, seat)
-        life = persona.life_paragraph(row, country, rng, seat)
+        life = persona.life_paragraph(row, country, rng, seat, self.detail_rarity)
         media = persona.media_paragraph(row, country, rng)
 
         # config.MAX_OPINIONS opinion bubbles besides the leader line (three: four bubbles in all); a layout
