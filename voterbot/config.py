@@ -51,6 +51,15 @@ POSTS_PER_DAY = len(SLOT_HOURS)
 RENDER_SCALE = 2000 / 1350  # post images at 1600x2000: Bluesky's CDN caps the long side at 2000px, so nothing is resampled
 MAX_IMAGE_BYTES = 950_000   # under the 1,000,000-byte limit for image blobs
 MAX_OPINIONS = 3  # opinion bubbles besides the leader line: four bubbles in all (five was tried and felt crowded)
+# How hard to push back against the questions everyone answers. A card can only draw from what
+# its respondent happened to be asked, so items fielded to the whole panel in wave 31 turn up in
+# nearly every pool and crowd out the ones asked once, years ago, of a subsample. Each item's
+# weight is divided by its availability raised to this power: 0 leaves the old behaviour alone,
+# 1 equalises every item's airtime, and the middle keeps the balance honest - the questions the
+# BES puts to everyone are the ones British politics actually turns on, so they should still lead.
+QUESTION_RARITY = 0.5
+LIFE_DETAILS = 2  # human details drawn for the life paragraph besides home, money, work and class
+AVAILABILITY_SAMPLE = 3000  # respondents measured to estimate how often each item has something to say
 REPEAT_GAP_CYCLES = 3  # a voter can come round again only after this many yearly cycles
 WAVE_RESPONDENTS = 31_392  # fallback for the intro poster if the panel cache is absent
 
