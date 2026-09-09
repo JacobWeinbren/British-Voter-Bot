@@ -58,6 +58,7 @@ MAX_OPINIONS = 3  # opinion bubbles besides the leader line: four bubbles in all
 # 1 equalises every item's airtime, and the middle keeps the balance honest - the questions the
 # BES puts to everyone are the ones British politics actually turns on, so they should still lead.
 QUESTION_RARITY = 0.5
+LIFE_DETAILS = 2  # human details drawn for the life paragraph besides home, money, work and class
 AVAILABILITY_SAMPLE = 3000  # respondents measured to estimate how often each item has something to say
 REPEAT_GAP_CYCLES = 3  # a voter can come round again only after this many yearly cycles
 WAVE_RESPONDENTS = 31_392  # fallback for the intro poster if the panel cache is absent
