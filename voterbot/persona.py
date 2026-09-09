@@ -170,10 +170,16 @@ def age_band(age: int) -> str:
 
 def headline(row, country: int, place: str, age: int, seat: str | None = None) -> Span:
     gender = codes.GENDER[int(value(row, "gender"))]
-    words = [w for w in (ethnicity_label(row, country), religion_label(row, seat)) if w]
+    words = []
     slots = {}
     template_words = []
-    for name, word in zip(("ethnicity", "religion"), words):
+    # Named for what each word is, not for the order they survive in: a respondent with no
+    # ethnicity recorded would otherwise have their faith filed under {ethnicity}, where
+    # anything looking for a religion - the anonymity rules included - would not find it.
+    for name, word in (("ethnicity", ethnicity_label(row, country)), ("religion", religion_label(row, seat))):
+        if not word:
+            continue
+        words.append(word)
         slots[name] = word
         template_words.append("{" + name + "}")
     slots["gender"] = gender
