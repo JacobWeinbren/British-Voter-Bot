@@ -270,9 +270,6 @@ def money_options(row, rng: random.Random) -> list[tuple[str, str]]:
                          ("smallEmergency2_2W31", one_of(rng, "take out a loan", "get a loan to cover it", "borrow it from a lender")), ("smallEmergency2_3W31", one_of(rng, "sell something", "sell something I own", "flog something to raise the cash"))):
             if value(row, col) == 1:
                 add("how-to-cover-300", one_of(rng, f"an unexpected £300 bill would mean I'd have to {how}", f"if a £300 bill turned up out of the blue, I'd have to {how}", f"to cover a surprise £300 expense I'd need to {how}"))
-    if not options:
-        return None
-    # hardship signals first; otherwise let chance pick among the rest for variety
     return options
 
 
@@ -281,6 +278,7 @@ def money_clause(row, rng: random.Random, rarity=None) -> str | None:
     options = money_options(row, rng)
     if not options:
         return None
+    # hardship signals first; otherwise let chance pick among the rest for variety
     for _key, hard in options[:2]:
         if hard.startswith(("I've had to borrow", "an unexpected")):
             return vary(hard, rng)

@@ -145,3 +145,21 @@ def test_the_paragraph_carries_both_details(monkeypatch):
     monkeypatch.setattr(config, "LIFE_DETAILS", 2)
     said = persona.life_paragraph(None, 1, random.Random(0)).plain()
     assert said == "First fact. Second fact." or said == "Second fact. First fact.", said
+
+
+def test_the_pools_are_always_lists_even_with_nothing_to_say(monkeypatch):
+    """A respondent who answered none of it must give an empty pool, not None.
+
+    The availability pass reads these pools directly, so a None here stops a build
+    dead - which is exactly what it did the first time this shipped.
+    """
+    monkeypatch.setattr(persona, "value", lambda row, col, max_valid=9000: None)
+    monkeypatch.setattr(persona, "lv", lambda row, stem: None)
+    monkeypatch.setattr(persona, "latest", lambda row, cols, max_valid=9000: (None, None))
+    monkeypatch.setattr(persona, "raw_code", lambda row, col: None)
+    rng = random.Random(0)
+    assert persona.money_options(None, rng) == []
+    assert persona.extra_options(None, 1, rng) == []
+    assert persona.circumstance_details(None, 1, rng) == []
+    assert persona.extra_clauses(None, 1, rng, None, None, count=2) == []
+    assert persona.money_clause(None, rng) is None  # the sentence is still absent, as before
