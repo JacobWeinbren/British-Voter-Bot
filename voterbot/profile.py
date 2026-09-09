@@ -7,6 +7,7 @@ respondent does not have enough usable answers for a full card.
 
 from __future__ import annotations
 
+import collections
 import random
 import re
 
@@ -83,8 +84,33 @@ class Spectrum:
         return round(min(97.0, max(3.0, (score - 1) / 4 * 100)), 1)
 
 
+def item_availability(panel: pd.DataFrame, seed: int = config.RANDOM_SEED) -> dict[str, float]:
+    """How often each item has something to say, as a share of the respondents measured.
+
+    A card can only draw from the questions its respondent was actually asked, so an
+    item fielded to the whole panel in wave 31 sits in nearly every pool while one asked
+    once, years ago, of a subsample sits in a handful. Measuring that share is what lets
+    the draw correct for it (see pick_opinions). Estimated on a sample, because asking
+    every item of every respondent is the expensive half of a build.
+    """
+    rows = panel.sample(min(config.AVAILABILITY_SAMPLE, len(panel)), random_state=seed)
+    seen: collections.Counter = collections.Counter()
+    measured = 0
+    for _, row in rows.iterrows():
+        country = value(row, "countryW31")
+        if country is None or int(country) not in codes.NATIONS:
+            continue
+        measured += 1
+        for item, _text in items.candidate_statements(row, int(country)):
+            seen[item.key] += 1
+    if not measured:
+        return {}
+    floor = 1 / measured  # an item nobody in the sample could say is treated as one-in-the-sample rare, not impossible
+    return {item.key: max(seen[item.key] / measured, floor) for item in items.ITEMS}
+
+
 class ProfileBuilder:
-    """Holds the population-level context (the two spectrums) needed per card."""
+    """Holds the population-level context (the two spectrums, how often each item is answered) needed per card."""
 
     def __init__(self, panel: pd.DataFrame):
         self.panel = panel
@@ -93,6 +119,18 @@ class ProfileBuilder:
         weights = panel[config.WEIGHT_COLUMN]
         self.economic = Spectrum(econ, weights)
         self.cultural = Spectrum(cult, weights)
+        self.availability = item_availability(panel)
+
+    def rarity(self, key: str) -> float:
+        """How much to lift an item for being one few respondents can answer.
+
+        The inverse of its availability, tempered by config.QUESTION_RARITY. This can
+        never push an item past the share of cards it could appear on at all, so a
+        question almost nobody was asked stays rare on the feed - it just stops being
+        invisible.
+        """
+        share = self.availability.get(key)
+        return (1 / share) ** config.QUESTION_RARITY if share else 1.0
 
     def build(self, row: pd.Series, seed: int) -> dict | None:
         """A full card, or None when the basics (nation, age, any vote answer) are missing or they hold too few recorded views to fill four bubbles.
@@ -175,13 +213,21 @@ class ProfileBuilder:
         profile["post_text"] = post_text(profile)
         return profile
 
-    @staticmethod
-    def pick_opinions(row, country: int, rng: random.Random, issue_code: int | None = None, count: int = 3) -> tuple[list[persona.Span], list[str]]:
+    def pick_opinions(self, row, country: int, rng: random.Random, issue_code: int | None = None, count: int = 3) -> tuple[list[persona.Span], list[str]]:
         """Up to `count` opinion bubbles on different topics, with what kind each is (issue, general, nation).
 
         When they named a top issue and hold a view on that subject, one bubble
         always speaks to it; the last slot favours nation and identity; no two
         bubbles come from the same issue theme (items.THEMES). The caller shuffles.
+
+        Three things bend the draw away from a flat pick, so the feed is not simply
+        whatever the BES asks most people. A middling answer is drawn at
+        items.NEUTRAL_WEIGHT, because surveys nudge people to the middle and a view
+        either way says more. A topic's items share one topic's worth of weight
+        between them, so a subject the library happens to phrase nine ways does not
+        get nine times the chances of one phrased once. And each item is lifted by
+        how rarely it can be said at all (config.QUESTION_RARITY), which is what
+        stops the handful of questions put to everyone from crowding out the rest.
         """
         candidates = items.candidate_statements(row, country, rng)
         chosen: list[persona.Span] = []
@@ -192,7 +238,12 @@ class ProfileBuilder:
             pool = [(i, t) for i, t in pool if items.theme_of(i.topic) not in used_themes]
             if not pool:
                 return None
-            weights = [i.weight * (items.NEUTRAL_WEIGHT if items.is_neutral(t) else 1.0) for i, t in pool]
+            mates = collections.Counter(i.topic for i, _ in pool)
+            weights = [i.weight
+                       * (items.NEUTRAL_WEIGHT if items.is_neutral(t) else 1.0)
+                       / mates[i.topic]
+                       * self.rarity(i.key)
+                       for i, t in pool]
             item, text = rng.choices(pool, weights=weights, k=1)[0]
             used_themes.add(items.theme_of(item.topic))
             return persona.Span(text)
