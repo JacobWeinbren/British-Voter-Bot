@@ -238,7 +238,7 @@ NEWS_SOURCES = {
     "infoSourceInternetW29": "online",
     "infoSourcePaperW29": "in the papers",
     "infoSourceRadioW29": "on the radio",
-    "infoSourcePeopleW29": "by talking to people",
+    "infoSourcePeopleW29": "from talking to people",  # "from", not "by": it follows "is mostly ..." as well as "I get most of my politics ..."
 }
 # Wave 28 platform questions: do you use it, and have you read political content
 # there posted by (1) parties or candidates, (2) people you know, (3) commentators

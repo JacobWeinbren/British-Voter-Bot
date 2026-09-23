@@ -86,6 +86,7 @@ RETIRED_WORDINGS = {
     "Raise taxes a lot and spend much more on health and social services.": "We should raise taxes a lot and spend much more on health and social services.",
     "with a bit of spending cut too": "with a few spending cuts too",
     "a really high quality education": "a really high-quality education",
+    "by talking to people": "from talking to people",
 }
 # Corrections that have to move a bold slot, so cannot be a plain substitution.
 RETIRED_PATTERNS = [
