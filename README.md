@@ -33,6 +33,23 @@ measures how often each can be offered, and the same lift applies. Details that 
 sentence are free; one that would stand on its own only lands while the paragraph is still short
 enough to carry it.
 
+## Drawing the card
+
+The card is an HTML page (`voterbot/templates/card.html`) screenshotted in headless Chromium.
+It is set in Archivo, whose five weights in `assets/fonts` are inlined into every page
+(`render.font_css`). They used to be linked by `file://`, which Chromium silently refuses for a
+page loaded this way, so until September 2026 every card - the posted ones included - came out
+in the machine's fallback sans-serif. Two checks now stand in the way of that happening again:
+the posting workflow runs `python -m voterbot fontcheck` before it posts, and the renderer
+refuses to screenshot any page whose typeface failed to load.
+
+The vote band reads as a step from 2024 to today (`render.vote_steps`), each side in its own
+party's colour, so a switch - or staying put - shows at a glance. The page fits its copy once
+the fonts are in: the views grow into any spare height up to 27px, and only a card that still
+overflows shrinks its views, then its paragraphs, a pixel at a time. Each nation is fitted to
+the islands it actually draws, so it fills its box, and a coastal seat's dot can draw past the
+map's edge rather than be cut off.
+
 ## Keeping respondents anonymous
 
 Every card is one real BES respondent, so what it says about them is deliberately blunt at

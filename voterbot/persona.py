@@ -97,6 +97,10 @@ def lv(row, stem: str):
 
 
 def article(word: str) -> str:
+    """"a" or "an" by sound. An initialism read letter by letter takes "an" before a letter name that
+    starts with a vowel sound (an SNP supporter, an MP); UKIP, said as a word, keeps "a"."""
+    if len(word) > 1 and word.isupper():
+        return "an" if word[0] in "AEFHILMNORSX" else "a"
     return "an" if word[:1].lower() in "aeiou" else "a"
 
 
@@ -410,8 +414,8 @@ def extra_options(row, country: int, rng: random.Random, seat: str | None = None
         options.append(("union-member", "other", "I'm in a trade union"))
     member = lv(row, "partyMemberOrSupporter")
     member_of = lv(row, "partyMemberNow")
-    if member == 1 and member_of is not None and int(member_of) in codes.PARTY_SUPPORTER:
-        options.append(("party-member-named", "other", one_of(rng, f"I'm a paid-up member of the {codes.PARTY_SUPPORTER[int(member_of)]} party", f"I'm a card-carrying member of the {codes.PARTY_SUPPORTER[int(member_of)]} party", f"I'm signed up as a member of the {codes.PARTY_SUPPORTER[int(member_of)]} party")))
+    if member == 1 and member_of is not None and int(member_of) in codes.PARTY_MEMBERSHIP:
+        options.append(("party-member-named", "other", one_of(rng, f"I'm a paid-up member of {codes.PARTY_MEMBERSHIP[int(member_of)]}", f"I'm a card-carrying member of {codes.PARTY_MEMBERSHIP[int(member_of)]}", f"I'm signed up as a member of {codes.PARTY_MEMBERSHIP[int(member_of)]}")))
     elif member == 1:
         options.append(("party-member", "other", one_of(rng, "I'm a paid-up member of a political party", "I'm a card-carrying member of a political party", "I'm signed up as a member of a political party")))
     shop = lv(row, "statusSupermarket")
@@ -434,15 +438,15 @@ def extra_options(row, country: int, rng: random.Random, seat: str | None = None
     options += circumstance_details(row, country, rng)
     disability = value(row, "p_disabilityW31")
     if disability == 1:
-        options.append(("disability-a-lot", "other", one_of(rng, "I have a disability that limits my day-to-day life a lot", "I've a health problem or disability that limits what I can do day to day a lot", "My day-to-day activities are limited a lot by a disability")))
+        options.append(("disability-a-lot", "other", one_of(rng, "I have a disability that limits my day-to-day life a lot", "a health problem or disability limits a lot of what I can do day to day", "My day-to-day activities are limited a lot by a disability")))
     elif disability == 2:
-        options.append(("disability-a-little", "other", one_of(rng, "I have a health condition that limits me a little day to day", "I've a health problem that limits what I can do day to day a little", "My day-to-day activities are limited a bit by a health condition")))
+        options.append(("disability-a-little", "other", one_of(rng, "I have a health condition that limits me a little day to day", "a health problem limits what I can do day to day, but only a little", "My day-to-day activities are limited a bit by a health condition")))
     if lv(row, "disabilityChild") == 1:  # only a yes is ever shown; no and prefer-not-to-say stay private
         options.append(("child-disability", "other", one_of(rng, "one of my children has a long-term health condition or disability",
                                       "I've a child with a long-term health condition or disability",
                                       "one of my kids has a long-term illness or disability")))
     if value(row, "eligibleUKGEW31") == 0:
-        options.append(("not-eligible-to-vote", "other", one_of(rng, "I'm not eligible to vote in general elections", "I can't vote in general elections", "general elections are one vote I'm not eligible to cast")))
+        options.append(("not-eligible-to-vote", "other", one_of(rng, "I'm not eligible to vote in general elections", "I can't vote in general elections", "I'm not allowed to vote in general elections")))
     if lv(row, "privScndSchl") == 1:
         options.append(("private-school", "other", one_of(rng, "I went to a private school", "I was privately educated at secondary level", "My secondary school was a private one")))
     welsh = lv(row, "speakWelsh")
@@ -546,7 +550,7 @@ def circumstance_details(row, country: int, rng: random.Random) -> list[tuple[st
     elif faith == 1 and religion not in (None, 1, 16):
         options.append(("faith-matters-little", "other", one_of(rng, "my religion doesn't make much difference to my day-to-day life", "my spiritual beliefs don't really affect my day-to-day life", "day to day, my religion doesn't make any real difference to my life")))
     if value(row, "belongGroup_2W26") == 1:
-        options.append(("belongs-locally", "other", one_of(rng, "I feel a real sense of belonging to my local community", "I feel I really belong in my local community", "My local community is somewhere I feel a sense of belonging")))
+        options.append(("belongs-locally", "other", one_of(rng, "I feel a real sense of belonging to my local community", "I feel I really belong in my local community", "My local community is somewhere I feel I belong")))
     if country == codes.ENGLAND and raw_code(row, "belongGroup_6W26") == 1:
         options.append(("belongs-to-england", "other", one_of(rng, "I feel a real sense of belonging to England", "I feel I really belong to England", "England is a place I feel I belong to")))
 
@@ -576,7 +580,7 @@ def circumstance_details(row, country: int, rng: random.Random) -> list[tuple[st
         options.append(("risk-taking", "other", one_of(rng, "I'd take a gamble over a sure thing", "I'd rather take my chances than settle for a sure thing", "I'll gamble rather than take the safe option")))
     # Mini-IPIP personality items: life of the party / keep in the background; mood swings / relaxed;
     # vivid imagination and abstract ideas; chores done right away and liking order; sympathy for others
-    for trait, high, low in (("extraversion", one_of(rng, "I'm an extrovert", "I'd describe myself as an extrovert", "I'm an outgoing sort of person"), one_of(rng, "I'm an introvert", "I'd describe myself as an introvert", "I'm the sort who keeps in the background, as I see it")),
+    for trait, high, low in (("extraversion", one_of(rng, "I'm an extrovert", "I'd describe myself as an extrovert", "I'm an outgoing sort of person"), one_of(rng, "I'm an introvert", "I'd describe myself as an introvert", "I'm the sort who keeps in the background")),
                              ("neuroticism", one_of(rng, "I'm a worrier", "I'm someone who worries a lot", "I'd say I'm a worrier by nature"), one_of(rng, "not much rattles me", "I'm pretty relaxed most of the time", "I don't get rattled easily")),
                              ("openness", one_of(rng, "I've a vivid imagination and a taste for abstract ideas", "I've got a vivid imagination and I like abstract ideas", "I'm imaginative, and I enjoy getting into abstract ideas"), None),
                              ("conscientiousness", one_of(rng, "I'm organised and tidy", "I keep things tidy and organised", "I'm a tidy, organised person"), one_of(rng, "I'm not the tidiest or most organised person", "I'm not very tidy or organised", "Being organised and tidy isn't my strong point")),
@@ -592,9 +596,9 @@ def circumstance_details(row, country: int, rng: random.Random) -> list[tuple[st
         options.append(("bought-first-home", "home", one_of(rng, f"I bought my first home in {int(first_home)}", f"I first owned a home back in {int(first_home)}", f"I got on the housing ladder in {int(first_home)}")))
     ladder = lv(row, "mapHouse")
     if ladder is not None and ladder <= 15:
-        options.append(("was-among-poorest", "other", one_of(rng, "a few years back I put my household among the poorest in the country", "a few years ago I rated my household as one of the poorest in the UK", "when asked a few years back, I put my household down near the poorest end in the country")))
+        options.append(("was-among-poorest", "other", one_of(rng, "a few years back I put my household among the poorest in the country", "a few years ago I rated my household as one of the poorest in the UK", "when asked a few years back, I put my household near the poorest end of the scale")))
     elif ladder is not None and ladder >= 85:
-        options.append(("was-among-richest", "other", one_of(rng, "a few years back I put my household among the richest in the country", "a few years ago I rated my household as one of the richest in the UK", "when asked a few years back, I put my household up near the richest end in the country")))
+        options.append(("was-among-richest", "other", one_of(rng, "a few years back I put my household among the richest in the country", "a few years ago I rated my household as one of the richest in the UK", "when asked a few years back, I put my household near the richest end of the scale")))
     wealth = lv(row, "statusWealth")
     if wealth is not None and wealth <= 2:
         options.append(("wealth-ladder-bottom", "other", one_of(rng, "on a ladder of wealth I'd put myself near the bottom", "for wealth, I'd place myself right down near the bottom of the ladder", "in terms of wealth I'd say I'm close to the bottom of the pile")))
@@ -927,7 +931,7 @@ def leader_bubble(row, country: int, intention_party: int | None, rng: random.Ra
         if n <= 4:
             return Span(one_of(rng, "I don't much like any of the party leaders.", "I'm not that keen on any of the party leaders.", "I don't think much of any of the party leaders."))
         if n >= 7:
-            return Span(one_of(rng, "I like all the party leaders about the same.", "I've got time for all the party leaders, and about the same for each.", "I like every one of the party leaders, and much the same amount."))
+            return Span(one_of(rng, "I like all the party leaders about the same.", "I've got time for all the party leaders, and about the same for each.", "I like every one of the party leaders, all about equally."))
         return Span(one_of(rng, "I'm lukewarm about all the party leaders - none of them stands out.", "I could take or leave any of the party leaders - they're all much the same to me.", "I'm neither here nor there on the party leaders, and none of them stands out from the rest."))
     party_id = value(row, "partyIdW31")
     preferred = {intention_party, int(party_id) if party_id is not None else None}

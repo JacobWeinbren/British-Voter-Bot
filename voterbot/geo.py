@@ -110,27 +110,37 @@ def nation_path(country_code: int, width: int = config.MAP_WIDTH, height: int = 
     reference design's simplification.
     """
     rings = nation_polygons(country_code)
-    proj = Projection(rings, width, height)
-    parts: list[str] = []
-    for ring in rings:
+
+    def drawn(ring, proj: Projection) -> list[tuple[float, float]] | None:
         pts: list[tuple[float, float]] = []
         for lon, lat in ring:
             p = proj(lon, lat)
             if not pts or math.hypot(p[0] - pts[-1][0], p[1] - pts[-1][1]) >= tolerance:
                 pts.append(p)
         if len(pts) < 4:
-            continue
+            return None
         xs = [p[0] for p in pts]
         ys = [p[1] for p in pts]
-        if (max(xs) - min(xs)) + (max(ys) - min(ys)) < min_extent:
-            continue
-        parts.append("M" + "L".join(f"{x:.1f},{y:.1f}" for x, y in pts) + "Z")
+        return pts if (max(xs) - min(xs)) + (max(ys) - min(ys)) >= min_extent else None
+
+    # Fit once to everything to find which islets are too small to draw, then fit again to what
+    # is left: otherwise a culled rock far out to sea still sets the scale, and the nation comes
+    # out smaller than its box and pushed to one side of it.
+    first = Projection(rings, width, height)
+    kept = [ring for ring in rings if drawn(ring, first)]
+    proj = Projection(kept, width, height)
+    parts = ["M" + "L".join(f"{x:.1f},{y:.1f}" for x, y in pts) + "Z"
+             for pts in (drawn(ring, proj) for ring in kept) if pts]
     return "".join(parts), proj
 
 
 def nation_svg(country_code: int, constituency_code: str | None,
                width: int = config.MAP_WIDTH, height: int = config.MAP_HEIGHT) -> str:
-    """Complete inline SVG: sage-green nation with the constituency marked by a dot."""
+    """Complete inline SVG: sage-green nation with the constituency marked by a dot.
+
+    The nation fills its box to the projection's inset, so a coastal seat's dot (Great Yarmouth,
+    St Ives) can reach past the edge: the SVG lets it draw into the margin rather than clip it.
+    """
     path, proj = nation_path(country_code, width, height)
     marker = ""
     if constituency_code and constituency_code in constituencies():
@@ -141,7 +151,7 @@ def nation_svg(country_code: int, constituency_code: str | None,
                   f'stroke="#ffffff" stroke-width="{3 if radius > 8 else 2}"/>')
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" '
-        f'width="{width}" height="{height}" role="img" aria-label="Map of {NATION_NAMES[country_code]}">'
+        f'width="{width}" height="{height}" overflow="visible" role="img" aria-label="Map of {NATION_NAMES[country_code]}">'
         f'<path d="{path}" fill="{config.MAP_FILL}" stroke="{config.MAP_STROKE}" '
         f'stroke-width="1.25" stroke-linejoin="round"/>{marker}</svg>'
     )

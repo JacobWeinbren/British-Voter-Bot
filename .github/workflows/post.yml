@@ -119,6 +119,14 @@ jobs:
                   pip install -r requirements.txt
                   python -m playwright install --with-deps chromium
 
+            - name: Check the cards' typeface loads
+              # Every card is drawn in Archivo, from the files in assets/fonts inlined into the page.
+              # Until September 2026 this runner drew them in its fallback sans-serif instead: Chromium
+              # would not read the fonts through file:// links, and nothing said so. This prints each
+              # weight's status and stops the run before anything is posted if one fails to load (the
+              # renderer refuses to screenshot a card in the fallback font too).
+              run: python -m voterbot fontcheck
+
             - name: Render and post
               # Set both under Settings > Secrets and variables > Actions. Either tab works; the app
               # password belongs in Secrets, which GitHub masks in logs (Variables are printed in clear).

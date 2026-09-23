@@ -4,7 +4,7 @@ import re
 
 import pytest
 
-from voterbot import anonymise, codes, config, items
+from voterbot import anonymise, codes, config, items, persona
 from voterbot.sample import load_profiles
 
 US_SPELLINGS = re.compile(
@@ -89,10 +89,31 @@ def test_the_retired_wordings_leave_nothing_behind_to_retire():
         assert not pattern.search(pattern.sub(now, "{platform1} is something I also watch.")), pattern.pattern
 
 
+def test_the_generator_no_longer_writes_any_retired_wording():
+    """A correction made only in the queue would come back with the next build."""
+    source = "".join((config.ROOT / "voterbot" / name).read_text() for name in ("persona.py", "items.py", "codes.py"))
+    for was in anonymise.RETIRED_WORDINGS:
+        fragment = was.rstrip(".")
+        if "{" not in fragment and not fragment.startswith(("member of the", "I'm a SNP")):  # those two are assembled at run time
+            assert not re.search(re.escape(fragment) + r"(?!\w)", source), was  # "qualification" inside its own fix is fine
+
+
+def test_an_initialism_takes_its_article_by_sound():
+    assert persona.article("SNP") == "an" and persona.article("MP") == "an"
+    assert persona.article("UKIP") == "a" and persona.article("BNP") == "a"
+    assert persona.article("Asian") == "an" and persona.article("Labour") == "a"
+
+
+def test_party_membership_names_each_party_as_it_names_itself():
+    for name in codes.PARTY_MEMBERSHIP.values():
+        assert not name.endswith(" party"), name  # "the SNP party", "the Plaid Cymru party"
+    assert set(codes.PARTY_MEMBERSHIP) == set(codes.PARTY_SUPPORTER)
+
+
 @pytest.mark.skipif(not config.PROFILES_PATH.exists(), reason="no queue built")
 def test_no_queued_card_still_carries_retired_wording():
     for card in load_profiles():
-        spans = [card["life"], card.get("media"), *card["bubbles"]]
+        spans = [card["life"], card.get("media"), *card["bubbles"], {"template": card["band_text"]}]
         for span in filter(None, spans):
             for was in anonymise.RETIRED_WORDINGS:
                 assert was not in span["template"], (was, card["id"])

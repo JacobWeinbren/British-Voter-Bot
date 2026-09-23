@@ -29,6 +29,7 @@ BRAND_DIR = OUTPUT_DIR / "brand"
 # Assets
 ASSETS_DIR = ROOT / "assets"
 FONT_DIR = ASSETS_DIR / "fonts"
+FONT_WEIGHTS = (400, 500, 600, 700, 800)  # the Archivo files in FONT_DIR, inlined into every page (render.font_css)
 TEMPLATE_DIR = ROOT / "voterbot" / "templates"
 
 # Survey

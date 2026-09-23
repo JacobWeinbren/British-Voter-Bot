@@ -1,2 +1,9 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Binary assets, never normalised: a font or image with its bytes changed by line-ending
+# conversion would fail to load on the posting runner.
+*.ttf binary
+*.png binary
+*.webp binary
+*.gz binary
