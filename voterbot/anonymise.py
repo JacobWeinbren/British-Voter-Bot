@@ -17,6 +17,7 @@ stood before anonymising.
 from __future__ import annotations
 
 import collections
+import json
 import os
 import re
 from pathlib import Path
@@ -36,12 +37,27 @@ RETIRED_DENOMINATIONS = {
 CURRENT_LABELS = {label for label in codes.RELIGION.values() if label}
 CURRENT_BANDS = {band for _, band in persona.AGE_BANDS} | {persona.OLDEST_BAND}
 
-# Sentences whose wording has since been corrected, and what they should read instead.
+# Wording that has since been corrected at source, and what the queued copy should read instead.
+# Applied to the life paragraph, the news paragraph and every bubble; each replacement leaves text
+# that no longer contains what it replaced, so running it twice changes nothing.
 RETIRED_WORDINGS = {
     "My highest qualification is A-levels.": "My highest qualifications are A-levels.",
     "A-levels are the top qualification I've got.": "A-levels are the top qualifications I've got.",
     "GCSEs are my highest qualification.": "GCSEs are my highest qualifications.",
+    "I passed political posts on on ": "I passed on political posts on ",
+    "I passed political content on ": "I passed on political content ",
+    "is the only one I can rate, and ": "is the only one I could give a score to, and ",
+    " a slightly easier ride than most in Britain.": " a slightly easier ride than other groups in Britain.",
+    " a little better treated than most in Britain.": " treated a little better than other groups in Britain.",
+    "voted another party": "voted for another party",
+    "went another party": "went for another party",
+    "Growing up, around 14, the main wage earner": "When I was about 14, the main wage earner",
+    "growing up, around 14, the main wage earner": "when I was about 14, the main wage earner",
 }
+# Corrections that have to move a bold slot, so cannot be a plain substitution.
+RETIRED_PATTERNS = [
+    (re.compile(r"\{(\w+)\} is something I( also)? watch\."), r"I\2 use {\1}."),
+]
 # A whole sentence naming where someone worships, which names their faith along with it.
 WORSHIP_SENTENCE = re.compile(r"[^.]*\b(?:mosque|gurdwara|synagogue|temple)\b[^.]*\.\s*")
 
@@ -73,14 +89,16 @@ def migrate_card(card: dict) -> bool:
     """Bring one card in line with the current rules, in place; True if anything changed."""
     headline = card["headline"]
     bold = headline["bold"]
-    before = (headline["template"], dict(bold), card["life"]["template"])
+    before = json.dumps(card, sort_keys=True)
 
     if "religion" in bold:
         bold["religion"] = coarse_religion(bold["religion"])
         if persona.faith_is_rare(bold["religion"], card.get("constituency_code")):
             drop_religion(headline)
             card["life"]["template"] = WORSHIP_SENTENCE.sub("", card["life"]["template"]).strip()
-    card["life"]["template"] = _corrected(card["life"]["template"])
+    for span in [card["life"], card.get("media"), *card["bubbles"]]:
+        if span:
+            span["template"] = _corrected(span["template"])
     if bold.get("age", "").isdigit():
         bold["age"] = persona.age_band(int(bold["age"]))
         headline["template"] = headline["template"].replace("aged {age}", "in my {age}")
@@ -89,18 +107,20 @@ def migrate_card(card: dict) -> bool:
         # exact age it came from is gone. Migrate the queue as it was before anonymising.
         raise ValueError(f"retired age band in the queue: {bold.get('age')!r}")
 
-    if (headline["template"], bold, card["life"]["template"]) == before:
+    if json.dumps(card, sort_keys=True) == before:
         return False
-    card["post_text"] = post_text(card)  # the post text carries the headline; the alt text never has
+    card["post_text"] = post_text(card)  # the post text carries the headline; the alt text carries the rest
     card["alt_text"] = alt_text(card)
     return True
 
 
-def _corrected(life: str) -> str:
-    """A stored life paragraph with any since-corrected wording put right."""
+def _corrected(text: str) -> str:
+    """Stored copy with any since-corrected wording put right."""
     for was, now in RETIRED_WORDINGS.items():
-        life = life.replace(was, now)
-    return life
+        text = text.replace(was, now)
+    for pattern, now in RETIRED_PATTERNS:
+        text = pattern.sub(now, text)
+    return text
 
 
 def migrate(path: Path = config.PROFILES_PATH, dry_run: bool = False) -> dict:

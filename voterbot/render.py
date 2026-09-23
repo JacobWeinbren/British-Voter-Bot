@@ -44,16 +44,25 @@ def band_colours(profile: dict) -> tuple[str, str]:
     return config.OTHER_PARTY_COLOURS
 
 
+def map_box(profile: dict) -> tuple[int, int]:
+    """The map's width and height: the handoff's box, or a larger one where there are no scales to fit in."""
+    width, height = config.MAP_WIDTH, config.MAP_HEIGHTS.get(profile["country"], config.MAP_HEIGHT)
+    if profile.get("econ_pct") is None or profile.get("cultural_pct") is None:
+        return round(width * config.MAP_SCALE_WITHOUT_SCALES), round(height * config.MAP_SCALE_WITHOUT_SCALES)
+    return width, height
+
+
 def build_html(profile: dict) -> str:
     """Render the card HTML for one profile (a dict as stored in profiles.jsonl)."""
     band_bg, band_ink = band_colours(profile)
+    map_width, map_height = map_box(profile)
     headline = _emphasise(profile["headline"]["template"], **profile["headline"]["bold"])
     place = html.escape(profile["headline"]["bold"]["place"]).replace("-", "&#8209;")  # keep "Stratford-on-Avon" on one line
     headline = headline.replace(_bold(profile["headline"]["bold"]["place"]), f'<strong class="place">{place}</strong>')
     template = _env.get_template("card.html")
     return template.render(
         width=config.CARD_WIDTH, height=config.CARD_HEIGHT,
-        map_width=config.MAP_WIDTH, map_height=config.MAP_HEIGHTS.get(profile["country"], config.MAP_HEIGHT),
+        map_width=map_width, map_height=map_height,
         font_dir=str(config.FONT_DIR),
         ink=config.INK, body=config.BODY, secondary=config.SECONDARY, accent=config.ACCENT,
         bubble_fill=config.BUBBLE_FILL, track=config.TRACK, middle_band=config.MIDDLE_BAND, scale_band=config.SCALE_BAND,
@@ -63,7 +72,7 @@ def build_html(profile: dict) -> str:
         life_html=_emphasise(profile["life"]["template"], **profile["life"]["bold"]),
         media_html=_emphasise(profile["media"]["template"], **profile["media"]["bold"]) if profile.get("media") else "",
         top_issue=profile.get("top_issue"), no_single_issue=profile.get("no_single_issue"),
-        map_svg=geo.nation_svg(profile["country"], profile.get("constituency_code"), height=config.MAP_HEIGHTS.get(profile["country"], config.MAP_HEIGHT)),
+        map_svg=geo.nation_svg(profile["country"], profile.get("constituency_code"), width=map_width, height=map_height),
         bubbles_html=[_emphasise(b["template"], **b["bold"]) for b in profile["bubbles"]],
         views_heading=f"{profile.get('possessive', 'their').capitalize()} views, from {profile.get('possessive', 'their')} survey answers",
         econ_pct=profile["econ_pct"], cultural_pct=profile["cultural_pct"],

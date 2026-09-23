@@ -156,7 +156,7 @@ def discrimination11(group: str, plural: bool = True) -> Phraser:
     return scale11(
         (f"If anything, {group} {get} favoured in Britain these days.", f"{cap} {get} special treatment in Britain these days, if anything.",
          f"These days, {group} {get} the easier ride in Britain, if anything."),
-        (f"{cap} {get} a slightly easier ride than most in Britain.", f"{cap} {are} a little better treated than most in Britain.",
+        (f"{cap} {get} a slightly easier ride than other groups in Britain.", f"{cap} {are} treated a little better than other groups in Britain.",
          f"If anything, {group} {get} slightly favoured in Britain."),
         (f"{cap} still {face} some discrimination in Britain.", f"There's still some discrimination against {group} in Britain.",
          f"{cap} still {get} a bit of a raw deal in Britain."),
@@ -248,7 +248,7 @@ def local_vote(row, country: int) -> str | None:
         party = value(row, "localElectionVoteW31")
         if party is None or int(party) not in codes.PARTIES and int(party) != 9:
             return None
-        name = "another party" if int(party) == 9 else codes.PARTIES[int(party)]
+        name = "for another party" if int(party) == 9 else codes.PARTIES[int(party)]  # a party is voted, anything else voted for
         by_post = " by post" if value(row, "voteMethodbW31") == 1 else ""
         return (f"In May's local elections I voted {name}{by_post}.", f"I voted {name}{by_post} in May's local elections.", f"At the local elections in May, I voted {name}{by_post}.")
     if turnout == 0:

@@ -4,7 +4,8 @@ import re
 
 import pytest
 
-from voterbot import codes, items
+from voterbot import anonymise, codes, config, items
+from voterbot.sample import load_profiles
 
 US_SPELLINGS = re.compile(
     r"\b(color|favorite|center|organization|neighbor|labor|defense|realize|analyze|honor|gray|traveled|fulfill|skeptic|mom)\b",
@@ -56,3 +57,44 @@ def test_nssec_covers_every_working_category():
     for code in (10, 20, 31, 32, 33, 34, 41, 42, 43, 44, 50, 60, 71, 72, 73, 74, 81, 82, 91, 92, 100,
                  111, 112, 121, 122, 123, 124, 125, 126, 127, 131, 132, 133, 134, 135):
         assert code in codes.NSSEC_JOB
+
+
+# ---------------------------------------------------------------------------
+# Wording corrected after review. Each was live on cards before it was caught.
+
+
+def test_a_group_is_compared_with_other_groups_not_with_most():
+    """"Men are a little better treated than most" left the reader asking: most what?"""
+    for key, text in every_phrase():
+        assert "than most in Britain" not in text, (key, text)
+
+
+@pytest.mark.parametrize("fn,country,answers", [
+    (items.local_vote, 1, {"localTurnoutRetroW31": 1, "localElectionVoteW31": 9}),
+    (items.senedd_vote, 3, {"welshTurnoutW31": 1, "senvoteW31": 9}),
+    (items.holyrood_vote, 2, {"scotTurnoutW31": 1, "scotElectionVoteConstW31": 9, "scotElectionVoteListW31": 9}),
+])
+def test_a_vote_for_no_named_party_takes_for(monkeypatch, fn, country, answers):
+    """A party is voted ("I voted Green"); anything else is voted for ("I voted for another party")."""
+    monkeypatch.setattr(items, "value", lambda row, col, max_valid=9000: answers.get(col))
+    for wording in fn(None, country):
+        assert "for another party" in wording and "voted another" not in wording, wording
+
+
+def test_the_retired_wordings_leave_nothing_behind_to_retire():
+    """Each correction must not reintroduce what it removes, or re-running the migration would loop."""
+    for was, now in anonymise.RETIRED_WORDINGS.items():
+        assert was not in now, was
+    for pattern, now in anonymise.RETIRED_PATTERNS:
+        assert not pattern.search(pattern.sub(now, "{platform1} is something I also watch.")), pattern.pattern
+
+
+@pytest.mark.skipif(not config.PROFILES_PATH.exists(), reason="no queue built")
+def test_no_queued_card_still_carries_retired_wording():
+    for card in load_profiles():
+        spans = [card["life"], card.get("media"), *card["bubbles"]]
+        for span in filter(None, spans):
+            for was in anonymise.RETIRED_WORDINGS:
+                assert was not in span["template"], (was, card["id"])
+            for pattern, _ in anonymise.RETIRED_PATTERNS:
+                assert not pattern.search(span["template"]), (pattern.pattern, card["id"])

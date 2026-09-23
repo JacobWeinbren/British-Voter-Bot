@@ -412,8 +412,9 @@ NONVOTE_REASON = {
     16: "I didn't feel I knew enough about the choices",
 }
 # May 2026 devolved elections: Holyrood ballots use their own party codes
-SCOTTISH_PARTY = {1: "Labour", 2: "Conservative", 3: "Lib Dem", 4: "SNP", 6: "Green", 9: "another party", 12: "Reform UK"}
-SENEDD_PARTY = {1: "Conservative", 2: "Labour", 3: "Lib Dem", 5: "Plaid Cymru", 7: "Green", 9: "another party", 12: "Reform UK"}
+# Read after "I voted" / "I went": a party's name stands alone ("I voted Green"), anything else takes "for"
+SCOTTISH_PARTY = {1: "Labour", 2: "Conservative", 3: "Lib Dem", 4: "SNP", 6: "Green", 9: "for another party", 12: "Reform UK"}
+SENEDD_PARTY = {1: "Conservative", 2: "Labour", 3: "Lib Dem", 5: "Plaid Cymru", 7: "Green", 9: "for another party", 12: "Reform UK"}
 
 # like<Party>W31 columns for the most/least liked party bubble
 PARTY_LIKES = {

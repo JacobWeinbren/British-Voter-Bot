@@ -59,6 +59,7 @@
   .track .me { position: absolute; top: 18px; width: 22px; height: 22px; border-radius: 50%; background: {{ accent }}; border: 3px solid #ffffff; transform: translateX(-50%); box-sizing: border-box; }
   .labels { position: relative; display: flex; justify-content: space-between; font: 600 19px/1 "Archivo", sans-serif; color: {{ secondary }}; }
   .labels .mid { position: absolute; left: 50%; transform: translateX(-50%); color: {{ ink }}; font-weight: 700; }
+  .no-scales { margin: 0; font: 400 19px/1.45 "Archivo", sans-serif; color: {{ secondary }}; }
 
   .band { background: {{ band_bg }}; color: {{ band_ink }}; padding: 24px 56px; display: flex; flex-direction: column; gap: 8px; }
   .band .vote { font: 800 32px/1.2 "Archivo", sans-serif; letter-spacing: -0.01em; }
@@ -93,6 +94,11 @@
         <div class="track"><div class="line"></div><div class="middle-half" style="left: {{ cultural_iqr[0] }}%; width: {{ cultural_iqr[1] - cultural_iqr[0] }}%"></div><div class="median"></div><div class="me" style="left: {{ cultural_pct }}%"></div></div>
         <div class="labels"><span>&larr; More liberal</span><span class="mid">Social</span><span>More authoritarian &rarr;</span></div>
       </div>
+    </div>
+    {% else %}
+    <div class="spectrums">
+      <header><h2>Where I sit</h2></header>
+      <p class="no-scales">I didn't answer enough of the questions that place people on the economic and social scales.</p>
     </div>
     {% endif %}
   </div>

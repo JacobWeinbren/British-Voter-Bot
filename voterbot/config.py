@@ -69,6 +69,9 @@ CARD_HEIGHT = 1350
 MAP_WIDTH = 340
 MAP_HEIGHT = 460  # England; see MAP_HEIGHTS
 MAP_HEIGHTS = {1: 460, 2: 500, 3: 440}  # map box per nation (handoff turn 5: England 340x460, Wales 340x440)
+# A card whose respondent skipped the value batteries has no scales, which frees about 240px; the map
+# grows into it, so the card still reads as finished rather than as a card with a hole in it.
+MAP_SCALE_WITHOUT_SCALES = 1.3
 
 # Design tokens (from the design handoff)
 INK = "#201e1d"

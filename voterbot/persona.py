@@ -636,7 +636,7 @@ def circumstance_details(row, country: int, rng: random.Random) -> list[tuple[st
     if earner in (1, 2) and parent_job is not None and int(parent_job) in codes.NSSEC_JOB:
         job = codes.NSSEC_JOB[int(parent_job)].split(" - ")[0]
         past = third_person(job, "he" if earner == 1 else "she", past_tense=True)
-        options.append(("main-earner-at-14", "other", one_of(rng, f"when I was 14, the main earner at home was {codes.MAIN_EARNER[int(earner)]}, who {past}", f"growing up, around 14, the main wage earner in our house was {codes.MAIN_EARNER[int(earner)]}, who {past}", f"the main wage earner at home when I was 14 was {codes.MAIN_EARNER[int(earner)]}, who {past}")))
+        options.append(("main-earner-at-14", "other", one_of(rng, f"when I was 14, the main earner at home was {codes.MAIN_EARNER[int(earner)]}, who {past}", f"when I was about 14, the main wage earner in our house was {codes.MAIN_EARNER[int(earner)]}, who {past}", f"the main wage earner at home when I was 14 was {codes.MAIN_EARNER[int(earner)]}, who {past}")))
     return options
 
 
@@ -793,7 +793,7 @@ def social_media(row, bold: dict[str, str], rng: random.Random | None = None) ->
                 return one_of(rng, f"{verb} {slots(others)}. I watch {slots(['YouTube'])} too.", f"{verb} {slots(others)}. Then there's {slots(['YouTube'])}, which I watch.", f"{verb} {slots(others)}. I watch {slots(['YouTube'])} on top of that.")
             return one_of(rng, f"{verb} {slots(others)} and {'I ' if on else ''}watch {slots(['YouTube'])}.", f"{verb} {slots(others)}, and {'I ' if on else ''}watch {slots(['YouTube'])} as well.", f"{verb} {slots(others)} and {'I ' if on else ''}watch {slots(['YouTube'])} too.")
         if watch:
-            return one_of(rng, f"I{' also' if also else ''} watch {slots(['YouTube'])}.", f"I{' also' if also else ''} spend time watching {slots(['YouTube'])}.", f"{slots(['YouTube'])} is something I{' also' if also else ''} watch.")
+            return one_of(rng, f"I{' also' if also else ''} watch {slots(['YouTube'])}.", f"I{' also' if also else ''} spend time watching {slots(['YouTube'])}.", f"I{' also' if also else ''} use {slots(['YouTube'])}.")
         return f"{verb} {slots(others)}."
 
     sentences = []
@@ -874,8 +874,8 @@ def shared_content(row, bold: dict[str, str], rng: random.Random | None = None) 
     if names:
         where = "on " + join_and(slots) + (", and " + join_and(other) if other else "")
         return one_of(rng, f"During the 2024 campaign, I shared political posts {where}.", f"I shared political content {where} during the 2024 election.",
-                      f"In the 2024 campaign, I passed political posts on {where}.")
-    return one_of(rng, f"During the 2024 campaign, I passed political content on {join_and(other)}.", f"I shared political content {join_and(other)} during the 2024 election.")
+                      f"In the 2024 campaign, I passed on political posts {where}.")
+    return one_of(rng, f"During the 2024 campaign, I passed on political content {join_and(other)}.", f"I shared political content {join_and(other)} during the 2024 election.")
 
 
 # ---------------------------------------------------------------------------
@@ -919,7 +919,7 @@ def leader_bubble(row, country: int, intention_party: int | None, rng: random.Ra
     if len(scores) == 1:
         (col, score), = scores.items()
         name = codes.LEADERS[col][0]
-        return Span(one_of(rng, "The only leader I have a view on is {best}, and ", "{best} is the only leader I've an opinion on, and ", "Of the party leaders, {best} is the only one I can rate, and ") + feeling(int(score), codes.LEADERS[col][3], rng) + ".", {"best": name})
+        return Span(one_of(rng, "The only leader I have a view on is {best}, and ", "{best} is the only leader I've an opinion on, and ", "Of the party leaders, {best} is the only one I could give a score to, and ") + feeling(int(score), codes.LEADERS[col][3], rng) + ".", {"best": name})
     if max(scores.values()) == min(scores.values()):
         n = int(max(scores.values()))
         if n <= 2:
