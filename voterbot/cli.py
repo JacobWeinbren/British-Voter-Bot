@@ -7,6 +7,7 @@
   due       exit 0 if the latest posting slot has not been posted yet, 3 if it has (the workflow's gate)
   alt       print the post text and alt text for a queued card
   brand     regenerate the Bluesky banner, avatar and pinned intro poster (with alt text files) in outputs/brand
+  fontcheck confirm Chromium loads every Archivo weight the cards are drawn in (exit 1 if not)
   stats     summarise the queue (nations, parties, issues)
   anonymise rewrite an existing queue with coarse religion and banded age (see voterbot/anonymise.py)
   audit     rewrite docs/unused-questions.md: which wave-20+ questions are used and why the rest are not
@@ -154,6 +155,17 @@ def cmd_brand(args) -> None:
     print(f"wrote {banner}, {avatar} and {poster}")
 
 
+def cmd_fontcheck(args) -> None:
+    """Every Archivo weight must load, or the cards would be drawn in the fallback sans-serif."""
+    from .render import check_fonts
+
+    faces = check_fonts()
+    for weight in config.FONT_WEIGHTS:
+        print(f"Archivo {weight}: {faces.get(weight, 'missing')}")
+    if any(faces.get(weight) != "loaded" for weight in config.FONT_WEIGHTS):
+        sys.exit(1)
+
+
 def cmd_stats(args) -> None:
     from .sample import load_profiles
 
@@ -220,6 +232,7 @@ def main(argv=None) -> None:
     anonymise.set_defaults(func=cmd_anonymise)
 
     sub.add_parser("brand", help="regenerate banner, avatar and intro poster with their alt text").set_defaults(func=cmd_brand)
+    sub.add_parser("fontcheck", help="exit 1 unless Chromium loads every Archivo weight").set_defaults(func=cmd_fontcheck)
     sub.add_parser("stats", help="summarise the profile queue").set_defaults(func=cmd_stats)
     sub.add_parser("audit", help="rewrite docs/unused-questions.md").set_defaults(func=cmd_audit)
 

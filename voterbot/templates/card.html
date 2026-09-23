@@ -4,25 +4,18 @@
 <meta charset="utf-8">
 <title>{{ alt_title }}</title>
 <style>
-  {% for weight in [400, 500, 600, 700, 800] %}
-  @font-face {
-    font-family: "Archivo";
-    font-style: normal;
-    font-weight: {{ weight }};
-    src: url("file://{{ font_dir }}/Archivo-{{ weight }}.ttf") format("truetype");
-  }
-  {% endfor %}
+  {{ font_css | safe }}
   html, body { margin: 0; padding: 0; background: #ffffff; }
   body { font-family: "Archivo", sans-serif; color: {{ ink }}; -webkit-font-smoothing: antialiased; }
   strong { font-weight: 700; }
 
   .card { width: {{ width }}px; height: {{ height }}px; background: #ffffff; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; }
-  /* Fixed gaps between the blocks; any spare height goes into the map row (flex: 1, contents centred),
-     so the text blocks keep the reference spacing whatever the card's copy length. */
-  .content { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 36px; padding: 46px 56px 30px; box-sizing: border-box; }
+  /* At least 32px between the blocks. The views grow into any spare height (the fit script below);
+     what is left after that is shared out evenly between the blocks rather than pooling in one hole. */
+  .content { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 32px; padding: 46px 56px 32px; box-sizing: border-box; }
 
-  .intro { display: flex; flex-direction: column; gap: 18px; }
-  .headline { font: 600 40px/1.28 "Archivo", sans-serif; color: {{ ink }}; letter-spacing: -0.01em; text-wrap: pretty; margin-bottom: 10px; }
+  .intro { display: flex; flex-direction: column; gap: 16px; }
+  .headline { font: 600 40px/1.25 "Archivo", sans-serif; color: {{ ink }}; letter-spacing: -0.01em; text-wrap: pretty; margin-bottom: 8px; }
   .headline strong { font-weight: 800; }
   .headline .place { font-weight: 800; color: {{ accent }}; }
 
@@ -35,38 +28,48 @@
   .issue { font: 600 28px/1.3 "Archivo", sans-serif; color: {{ ink }}; }
   .issue strong { font-weight: 800; border-bottom: 5px solid {{ accent }}; padding-bottom: 1px; }
 
-  .middle { flex: 1; display: flex; gap: 36px; align-items: center; }  /* no min-height: 0 - it must not shrink below the map, so overflow is detected */
-  .map { width: {{ map_width }}px; flex: none; display: flex; justify-content: flex-start; }
+  .middle { flex: none; display: flex; gap: 40px; align-items: center; }  /* never shrinks below the map, so overflow is detected */
+  .map { width: {{ map_width }}px; flex: none; }
   .map svg { display: block; }
-  .bubbles { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 18px; }
-  .views-heading { font: 700 17px/1 "Archivo", sans-serif; color: {{ secondary }}; }  /* attributes every bubble to the respondent (handoff turn 5, v5) */
-  .bubble { position: relative; background: {{ bubble_fill }}; border: 2px solid {{ ink }}; padding: 16px 20px; font: 500 22px/1.35 "Archivo", sans-serif; color: {{ ink }}; text-wrap: pretty; }
-  .bubble::after { content: ""; position: absolute; left: 26px; bottom: -9px; width: 14px; height: 14px; background: {{ bubble_fill }}; border-right: 2px solid {{ ink }}; border-bottom: 2px solid {{ ink }}; transform: rotate(45deg); }
+  .bubbles { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+  .views-heading { font: 700 17px/1 "Archivo", sans-serif; color: {{ secondary }}; margin-bottom: 4px; }  /* attributes every bubble to the respondent */
+  /* No frame: a solid lilac bubble whose tail points back at the map - the person on it is the one speaking. */
+  .bubble { position: relative; background: {{ bubble_fill }}; padding: 16px 22px; font: 500 22px/1.35 "Archivo", sans-serif; color: {{ ink }}; text-wrap: pretty; }
+  .bubble::before { content: ""; position: absolute; left: -18px; top: 18px; border: 12px solid transparent; border-right: 18px solid {{ bubble_fill }}; border-left: 0; }
 
-  .spectrums { display: flex; flex-direction: column; gap: 14px; }
+  .spectrums { display: flex; flex-direction: column; gap: 18px; }
   .spectrums header { display: flex; justify-content: space-between; align-items: baseline; }
   .spectrums h2 { margin: 0; font: 700 22px/1 "Archivo", sans-serif; color: {{ ink }}; }
-  .legend { display: flex; align-items: center; gap: 20px; font: 500 17px/1 "Archivo", sans-serif; color: {{ secondary }}; }
+  .legend { display: flex; align-items: center; gap: 20px; font: 500 16px/1 "Archivo", sans-serif; color: {{ secondary }}; }
   .chip { display: inline-flex; align-items: center; gap: 7px; }
   .key-dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: {{ accent }}; }
-  .key-tick { display: inline-block; width: 3px; height: 16px; background: {{ ink }}; }
-  .key-band { display: inline-block; width: 18px; height: 6px; background: {{ scale_band }}; }
-  .scale { display: flex; flex-direction: column; gap: 6px; }
-  .track { position: relative; height: 44px; }
-  .track .line { position: absolute; left: 0; right: 0; top: 26px; height: 6px; background: {{ track }}; }
-  .track .middle-half { position: absolute; top: 26px; height: 6px; background: {{ scale_band }}; }
-  .track .median { position: absolute; left: 50%; top: 14px; width: 3px; height: 28px; background: {{ ink }}; }
-  .track .me { position: absolute; top: 18px; width: 22px; height: 22px; border-radius: 50%; background: {{ accent }}; border: 3px solid #ffffff; transform: translateX(-50%); box-sizing: border-box; }
-  .labels { position: relative; display: flex; justify-content: space-between; font: 600 19px/1 "Archivo", sans-serif; color: {{ secondary }}; }
-  .labels .mid { position: absolute; left: 50%; transform: translateX(-50%); color: {{ ink }}; font-weight: 700; }
+  .key-band { display: inline-block; width: 18px; height: 8px; background: {{ scale_band }}; }
+  .key-tick { display: inline-block; width: 3px; height: 16px; background: {{ secondary }}; }
+  /* One row per scale: its name on the left, the track beside it, the two ends beneath the track. */
+  .row { display: grid; grid-template-columns: 120px 1fr; align-items: center; column-gap: 20px; }
+  .axis { font: 700 19px/1 "Archivo", sans-serif; color: {{ ink }}; }
+  .track { position: relative; height: 26px; }
+  .track .line { position: absolute; left: 0; right: 0; top: 10px; height: 6px; background: {{ track }}; }
+  .track .middle-half { position: absolute; top: 9px; height: 8px; background: {{ scale_band }}; }
+  .track .centre { position: absolute; left: 50%; top: 2px; width: 2px; height: 22px; background: {{ secondary }}; }
+  .track .me { position: absolute; top: 1px; width: 24px; height: 24px; border-radius: 50%; background: {{ accent }}; border: 3px solid #ffffff; transform: translateX(-50%); box-sizing: border-box; }
+  .ends { grid-column: 2; display: flex; justify-content: space-between; margin-top: 6px; font: 600 16px/1 "Archivo", sans-serif; color: {{ secondary }}; }
   .no-scales { margin: 0; font: 400 19px/1.45 "Archivo", sans-serif; color: {{ secondary }}; }
 
-  .band { background: {{ band_bg }}; color: {{ band_ink }}; padding: 24px 56px; display: flex; flex-direction: column; gap: 8px; }
-  .band .vote { font: 800 32px/1.2 "Archivo", sans-serif; letter-spacing: -0.01em; }
-  .band .note { font: 500 15px/1 "Archivo", sans-serif; }  /* full opacity: the footnote must reach 4.5:1 on every band colour */
+  /* The vote as a step from 2024 to today, each side in its own party's colour. The 2024 side is
+     cut as an arrow and ringed in white, so the step still shows when both sides share a colour. */
+  .journey { flex: none; display: flex; height: 128px; }
+  .journey .then-wrap { flex: 0 0 44%; position: relative; z-index: 1; filter: drop-shadow(6px 0 0 #ffffff); }
+  .journey .step { height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; gap: 8px; min-width: 0; }
+  .journey .then { padding: 0 76px 0 56px; clip-path: polygon(0 0, calc(100% - 44px) 0, 100% 50%, calc(100% - 44px) 100%, 0 100%); }
+  .journey .now { flex: 1; margin-left: -44px; padding: 0 56px 0 92px; }
+  .journey .when { font: 600 18px/1 "Archivo", sans-serif; }
+  .journey .note { font-weight: 500; }
+  .journey .who { font: 800 40px/1.05 "Archivo", sans-serif; letter-spacing: -0.015em; white-space: nowrap; overflow: hidden; }
+  .foot { flex: none; padding: 12px 56px 14px; font: 500 14px/1 "Archivo", sans-serif; color: {{ secondary }}; }
 </style>
 </head>
-<body>
+<body data-fit="pending">
 <div class="card" id="card">
   <div class="content" id="content">
     <div class="intro">
@@ -85,15 +88,9 @@
     </div>
     {% if econ_pct is not none and cultural_pct is not none %}
     <div class="spectrums">
-      <header><h2>Where I sit</h2><div class="legend"><span class="chip"><span class="key-dot"></span>me</span><span class="chip"><span class="key-tick"></span>centre of the scale</span><span class="chip"><span class="key-band"></span>middle half of voters</span></div></header>
-      <div class="scale">
-        <div class="track"><div class="line"></div><div class="middle-half" style="left: {{ econ_iqr[0] }}%; width: {{ econ_iqr[1] - econ_iqr[0] }}%"></div><div class="median"></div><div class="me" style="left: {{ econ_pct }}%"></div></div>
-        <div class="labels"><span>&larr; More left</span><span class="mid">Economic</span><span>More right &rarr;</span></div>
-      </div>
-      <div class="scale">
-        <div class="track"><div class="line"></div><div class="middle-half" style="left: {{ cultural_iqr[0] }}%; width: {{ cultural_iqr[1] - cultural_iqr[0] }}%"></div><div class="median"></div><div class="me" style="left: {{ cultural_pct }}%"></div></div>
-        <div class="labels"><span>&larr; More liberal</span><span class="mid">Social</span><span>More authoritarian &rarr;</span></div>
-      </div>
+      <header><h2>Where I sit</h2><div class="legend"><span class="chip"><span class="key-dot"></span>me</span><span class="chip"><span class="key-band"></span>middle half of voters</span><span class="chip"><span class="key-tick"></span>centre of the scale</span></div></header>
+      <div class="row"><div class="axis">Economic</div><div class="track"><div class="line"></div><div class="middle-half" style="left: {{ econ_iqr[0] }}%; width: {{ econ_iqr[1] - econ_iqr[0] }}%"></div><div class="centre"></div><div class="me" style="left: {{ econ_pct }}%"></div></div><div class="ends"><span>&larr; Left</span><span>Right &rarr;</span></div></div>
+      <div class="row"><div class="axis">Social</div><div class="track"><div class="line"></div><div class="middle-half" style="left: {{ cultural_iqr[0] }}%; width: {{ cultural_iqr[1] - cultural_iqr[0] }}%"></div><div class="centre"></div><div class="me" style="left: {{ cultural_pct }}%"></div></div><div class="ends"><span>&larr; Liberal</span><span>Authoritarian &rarr;</span></div></div>
     </div>
     {% else %}
     <div class="spectrums">
@@ -102,39 +99,41 @@
     </div>
     {% endif %}
   </div>
-  <div class="band">
-    <div class="vote">{{ band_text }}</div>
-    <div class="note">* {{ footnote }}, British Election Study, {{ fieldwork }}</div>
+  <div class="journey">
+    <div class="then-wrap"><div class="step then" style="background: {{ vote.then_bg }}; color: {{ vote.then_ink }};">
+      <span class="when">In 2024</span><span class="who">{{ vote.then }}</span>
+    </div></div>
+    <div class="step now" style="background: {{ vote.now_bg }}; color: {{ vote.now_ink }};">
+      <span class="when">Today{% if vote.note %}<span class="note"> &middot; {{ vote.note }}</span>{% endif %}*</span><span class="who">{{ vote.now }}</span>
+    </div>
   </div>
+  <div class="foot">* {{ footnote }}, British Election Study, {{ fieldwork }}</div>
 </div>
 <script>
-  // Keep everything inside the fixed canvas: shrink the bubble copy first, then
-  // the paragraphs, a pixel at a time, until nothing overflows.
-  (function fit() {
+  // Fit the copy to the fixed canvas once every Archivo face has loaded (fallback metrics would fit
+  // a line the real face then wraps): the views first grow into any spare room, up to 27px; if the
+  // card overflows, the views and then the paragraphs shrink a pixel at a time; a vote label too long
+  // for its half shrinks rather than clips. The body is then marked fitted for the screenshot.
+  Promise.allSettled([...document.fonts].map(face => face.load())).then(() => {
     const content = document.getElementById("content");
-    const bubbles = document.getElementById("bubbles");
-    const map = document.querySelector(".map");
-    const shrink = (selector, min) => {
+    const over = () => content.scrollHeight > content.clientHeight;
+    const step = (selector, by, limit) => {
       let changed = false;
       document.querySelectorAll(selector).forEach(el => {
         const size = parseFloat(getComputedStyle(el).fontSize);
-        if (size > min) { el.style.fontSize = (size - 1) + "px"; changed = true; }
+        if (by > 0 ? size < limit : size > limit) { el.style.fontSize = (size + by) + "px"; changed = true; }
       });
       return changed;
     };
-    const vote = document.querySelector(".band .vote");
-    for (let i = 0; i < 8; i++) {  // a long vote line shrinks a little (to 24px) rather than wrapping
-      const size = parseFloat(getComputedStyle(vote).fontSize);
-      if (vote.clientHeight <= size * 1.5 || size <= 24) break;
-      vote.style.fontSize = (size - 1) + "px";
-    }
-    for (let i = 0; i < 12 && bubbles.scrollHeight > map.clientHeight + 60; i++) {
-      if (!shrink(".bubble", 17)) break;
-    }
-    for (let i = 0; i < 12 && content.scrollHeight > content.clientHeight; i++) {
-      if (!shrink(".life, .media, .headline", 16)) break;
-    }
-  })();
+    for (let i = 0; i < 8 && !over(); i++) if (!step(".bubble", 1, 27)) break;
+    if (over()) step(".bubble", -1, 0);
+    for (let i = 0; i < 12 && over(); i++) if (!step(".bubble", -1, 17)) break;
+    for (let i = 0; i < 12 && over(); i++) if (!step(".life, .media, .headline", -1, 16)) break;
+    document.querySelectorAll(".journey .who").forEach(el => {
+      for (let i = 0; i < 14 && el.scrollWidth > el.clientWidth; i++) el.style.fontSize = (parseFloat(getComputedStyle(el).fontSize) - 1) + "px";
+    });
+    document.body.dataset.fit = "done";
+  });
 </script>
 </body>
 </html>

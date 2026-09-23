@@ -11,7 +11,7 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from . import config, geo
-from .render import optimise_png, screenshot_html, write_webp
+from .render import font_css, optimise_png, screenshot_html, write_webp
 
 CREDITS = [("Jacob Weinbren", "@jacobweinbren.bsky.social"), ("Lawrence McKay", "@lawrencemckay.bsky.social"),
            ("Chris Terry-Enescu", "@cjterry.bsky.social")]
@@ -37,11 +37,12 @@ def intro_poster_alt(respondents: str, cadence: str) -> str:
         "2. A lilac speech bubble. The bubbles are their views: favourite and least favourite leader, the issues they care "
         "about, how they see their nation - each one the respondent's own answer to a BES question, not the opinion of this "
         "account, its authors or the BES. "
-        "3. A slider with a magenta dot left of centre, a black tick at the centre and a lilac band around it. The scales show "
+        "3. A slider with a magenta dot left of centre, a grey tick at the centre and a lilac band around it. The scales show "
         "where they sit: two BES 0 to 10 scales, economic left to right and social liberal to authoritarian. The tick is the "
         "centre of the scale (5); the lilac band is the voters' interquartile range. "
-        "4. A magenta block reading 2024 to today. The band is their vote: how they voted in 2024 and who they'd vote for now, "
-        "coloured by the party they're backing today, grey if they're undecided or wouldn't vote. "
+        "4. A grey arrow reading 2024 pointing into a magenta block reading today. The band is their vote: how they voted in "
+        "2024 on the left, how they'd vote today on the right, each side in that party's colour, grey where they didn't vote, "
+        "don't know or wouldn't. "
         f"5. 24 lilac dots, one magenta. Together, they are Britain in miniature: voters are drawn from the "
         f"wave's {respondents} real respondents in proportion to BES survey weights, so the feed reflects the British adult "
         f"population by age, gender, region, past vote and more. {cadence} BES Wave {config.WAVE}, YouGov, {config.FIELDWORK_LABEL}. "
@@ -91,7 +92,7 @@ def intro_html(respondents: int | None = None) -> str:
     env = Environment(loader=FileSystemLoader(config.TEMPLATE_DIR), autoescape=select_autoescape(["html"]))
     montgomeryshire = next(c for c in geo.constituencies().values() if c.name.startswith("Montgomeryshire"))
     return env.get_template("intro.html").render(
-        width=config.CARD_WIDTH, height=config.CARD_HEIGHT, font_dir=str(config.FONT_DIR),
+        width=config.CARD_WIDTH, height=config.CARD_HEIGHT, font_css=font_css(),
         ink=config.INK, body=config.BODY, secondary=config.SECONDARY, accent=config.ACCENT,
         bubble_fill=config.BUBBLE_FILL, track=config.TRACK, middle_band=config.MIDDLE_BAND, scale_band=config.SCALE_BAND,
         map_svg=geo.nation_svg(3, montgomeryshire.code, width=120, height=146),

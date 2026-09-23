@@ -1,4 +1,4 @@
-"""Colour contrast on the card meets WCAG 2.1 AA: 4.5:1 for the 16px footnote on every band, 3:1 for graphics."""
+"""Colour contrast on the card meets WCAG 2.1 AA: 4.5:1 for the vote band's 18px labels on every colour either side of it, 3:1 for graphics."""
 
 from voterbot import config
 
@@ -20,9 +20,9 @@ def all_bands() -> dict[str, tuple[str, str]]:
     return bands
 
 
-def test_band_text_and_footnote_are_readable_on_every_band_colour():
+def test_vote_labels_are_readable_on_every_band_colour():
     for name, (background, ink) in all_bands().items():
-        assert contrast(ink, background) >= 4.5, f"{name}: {contrast(ink, background):.2f}:1 for 16px text on {background}"
+        assert contrast(ink, background) >= 4.5, f"{name}: {contrast(ink, background):.2f}:1 for 18px text on {background}"
 
 
 def test_body_text_colours_pass_on_white():

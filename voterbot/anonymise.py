@@ -38,8 +38,8 @@ CURRENT_LABELS = {label for label in codes.RELIGION.values() if label}
 CURRENT_BANDS = {band for _, band in persona.AGE_BANDS} | {persona.OLDEST_BAND}
 
 # Wording that has since been corrected at source, and what the queued copy should read instead.
-# Applied to the life paragraph, the news paragraph and every bubble; each replacement leaves text
-# that no longer contains what it replaced, so running it twice changes nothing.
+# Applied to the life paragraph, the news paragraph, every bubble and the vote line; each replacement
+# leaves text that no longer contains what it replaced, so running it twice changes nothing.
 RETIRED_WORDINGS = {
     "My highest qualification is A-levels.": "My highest qualifications are A-levels.",
     "A-levels are the top qualification I've got.": "A-levels are the top qualifications I've got.",
@@ -53,10 +53,46 @@ RETIRED_WORDINGS = {
     "went another party": "went for another party",
     "Growing up, around 14, the main wage earner": "When I was about 14, the main wage earner",
     "growing up, around 14, the main wage earner": "when I was about 14, the main wage earner",
+    "I'm a SNP supporter": "I'm an SNP supporter",
+    # the September 2026 copy review
+    "semi-routine": "semi-skilled",
+    "I stayed in education past 20.": "I stayed in education until I was 20 or older.",
+    "Europe, outside the EU": "a European country outside the EU",
+    "I've a health problem or disability that limits what I can do day to day a lot.": "A health problem or disability limits a lot of what I can do day to day.",
+    "I've a health problem that limits what I can do day to day a little.": "A health problem limits what I can do day to day, but only a little.",
+    "General elections are one vote I'm not eligible to cast.": "I'm not allowed to vote in general elections.",
+    "I'm the sort who keeps in the background, as I see it.": "I'm the sort who keeps in the background.",
+    "My local community is somewhere I feel a sense of belonging.": "My local community is somewhere I feel I belong.",
+    "put my household down near the poorest end in the country": "put my household near the poorest end of the scale",
+    "put my household up near the richest end in the country": "put my household near the richest end of the scale",
+    "member of the Conservative party": "member of the Conservative Party",
+    "member of the Labour party": "member of the Labour Party",
+    "member of the Lib Dem party": "member of the Lib Dems",
+    "member of the SNP party": "member of the SNP",
+    "member of the Plaid Cymru party": "member of Plaid Cymru",
+    "member of the UKIP party": "member of UKIP",
+    "member of the Green party": "member of the Green Party",
+    "member of the BNP party": "member of the BNP",
+    "member of the Change UK party": "member of Change UK",
+    "member of the Reform party": "member of Reform UK",
+    "I like every one of the party leaders, and much the same amount.": "I like every one of the party leaders, all about equally.",
+    "preacher who preaches hatred": "preacher who spreads hatred",
+    "A preacher of hatred of the West": "Someone who preaches hatred of the West",
+    "a preacher of hatred of the West": "someone who preaches hatred of the West",
+    "I wish I'd voted differently to how I voted in 2024.": "I wish I'd voted differently in 2024.",
+    "have gone about right, as far as I'm concerned.": "are about where they should be, as far as I'm concerned.",
+    "the amount of public services run by": "the number of public services run by",
+    "Cut taxes a lot, even if it means spending much less on health and social services.": "Taxes should be cut a lot, even if it means spending much less on health and social services.",
+    "Raise taxes a lot and spend much more on health and social services.": "We should raise taxes a lot and spend much more on health and social services.",
+    "with a bit of spending cut too": "with a few spending cuts too",
+    "a really high quality education": "a really high-quality education",
 }
 # Corrections that have to move a bold slot, so cannot be a plain substitution.
 RETIRED_PATTERNS = [
     (re.compile(r"\{(\w+)\} is something I( also)? watch\."), r"I\2 use {\1}."),
+    (re.compile(r"When I meet another of the (Remainer|Leaver)s,"), r"When I meet a fellow \1,"),
+    (re.compile(r"I feel a bond with any of the (Remainer|Leaver)s I meet\."), r"I feel a bond with any fellow \1 I meet."),
+    (re.compile(r"When I come across one of the other (Remainer|Leaver)s,"), r"When I come across another \1,"),
 ]
 # A whole sentence naming where someone worships, which names their faith along with it.
 WORSHIP_SENTENCE = re.compile(r"[^.]*\b(?:mosque|gurdwara|synagogue|temple)\b[^.]*\.\s*")
@@ -99,6 +135,7 @@ def migrate_card(card: dict) -> bool:
     for span in [card["life"], card.get("media"), *card["bubbles"]]:
         if span:
             span["template"] = _corrected(span["template"])
+    card["band_text"] = _corrected(card["band_text"])
     if bold.get("age", "").isdigit():
         bold["age"] = persona.age_band(int(bold["age"]))
         headline["template"] = headline["template"].replace("aged {age}", "in my {age}")

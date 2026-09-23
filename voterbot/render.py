@@ -1,13 +1,17 @@
 """Turn a profile into the 1080x1350 card image.
 
 The card is an HTML template (voterbot/templates/card.html) filled with Jinja2
-and screenshotted with headless Chromium via Playwright. Fonts are loaded from
-assets/fonts so rendering is identical offline and in CI.
+and screenshotted with headless Chromium via Playwright. The Archivo files in
+assets/fonts travel inside the page (font_css), so rendering is identical offline
+and in CI.
 """
 
 from __future__ import annotations
 
+import base64
+import functools
 import html
+import re
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -15,8 +19,24 @@ from PIL import Image
 from playwright.sync_api import sync_playwright
 
 from . import config, geo
+from .persona import article
 
 _env = Environment(loader=FileSystemLoader(config.TEMPLATE_DIR), autoescape=select_autoescape(["html"]))
+
+
+@functools.lru_cache(maxsize=1)
+def font_css() -> str:
+    """@font-face rules for Archivo with each weight's file inlined as a data URI.
+
+    A page handed to Chromium with set_content has no origin allowed to read file:// URLs, so
+    fonts linked that way fail without a word and every card falls back to the system sans-serif.
+    """
+    rules = []
+    for weight in config.FONT_WEIGHTS:
+        data = base64.b64encode((config.FONT_DIR / f"Archivo-{weight}.ttf").read_bytes()).decode("ascii")
+        rules.append(f'@font-face {{ font-family: "Archivo"; font-style: normal; font-weight: {weight}; '
+                     f'src: url("data:font/ttf;base64,{data}") format("truetype"); }}')
+    return "\n".join(rules)
 
 
 def _bold(text: str) -> str:
@@ -44,6 +64,54 @@ def band_colours(profile: dict) -> tuple[str, str]:
     return config.OTHER_PARTY_COLOURS
 
 
+# The first sentence of a stored vote line - how they voted in 2024 - and what the card's 2024 step says.
+PAST_VOTE = {
+    "In 2024 I didn't vote": ("Didn't vote", config.NO_VOTE_COLOURS),
+    "In 2024 I voted for a smaller party": ("A smaller party", config.OTHER_PARTY_COLOURS),
+    "In 2024 I voted for an independent": ("An independent", config.OTHER_PARTY_COLOURS),
+    "In 2024 I voted": ("Voted", config.DONT_KNOW_COLOURS),  # a party the survey file does not name
+    "I can't remember how I voted in 2024": ("Can't remember", config.DONT_KNOW_COLOURS),
+    "I'm not sure whether I voted in 2024": ("Not sure I voted", config.DONT_KNOW_COLOURS),
+}
+
+
+def vote_steps(profile: dict) -> dict:
+    """The stored vote line as the band's two steps: how they voted in 2024, and how they would today.
+
+    Each step is a short label in its own colour - the party's where there is one, the lilac-grey for a
+    smaller party or an independent, grey for not voting or not knowing. A qualifier ("if pushed",
+    "closest to Labour") sits beside "Today", and takes the asterisk when the footnote explains it.
+    An unfamiliar sentence raises rather than printing something the line never said.
+    """
+    past, _, today = profile["band_text"].rstrip("*").partition(". ")
+    party = re.fullmatch(r"In 2024 I voted (.+)", past)
+    if party and party.group(1) in config.PARTY_COLOURS:
+        then, (then_bg, then_ink) = party.group(1), config.PARTY_COLOURS[party.group(1)]
+    elif past in PAST_VOTE:
+        then, (then_bg, then_ink) = PAST_VOTE[past]
+    else:
+        raise ValueError(f"unrecognised 2024 vote: {past!r}")
+
+    note = ""
+    if today == "Today I still would":
+        now = "Still " + (then[0].lower() + then[1:] if then.startswith(("A ", "An ")) else then)
+    elif match := re.fullmatch(r"Today I'd vote (?:for )?(.+?)( \(if pushed\))?", today):
+        name = match.group(1)
+        now = {"a smaller party": "A smaller party", "an independent": "An independent"}.get(name, name)
+        note = "if pushed" if match.group(2) else ""
+    elif today == "Today I don't know who I'd vote for":
+        now = "Don't know"
+    elif today == "Today I wouldn't vote":
+        now = "Wouldn't vote"
+    elif match := re.fullmatch(r"Today I wouldn't either(?:, but I'm an? (.+) supporter| - at a push, I'm closest to (.+))?", today):
+        now = "Still wouldn't vote"
+        note = f"{article(match.group(1))} {match.group(1)} supporter" if match.group(1) else f"closest to {match.group(2)}" if match.group(2) else ""
+    else:
+        raise ValueError(f"unrecognised vote today: {today!r}")
+    now_bg, now_ink = band_colours(profile)
+    return {"then": then, "then_bg": then_bg, "then_ink": then_ink, "now": now, "now_bg": now_bg, "now_ink": now_ink, "note": note}
+
+
 def map_box(profile: dict) -> tuple[int, int]:
     """The map's width and height: the handoff's box, or a larger one where there are no scales to fit in."""
     width, height = config.MAP_WIDTH, config.MAP_HEIGHTS.get(profile["country"], config.MAP_HEIGHT)
@@ -54,7 +122,6 @@ def map_box(profile: dict) -> tuple[int, int]:
 
 def build_html(profile: dict) -> str:
     """Render the card HTML for one profile (a dict as stored in profiles.jsonl)."""
-    band_bg, band_ink = band_colours(profile)
     map_width, map_height = map_box(profile)
     headline = _emphasise(profile["headline"]["template"], **profile["headline"]["bold"])
     place = html.escape(profile["headline"]["bold"]["place"]).replace("-", "&#8209;")  # keep "Stratford-on-Avon" on one line
@@ -63,10 +130,9 @@ def build_html(profile: dict) -> str:
     return template.render(
         width=config.CARD_WIDTH, height=config.CARD_HEIGHT,
         map_width=map_width, map_height=map_height,
-        font_dir=str(config.FONT_DIR),
+        font_css=font_css(),
         ink=config.INK, body=config.BODY, secondary=config.SECONDARY, accent=config.ACCENT,
         bubble_fill=config.BUBBLE_FILL, track=config.TRACK, middle_band=config.MIDDLE_BAND, scale_band=config.SCALE_BAND,
-        band_bg=band_bg, band_ink=band_ink,
         alt_title=profile["alt_text"][:80],
         headline_html=headline,
         life_html=_emphasise(profile["life"]["template"], **profile["life"]["bold"]),
@@ -77,7 +143,7 @@ def build_html(profile: dict) -> str:
         views_heading=f"{profile.get('possessive', 'their').capitalize()} views, from {profile.get('possessive', 'their')} survey answers",
         econ_pct=profile["econ_pct"], cultural_pct=profile["cultural_pct"],
         econ_iqr=profile.get("econ_iqr", [25, 75]), cultural_iqr=profile.get("cultural_iqr", [25, 75]),
-        band_text=profile["band_text"],
+        vote=vote_steps(profile),
         footnote=profile.get("footnote", "Voting intention"),
         fieldwork=config.FIELDWORK_LABEL,
     )
@@ -131,6 +197,27 @@ def screenshot_html(page_html: str, out_path: Path, width: int, height: int, sel
         page = browser.new_page(viewport={"width": width, "height": height}, device_scale_factor=scale)
         page.set_content(page_html, wait_until="load")
         page.evaluate("document.fonts.ready")
-        page.wait_for_timeout(150)  # let the fit script and font layout settle
+        page.wait_for_function("document.body.dataset.fit !== 'pending'")  # a card's fit script has run
+        page.wait_for_timeout(50)  # and its last change has been laid out
+        failed = page.evaluate("[...document.fonts].filter(f => f.status === 'error').map(f => f.family + ' ' + f.weight)")
+        if failed:  # never let an image out in the fallback sans-serif - that is how the old bug went unseen
+            browser.close()
+            raise RuntimeError(f"typeface failed to load, nothing rendered: {', '.join(failed)}")
         page.locator(selector).screenshot(path=str(out_path), type="png")
         browser.close()
+
+
+def check_fonts() -> dict[int, str]:
+    """Load every Archivo weight in Chromium the way a card does, and report each one's status.
+
+    `python -m voterbot fontcheck` runs this on the posting runner before anything is posted.
+    """
+    text = "".join(f'<p style="font: {weight} 20px Archivo">Archivo {weight}</p>' for weight in config.FONT_WEIGHTS)
+    with sync_playwright() as pw:
+        browser = pw.chromium.launch()
+        page = browser.new_page()
+        page.set_content(f"<!doctype html><style>{font_css()}</style><body>{text}</body>", wait_until="load")
+        faces = page.evaluate("""Promise.allSettled([...document.fonts].map(f => f.load()))
+                                 .then(() => [...document.fonts].map(f => [f.weight, f.status]))""")
+        browser.close()
+    return {int(weight): status for weight, status in faces}

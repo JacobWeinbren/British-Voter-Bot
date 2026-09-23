@@ -4,9 +4,7 @@
 <meta charset="utf-8">
 <title>British Voter Bot - how to read a card</title>
 <style>
-  {% for weight in [400, 500, 600, 700, 800] %}
-  @font-face { font-family: "Archivo"; font-style: normal; font-weight: {{ weight }}; src: url("file://{{ font_dir }}/Archivo-{{ weight }}.ttf") format("truetype"); }
-  {% endfor %}
+  {{ font_css | safe }}
   html, body { margin: 0; padding: 0; background: #ffffff; }
   body { font-family: "Archivo", sans-serif; color: {{ ink }}; -webkit-font-smoothing: antialiased; }
   strong { font-weight: 700; color: {{ ink }}; }
@@ -27,17 +25,21 @@
   .row .text { flex: 1; font: 400 21.5px/1.45 "Archivo", sans-serif; color: {{ body }}; text-wrap: pretty; }
   .row .source { display: block; margin-top: 6px; font-weight: 600; color: {{ accent }}; }
 
-  .mini-bubble { position: relative; background: {{ bubble_fill }}; border: 2px solid {{ ink }}; padding: 13px 15px; width: 158px; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; }
-  .mini-bubble::after { content: ""; position: absolute; left: 18px; bottom: -8px; width: 12px; height: 12px; background: {{ bubble_fill }}; border-right: 2px solid {{ ink }}; border-bottom: 2px solid {{ ink }}; transform: rotate(45deg); }
+  .mini-bubble { position: relative; margin-left: 14px; background: {{ bubble_fill }}; padding: 15px 16px; width: 150px; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; }
+  .mini-bubble::before { content: ""; position: absolute; left: -14px; top: 12px; border: 9px solid transparent; border-right: 14px solid {{ bubble_fill }}; border-left: 0; }
   .mini-bubble div { height: 6px; background: {{ middle_band }}; }
 
   .mini-scale { position: relative; width: 170px; height: 30px; }
   .mini-scale .line { position: absolute; left: 0; right: 0; top: 13px; height: 6px; background: {{ track }}; }
-  .mini-scale .band { position: absolute; left: 24%; width: 50%; top: 13px; height: 6px; background: {{ scale_band }}; }
-  .mini-scale .median { position: absolute; left: 50%; top: 4px; width: 3px; height: 23px; background: {{ ink }}; }
+  .mini-scale .band { position: absolute; left: 24%; width: 50%; top: 12px; height: 8px; background: {{ scale_band }}; }
+  .mini-scale .median { position: absolute; left: 50%; top: 5px; width: 2px; height: 22px; background: {{ secondary }}; }
   .mini-scale .me { position: absolute; left: 28%; top: 7px; width: 18px; height: 18px; border-radius: 50%; background: {{ accent }}; border: 3px solid #ffffff; transform: translateX(-50%); box-sizing: border-box; }
 
-  .mini-band { width: 158px; background: {{ accent }}; padding: 11px 13px; font: 800 16px/1.3 "Archivo", sans-serif; color: #ffffff; box-sizing: border-box; }
+  /* The card's vote band in small: 2024 cut as an arrow into today, each side in its own colour. */
+  .mini-band { display: flex; width: 170px; height: 46px; font: 800 16px/1 "Archivo", sans-serif; }
+  .mini-band .then-wrap { flex: 0 0 46%; position: relative; z-index: 1; filter: drop-shadow(3px 0 0 #ffffff); }
+  .mini-band .then { height: 100%; display: flex; align-items: center; padding-left: 10px; background: #dcd9d6; color: {{ ink }}; clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%); }
+  .mini-band .now { flex: 1; margin-left: -16px; display: flex; align-items: center; padding-left: 26px; background: {{ accent }}; color: #ffffff; }
 
   .dots { display: grid; grid-template-columns: repeat(8, 13px); gap: 9px; }
   .dots span { width: 13px; height: 13px; border-radius: 50%; background: {{ middle_band }}; display: block; }
@@ -80,8 +82,8 @@
       </div>
       <div class="rule"></div>
       <div class="row">
-        <div class="graphic"><div class="mini-band">2024 &rarr; today</div></div>
-        <div class="text"><strong>The band is their vote.</strong> How they voted in 2024, who they'd vote for now - coloured by the party they're backing today, grey if they're undecided or wouldn't vote.</div>
+        <div class="graphic"><div class="mini-band"><div class="then-wrap"><div class="then">2024</div></div><div class="now">today</div></div></div>
+        <div class="text"><strong>The band is their vote.</strong> How they voted in 2024 on the left, how they'd vote today on the right - each side in that party's colour, grey where they didn't vote, don't know or wouldn't.</div>
       </div>
       <div class="rule"></div>
       <div class="row">

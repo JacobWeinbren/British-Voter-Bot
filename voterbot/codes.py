@@ -23,6 +23,10 @@ PARTIES = {
     11: "Change UK",
     12: "Reform UK",
 }
+PARTY_MEMBERSHIP = {  # "I'm a paid-up member of ...": each party by its own name, never "the SNP party"
+    1: "the Conservative Party", 2: "the Labour Party", 3: "the Lib Dems", 4: "the SNP", 5: "Plaid Cymru",
+    6: "UKIP", 7: "the Green Party", 8: "the BNP", 11: "Change UK", 12: "Reform UK",
+}
 PARTY_SUPPORTER = {  # "I'm a ... supporter"
     1: "Conservative", 2: "Labour", 3: "Lib Dem", 4: "SNP", 5: "Plaid Cymru",
     6: "UKIP", 7: "Green", 8: "BNP", 11: "Change UK", 12: "Reform",
@@ -154,11 +158,11 @@ NSSEC_JOB = {
     111: "have a skilled trade",
     112: "am a skilled process operative",
     121: "have a shop floor job",
-    122: "have a semi-routine service job - care work etc.",
-    123: "have a semi-routine technical job",
-    124: "have a semi-routine operative job",
-    125: "have a semi-routine farm job",
-    126: "have a semi-routine clerical job",
+    122: "have a semi-skilled service job - care work etc.",
+    123: "have a semi-skilled technical job",
+    124: "have a semi-skilled operative job",
+    125: "have a semi-skilled farm job",
+    126: "have a semi-skilled clerical job",
     127: "work in childcare",
     131: "have a routine service job - cleaning, waiting tables etc.",
     132: "have a routine production job - factory work",
@@ -212,7 +216,7 @@ SCOTTISH_EDUCATION = {2: "I left school with Standard Grades", 3: "I've got High
 
 # p_country_birth -> "born in ..." (1 = UK, left out)
 BIRTHPLACE = {  # the BES categories, in their own words: "EU: pre-2004" / "EU: post-2004", "Oceania & Antarctica" etc.
-    2: "Ireland", 3: "the EU", 4: "the EU", 5: "Europe, outside the EU", 6: "Africa",
+    2: "Ireland", 3: "the EU", 4: "the EU", 5: "a European country outside the EU", 6: "Africa",
     7: "East Asia", 8: "South-East or Central Asia", 9: "South Asia", 10: "North America",
     11: "the Caribbean or Central America", 12: "South America", 13: "Oceania", 14: "the Middle East",
 }
@@ -392,7 +396,7 @@ BUY_HOME = {
 }
 # p_education_age
 LEFT_EDUCATION = {1: "I left school at 15 or younger", 2: "I left school at 16", 3: "I left school at 17 or 18",
-                  4: "I finished education at 19", 5: "I stayed in education past 20"}
+                  4: "I finished education at 19", 5: "I stayed in education until I was 20 or older"}
 # statusGardenSize / statusBedrooms (wave 30)
 GARDEN = {1: "a balcony for a garden", 2: "a small garden", 3: "a garden about the size of a tennis court",
           4: "a garden the size of a couple of tennis courts", 5: "a big garden", 6: "a very big garden"}
