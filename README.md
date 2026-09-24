@@ -6,32 +6,46 @@ Fieldhouse, E., J. Green, G. Evans, J. Mellon, C. Prosser, J. Bailey, J. Griffit
 
 ## Choosing which views reach a card
 
-A card can only draw from the questions its respondent was actually asked, and the BES asks
-some questions of everyone and others once, years ago, of a subsample. Left flat, the draw
-fills the feed with whatever is most commonly answered. Three corrections shape it instead
-(`ProfileBuilder.pick_opinions`):
+A card can only say what its respondent was asked, and the BES asks some questions of everyone
+and others once, years ago, of a subsample. Left to a flat draw, the feed fills with whatever the
+survey asked most people - and with whatever subject the library happens to split into the most
+questions. So every draw on a card (the opinion bubbles, the money sentence, the life details) is
+given a target instead, and its weights are *solved for* at build time, per nation, over the whole
+eligible panel, so the feed meets those targets as far as the answers allow (`voterbot/balance.py`).
 
-- a fence-sitting answer is drawn at `items.NEUTRAL_WEIGHT`, because surveys nudge people
-  towards the middle and a view either way says more about them
-- a topic's items share one topic's worth of weight, so a subject the library happens to
-  phrase nine ways does not get nine times the chances of one phrased once
-- an item is lifted by how rarely it can be said at all, `(1 / availability) ** QUESTION_RARITY`,
-  where availability is measured over a sample of the panel at build time (`item_availability`)
+The targets, and the dials behind them (all in `voterbot/config.py`):
 
-The lift can never push an item past the share of cards it could appear on, so a question few
-people were asked stays uncommon on the feed - it just stops being invisible. `QUESTION_RARITY`
-is the dial: 0 restores the old flat draw, 1 equalises every item's airtime, and the default of
-0.5 keeps the balance honest, since the questions the BES puts to everyone are the ones British
-politics actually turns on. None of this touches the top-issue bubble, which is still drawn
-first whenever the respondent holds a view on the issue they named.
+- **Opinions.** Each theme (immigration, the economy, the NHS...) gets a share of the general
+  bubbles: `SALIENCE_SHARE` (half) follows what voters in that nation name as the most important
+  issue facing the country, measured from the BES's own question at build time; the rest is spread
+  evenly over every theme, so the subjects nobody names still get a hearing. Within a theme its
+  topics share equally, and within a topic the items share by their editorial weight. How many
+  questions the BES asked, or how many the library phrased, no longer decides anything.
+- **Life details and the money sentence.** Every fact gets an equal share, as far as the answers
+  allow, so the ones a handful of people can state stand level with an income band.
+- **A cap.** No view or fact appears on more than `MAX_APPEARANCE` (half) of the cards that could
+  carry it. A rare answer is lifted up to that point and no further - otherwise everyone who gave it
+  would say it every time they came round. What a capped answer cannot use goes to the rest.
+- **Middling answers** - marked where each wording is written (`items.middling`) - are drawn at
+  `NEUTRAL_WEIGHT` (a fifth), because surveys nudge people to the middle and a view says more.
+- **The top issue** still gets a bubble whenever the respondent holds a view on it, and a card's
+  last bubble is about nation and identity `NATION_BUBBLE_CHANCE` of the time: most cards in
+  Scotland and Wales, where the constitution is the second axis of politics, fewer in England.
 
-The life paragraph is drawn the same way. Home, money, work and class are fixed slots, but the
-money sentence and the `config.LIFE_DETAILS` human details beside it are chosen from pools where
-a housing tenure or an income band is there for nearly everyone and having been on strike is
-there for a handful. Every option carries a key naming the fact it states, `detail_availability`
-measures how often each can be offered, and the same lift applies. Details that join an existing
-sentence are free; one that would stand on its own only lands while the paragraph is still short
-enough to carry it.
+The build prints what the solved weights achieve, nation by nation, next to what a flat draw would
+have given; `python -m voterbot stats` shows each theme's share of the built queue.
+
+Two smaller rules follow the same idea. A personality or risk trait is mentioned only for the outer
+`TRAIT_TAIL` (tenth) of the panel either side, measured at build time, so "I'm an extrovert" means
+more extrovert than most. And the life and news paragraphs keep to line budgets measured from the
+card as drawn (`LIFE_MAX_LINES`, `MEDIA_MAX_LINES`), so an extra detail lands only if it still fits.
+
+### Wordings
+
+A sentence gets as many wordings as its reach needs. At four cards a day no exact sentence should
+come round more than twice a week (`MAX_WORDING_SHARE`, 1 card in 14), so the class sentence, on
+seven cards in ten, has eleven wordings, and a fact on a handful of cards needs only one.
+`stats` lists the most repeated wordings against that ceiling, and a test holds a built queue to it.
 
 ## Drawing the card
 

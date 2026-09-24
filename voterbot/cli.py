@@ -167,7 +167,7 @@ def cmd_fontcheck(args) -> None:
 
 
 def cmd_stats(args) -> None:
-    from .sample import load_profiles
+    from .sample import load_profiles, wording_shares
 
     profiles = load_profiles()
     print(f"{len(profiles)} profiles - about {len(profiles) / (config.POSTS_PER_DAY * 365):.1f} years at {config.POSTS_PER_DAY} a day")
@@ -176,10 +176,21 @@ def cmd_stats(args) -> None:
         print(f"\n{key}:")
         for name, n in counts.most_common(12):
             print(f"  {name:<32} {n:5d}  {n / len(profiles):5.1%}")
-    topics = collections.Counter(b["template"][:40] for p in profiles for b in p["bubbles"][1:])
-    print(f"\n{len(topics)} distinct opinion sentences in use; most common:")
-    for text, n in topics.most_common(8):
-        print(f"  {n:4d}  {text}...")
+    from . import items
+    by_key = {item.key: item for item in items.ITEMS}
+    themes = collections.Counter(items.theme_of(by_key[k].topic) for p in profiles for k in p.get("opinion_keys", []) if k in by_key)
+    if themes:
+        total = sum(themes.values())
+        print(f"\nopinion bubbles by theme (leader line aside), {total} in all:")
+        for theme, n in themes.most_common(15):
+            print(f"  {theme:<32} {n:6d}  {n / total:5.1%}")
+    else:
+        print("\nopinion bubbles by theme: this queue predates the item keys - rebuild to see it")
+    shares = sorted(wording_shares(profiles).items(), key=lambda kv: -kv[1])
+    print(f"\nmost repeated wordings (the ceiling is {config.MAX_WORDING_SHARE:.1%} of cards, twice a week at "
+          f"{config.POSTS_PER_DAY} a day; {sum(s > config.MAX_WORDING_SHARE for _, s in shares)} over it):")
+    for sentence, share in shares[:10]:
+        print(f"  {share:5.1%}  {sentence[:100]}")
 
 
 def cmd_anonymise(args) -> None:

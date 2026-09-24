@@ -14,7 +14,7 @@ import re
 import numpy as np
 import pandas as pd
 
-from . import codes, config, geo, items, layout, persona
+from . import balance, codes, config, geo, items, persona
 from .data import text_value, value
 
 LR_ITEMS = ["lr1W31", "lr2W31", "lr3W31", "lr4W31", "lr5W31"]
@@ -84,59 +84,56 @@ class Spectrum:
         return round(min(97.0, max(3.0, (score - 1) / 4 * 100)), 1)
 
 
-def detail_availability(panel: pd.DataFrame, seed: int = config.RANDOM_SEED) -> dict[str, float]:
-    """How often each life detail can be offered at all, as a share of the respondents measured.
+def tail_cut(scores: np.ndarray, weights: np.ndarray, share: float, low: bool) -> float:
+    """The least extreme score still in the outer `share` of the weighted panel on one side.
 
-    The life paragraph has the same shape of problem as the bubbles: a tenure or an
-    income band is there for nearly everyone, while having been on strike or holding no
-    passport is there for a handful, and a flat draw lets the common facts crowd the rest
-    out. Measured over the same sample, keyed by the fact each option states.
+    Scores are coarse, so a tail rarely holds exactly that share: this takes the most extreme
+    values whose combined weight stays within it, and never less than the single most extreme.
     """
-    rows = panel.sample(min(config.AVAILABILITY_SAMPLE, len(panel)), random_state=seed)
-    rng = random.Random(seed)  # only picks between wordings of the same fact, which does not affect the key
-    seen: collections.Counter = collections.Counter()
-    measured = 0
-    for _, row in rows.iterrows():
-        country = value(row, "countryW31")
-        if country is None or int(country) not in codes.NATIONS:
+    values = np.unique(scores)
+    values = values if low else values[::-1]
+    total = weights.sum()
+    cut, held = values[0], 0.0
+    for v in values:
+        held += weights[scores == v].sum() / total
+        if held > share:
+            break
+        cut = v
+    return float(cut)
+
+
+def trait_cuts(panel: pd.DataFrame) -> dict[str, tuple[float, float]]:
+    """Where each personality and risk score counts as a trait worth saying: the outer
+    config.TRAIT_TAIL of the weighted panel either side (persona.TRAIT_CUTS holds the old fixed ones)."""
+    cuts = {}
+    weights = pd.to_numeric(panel[config.WEIGHT_COLUMN], errors="coerce")
+    for trait, column in persona.TRAIT_COLUMNS.items():
+        if column not in panel:
             continue
-        measured += 1
-        for key, _text in persona.money_options(row, rng):
-            seen[key] += 1
-        for key, _theme, _text in persona.extra_options(row, int(country), rng):
-            seen[key] += 1
-    if not measured:
-        return {}
-    return {key: count / measured for key, count in seen.items()}
-
-
-def item_availability(panel: pd.DataFrame, seed: int = config.RANDOM_SEED) -> dict[str, float]:
-    """How often each item has something to say, as a share of the respondents measured.
-
-    A card can only draw from the questions its respondent was actually asked, so an
-    item fielded to the whole panel in wave 31 sits in nearly every pool while one asked
-    once, years ago, of a subsample sits in a handful. Measuring that share is what lets
-    the draw correct for it (see pick_opinions). Estimated on a sample, because asking
-    every item of every respondent is the expensive half of a build.
-    """
-    rows = panel.sample(min(config.AVAILABILITY_SAMPLE, len(panel)), random_state=seed)
-    seen: collections.Counter = collections.Counter()
-    measured = 0
-    for _, row in rows.iterrows():
-        country = value(row, "countryW31")
-        if country is None or int(country) not in codes.NATIONS:
+        top = 21 if column.startswith("big_five") else 9000  # the same validity bound persona.value applies
+        scores = pd.to_numeric(panel[column], errors="coerce")
+        keep = scores.notna() & (scores >= 0) & (scores < top) & weights.gt(0)
+        if keep.sum() < 100:
             continue
-        measured += 1
-        for item, _text in items.candidate_statements(row, int(country)):
-            seen[item.key] += 1
-    if not measured:
-        return {}
-    floor = 1 / measured  # an item nobody in the sample could say is treated as one-in-the-sample rare, not impossible
-    return {item.key: max(seen[item.key] / measured, floor) for item in items.ITEMS}
+        x, w = scores[keep].to_numpy(dtype=float), weights[keep].to_numpy(dtype=float)
+        cuts[trait] = (tail_cut(x, w, config.TRAIT_TAIL, low=True), tail_cut(x, w, config.TRAIT_TAIL, low=False))
+    return cuts
+
+
+def group_of(item: items.Item) -> str:
+    """Which draw an opinion item belongs to: the card's closing nation-and-identity bubble, or the rest."""
+    return "nation" if item.topic in items.NATION_TOPICS else "general"
+
+
+# How many draws each group makes on a card, which turns "appears on at most MAX_APPEARANCE of the
+# cards that could carry it" into a per-draw limit (balance.per_draw_rate).
+DRAWS = {"general": config.MAX_OPINIONS, "nation": 1, "money": 1, "details": config.LIFE_DETAILS}
+ITEMS_BY_KEY = {item.key: item for item in items.ITEMS}
 
 
 class ProfileBuilder:
-    """Holds the population-level context (the two spectrums, how often each item is answered) needed per card."""
+    """Holds the population-level context needed per card: the two spectrums, where a trait starts,
+    and the draw weights solved from the whole panel (voterbot/balance.py)."""
 
     def __init__(self, panel: pd.DataFrame):
         self.panel = panel
@@ -145,24 +142,81 @@ class ProfileBuilder:
         weights = panel[config.WEIGHT_COLUMN]
         self.economic = Spectrum(econ, weights)
         self.cultural = Spectrum(cult, weights)
-        self.availability = item_availability(panel)
-        self.details = detail_availability(panel)
+        self.cuts = trait_cuts(panel)
+        pools, salience = self.measure(panel)
+        self.salience = salience
+        self.weights: dict[tuple[int, str, str], float] = {}
+        self.solved: dict[tuple[int, str], dict] = {}  # per nation and draw: keys, how often each is offered, targets, shares
+        self.report: list[str] = []
+        for country in sorted(pools):
+            for group in ("general", "nation", "money", "details"):
+                self.solve_group(country, group, pools[country][group], salience.get(country, {}))
 
-    def detail_rarity(self, key: str) -> float:
-        """The same lift as `rarity`, for the facts the life paragraph draws from."""
-        share = self.details.get(key)
-        return (1 / share) ** config.QUESTION_RARITY if share else 1.0
+    def measure(self, panel: pd.DataFrame) -> tuple[dict, dict]:
+        """For every respondent, what each draw could offer them, by nation; and how much weight each
+        nation's voters put on each opinion theme, from the issue they name as most important."""
+        rng = random.Random(config.RANDOM_SEED)  # picks between wordings of one fact only, which leaves the keys alone
+        pools: dict[int, dict[str, list[list[str]]]] = {}
+        salience: dict[int, collections.Counter] = {}
+        for _, row in panel.iterrows():
+            country = value(row, "countryW31")
+            if country is None or int(country) not in codes.NATIONS:
+                continue
+            country = int(country)
+            seat = text_value(row, "new_pcon_codeW31")
+            nation = pools.setdefault(country, {"general": [], "nation": [], "money": [], "details": []})
+            offered = items.candidate_statements(row, country)
+            nation["general"].append([i.key for i, _ in offered if group_of(i) == "general"])
+            nation["nation"].append([i.key for i, _ in offered if group_of(i) == "nation"])
+            nation["money"].append([key for key, _ in persona.money_options(row, rng)])
+            nation["details"].append([key for key, *_ in persona.extra_options(row, country, rng, seat, self.cuts)])
+            _, _, issue = top_issue(row)
+            topics = items.ISSUE_TOPICS.get(issue or 0, set())
+            weight = value(row, config.WEIGHT_COLUMN) or 0.0
+            for topic in topics:  # an issue's weight is split evenly over the subjects it touches
+                salience.setdefault(country, collections.Counter())[items.theme_of(topic)] += weight / len(topics)
+        return pools, salience
 
-    def rarity(self, key: str) -> float:
-        """How much to lift an item for being one few respondents can answer.
+    def solve_group(self, country: int, group: str, cards: list[list[str]], salience: collections.Counter) -> None:
+        """Solve one nation's weights for one draw, and note in the report how close they come."""
+        keys = sorted({key for card in cards for key in card})
+        if not keys:
+            return
+        column = {key: j for j, key in enumerate(keys)}
+        presence = np.zeros((len(cards), len(keys)), dtype=np.float32)
+        for i, card in enumerate(cards):
+            presence[i, [column[key] for key in card]] = 1.0
+        if group in ("general", "nation"):
+            paths = [(items.theme_of(ITEMS_BY_KEY[key].topic), ITEMS_BY_KEY[key].topic) for key in keys]
+            themes = sorted({path[0] for path in paths})
+            top = None
+            if group == "general":  # half by what voters there say matters most, half evenly (config.SALIENCE_SHARE)
+                named = sum(salience.get(theme, 0.0) for theme in themes)
+                top = {theme: config.SALIENCE_SHARE * (salience.get(theme, 0.0) / named if named else 1 / len(themes))
+                       + (1 - config.SALIENCE_SHARE) / len(themes) for theme in themes}
+            targets = balance.tree_targets(keys, paths, [ITEMS_BY_KEY[key].weight for key in keys], top)
+        else:
+            targets = np.full(len(keys), 1.0 / len(keys))
+        result = balance.solve(presence, targets, balance.per_draw_rate(config.MAX_APPEARANCE, DRAWS[group]))
+        for key, weight in zip(keys, result["weights"]):
+            self.weights[(country, group, key)] = float(weight)
+        self.solved[(country, group)] = {"keys": keys, "offered": dict(zip(keys, presence.mean(axis=0).tolist())), **result}
+        gap = float(np.abs(result["shares"] - result["targets"]).max())
+        self.report.append(f"{codes.NATIONS[country]:>8} {group:<8} {len(cards):6d} cards {len(keys):4d} options; "
+                           f"{int(result['held'].sum())} held at the appearance cap; largest miss {gap:.4f}")
+        if group == "general":
+            by_theme = collections.defaultdict(lambda: [0.0, 0.0, 0.0])
+            for key, target, share, flat in zip(keys, result["targets"], result["shares"], result["flat"]):
+                row = by_theme[items.theme_of(ITEMS_BY_KEY[key].topic)]
+                row[0] += target
+                row[1] += share
+                row[2] += flat
+            for theme, (target, share, flat) in sorted(by_theme.items(), key=lambda kv: -kv[1][1])[:8]:
+                self.report.append(f"{'':>17}{theme:<24} {share:6.1%} of general draws (a flat draw would give {flat:5.1%})")
 
-        The inverse of its availability, tempered by config.QUESTION_RARITY. This can
-        never push an item past the share of cards it could appear on at all, so a
-        question almost nobody was asked stays rare on the feed - it just stops being
-        invisible.
-        """
-        share = self.availability.get(key)
-        return (1 / share) ** config.QUESTION_RARITY if share else 1.0
+    def weight(self, country: int, group: str, key: str) -> float:
+        """The solved weight for one option; 1 (the solved weights' typical size) for one never measured."""
+        return self.weights.get((country, group, key), 1.0)
 
     def build(self, row: pd.Series, seed: int) -> dict | None:
         """A full card, or None when the basics (nation, age, any vote answer) are missing or they hold too few recorded views to fill four bubbles.
@@ -202,17 +256,11 @@ class ProfileBuilder:
         leader = persona.leader_bubble(row, country, int(intention_code) if intention_code is not None else None, rng)
         seat = constituency.code if constituency else None
         head = persona.headline(row, country, place, age, seat)
-        life = persona.life_paragraph(row, country, rng, seat, self.detail_rarity)
+        life = persona.life_paragraph(row, country, rng, seat, lambda group, key: self.weight(country, group, key), self.cuts)
         media = persona.media_paragraph(row, country, rng)
 
-        # config.MAX_OPINIONS opinion bubbles besides the leader line (three: four bubbles in all); a layout
-        # estimate trims back if a larger setting would not fit.
+        # config.MAX_OPINIONS opinion bubbles besides the leader line: four bubbles in all
         opinions, kinds = self.pick_opinions(row, country, rng, issue_code, count=config.MAX_OPINIONS)
-        room = layout.middle_room(head.plain(), life.plain(), media.plain() if media else "", bool(issue or no_single_issue),
-                                  econ is not None and cult is not None, band_text)
-        while len(opinions) > 3 and not layout.bubbles_fit([leader.plain()] + [s.plain() for s in opinions], room):
-            drop = max((i for i, k in enumerate(kinds) if k == "general"), default=len(opinions) - 1)
-            del opinions[drop], kinds[drop]
         rng.shuffle(opinions)
         bubbles = [leader] + opinions
         if len(bubbles) < 4:
@@ -231,6 +279,7 @@ class ProfileBuilder:
             "top_issue": issue,
             "no_single_issue": no_single_issue,
             "bubbles": [b.as_dict() for b in bubbles],
+            "opinion_keys": [b.key for b in opinions],
             "econ_pct": self.economic.position(econ) if econ is not None else None,
             "cultural_pct": self.cultural.position(cult) if cult is not None else None,
             "econ_score10": Spectrum.score10(econ) if econ is not None else None,
@@ -239,6 +288,7 @@ class ProfileBuilder:
             "cultural_iqr": self.cultural.iqr,
             "intention_party": intention_party,
             "band_text": band_text,
+            "generator": config.GENERATOR,
             "footnote": ("Party they identify with" if "supporter*" in band_text else "Party they feel closest to, at a push" if "at a push" in band_text else "Voting intention"),
         }
         profile["alt_text"] = alt_text(profile)
@@ -249,17 +299,15 @@ class ProfileBuilder:
         """Up to `count` opinion bubbles on different topics, with what kind each is (issue, general, nation).
 
         When they named a top issue and hold a view on that subject, one bubble
-        always speaks to it; the last slot favours nation and identity; no two
-        bubbles come from the same issue theme (items.THEMES). The caller shuffles.
+        always speaks to it; the last slot favours nation and identity
+        (config.NATION_BUBBLE_CHANCE); no two bubbles come from the same issue theme
+        (items.THEMES). The caller shuffles.
 
-        Three things bend the draw away from a flat pick, so the feed is not simply
-        whatever the BES asks most people. A middling answer is drawn at
-        items.NEUTRAL_WEIGHT, because surveys nudge people to the middle and a view
-        either way says more. A topic's items share one topic's worth of weight
-        between them, so a subject the library happens to phrase nine ways does not
-        get nine times the chances of one phrased once. And each item is lifted by
-        how rarely it can be said at all (config.QUESTION_RARITY), which is what
-        stops the handful of questions put to everyone from crowding out the rest.
+        Each item is drawn by the weight solved for it at build time, which is what
+        makes the feed follow its targets rather than whatever the BES asked most
+        people (see ProfileBuilder.solve_group); a middling answer counts at
+        config.NEUTRAL_WEIGHT, because surveys nudge people to the middle and a
+        view either way says more.
         """
         candidates = items.candidate_statements(row, country, rng)
         chosen: list[persona.Span] = []
@@ -270,15 +318,11 @@ class ProfileBuilder:
             pool = [(i, t) for i, t in pool if items.theme_of(i.topic) not in used_themes]
             if not pool:
                 return None
-            mates = collections.Counter(i.topic for i, _ in pool)
-            weights = [i.weight
-                       * (items.NEUTRAL_WEIGHT if items.is_neutral(t) else 1.0)
-                       / mates[i.topic]
-                       * self.rarity(i.key)
+            weights = [self.weight(country, group_of(i), i.key) * (config.NEUTRAL_WEIGHT if items.is_neutral(t) else 1.0)
                        for i, t in pool]
             item, text = rng.choices(pool, weights=weights, k=1)[0]
             used_themes.add(items.theme_of(item.topic))
-            return persona.Span(text)
+            return persona.Span(str(text), key=item.key)
 
         nation_pool = [(i, t) for i, t in candidates if i.topic in items.NATION_TOPICS]
         general_pool = [(i, t) for i, t in candidates if i.topic not in items.NATION_TOPICS]
@@ -295,9 +339,7 @@ class ProfileBuilder:
                 break
             chosen.append(span)
             kinds.append("general")
-        # Scots and Welsh respondents nearly always get a nation bubble; in England it is less of a talking point.
-        nation_chance = 0.85 if country in (2, 3) else 0.45
-        last = draw(nation_pool) if nation_pool and rng.random() < nation_chance else None
+        last = draw(nation_pool) if nation_pool and rng.random() < config.NATION_BUBBLE_CHANCE[country] else None
         kind = "nation" if last else "general"
         if last is None:
             last = draw(general_pool) or draw(nation_pool)

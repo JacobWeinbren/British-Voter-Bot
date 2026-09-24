@@ -1,158 +1,180 @@
 """What decides which views and details reach a card, beyond what the respondent answered.
 
 A card draws from the questions its respondent was asked, so left flat the feed fills up with
-whatever the BES puts to everyone. Three corrections shape the opinion draw, and each is checked
-here: a middling answer is held back, a topic's items share one topic's worth of weight, and an
-item is lifted for being one few people can answer at all. The life paragraph gets the same lift
-over the facts it can state.
+whatever the BES puts to everyone, and with whatever subject the library happens to split into the
+most questions. The build solves the draw weights instead (voterbot/balance.py): each theme gets a
+target share - half by what voters in that nation say matters most, half evenly - and the weights
+are fitted per nation over the whole panel, within a cap on how often any one answer appears.
+These tests run a whole build on a made-up panel (tests/synthetic_panel.py) and check what reaches
+the cards, not just the arithmetic.
 """
 
 import collections
 import random
 
+import numpy as np
 import pytest
 
-from voterbot import config, items, persona
-from voterbot.profile import ProfileBuilder
+from voterbot import balance, config, items, persona
+from voterbot.profile import DRAWS, ProfileBuilder, tail_cut
+from voterbot.sample import build_profiles
+
+from synthetic_panel import synthetic_panel
 
 
-def builder(availability: dict[str, float]) -> ProfileBuilder:
-    """A builder with no panel behind it - only the item availability the draw consults."""
-    made = ProfileBuilder.__new__(ProfileBuilder)
-    made.availability = availability
-    return made
+@pytest.fixture(scope="module")
+def panel():
+    return synthetic_panel()
 
 
-def pool(*specs: tuple[str, str, str]) -> list[tuple[items.Item, str]]:
-    """A candidate list of (key, topic, sentence) triples, as candidate_statements would return."""
-    return [(items.Item(key=key, topic=topic, cols=(f"{key}W31",)), text) for key, topic, text in specs]
+@pytest.fixture(scope="module")
+def builder(panel):
+    return ProfileBuilder(panel)
 
 
-def first_picks(candidates, availability, runs: int = 600) -> dict[str, int]:
-    """How often each topic supplies the first bubble, across many seeds."""
-    counts: dict[str, int] = {}
-    made = builder(availability)
-    by_text = {text: item.topic for item, text in candidates}
-    for seed in range(runs):
-        rng = random.Random(seed)
-        spans, _ = made.pick_opinions(None, 1, rng, None, count=2)
-        topic = by_text[spans[0].template]
-        counts[topic] = counts.get(topic, 0) + 1
-    return counts
-
-
-@pytest.fixture(autouse=True)
-def _fixed_candidates(monkeypatch):
-    """pick_opinions asks items.candidate_statements for the pool; these tests supply it."""
-    def use(candidates):
-        monkeypatch.setattr(items, "candidate_statements", lambda row, country, rng=None: list(candidates))
-    return use
-
-
-def test_a_topic_phrased_many_ways_does_not_get_many_times_the_chances(_fixed_candidates):
-    """Nine items on immigration should not out-draw one item on zero-hours nine to one."""
-    candidates = pool(*[(f"m{i}", "many", f"A view about one thing, number {i}.") for i in range(4)],
-                      ("s1", "single", "A view about another thing."))
-    _fixed_candidates(candidates)
-    counts = first_picks(candidates, {k.key: 0.5 for k, _ in candidates})
-    single = counts.get("single", 0) / sum(counts.values())
-    assert 0.4 < single < 0.6, counts  # even between the two topics, not one in five
-
-
-def test_a_question_few_people_were_asked_is_lifted_against_one_everybody_answers(_fixed_candidates):
-    candidates = pool(("common", "common", "A view everyone was asked for."),
-                      ("rare", "rare", "A view hardly anyone was asked for."))
-    _fixed_candidates(candidates)
-    counts = first_picks(candidates, {"common": 0.9, "rare": 0.02})
-    assert counts.get("rare", 0) > counts.get("common", 0), counts
-
-
-def test_the_lift_can_be_turned_off_and_the_draw_goes_back_to_even(monkeypatch, _fixed_candidates):
-    monkeypatch.setattr(config, "QUESTION_RARITY", 0.0)
-    candidates = pool(("common", "common", "A view everyone was asked for."),
-                      ("rare", "rare", "A view hardly anyone was asked for."))
-    _fixed_candidates(candidates)
-    counts = first_picks(candidates, {"common": 0.9, "rare": 0.02})
-    share = counts.get("rare", 0) / sum(counts.values())
-    assert 0.4 < share < 0.6, counts
-
-
-def test_a_middling_answer_is_still_held_back(_fixed_candidates):
-    """The neutral penalty survives the reweighting: a fence-sitting answer says less."""
-    fence = "My local area gets more or less its fair share of government spending."
-    assert items.is_neutral(fence)
-    candidates = pool(("neutral", "neutral", fence), ("view", "view", "My local area gets nowhere near its fair share."))
-    _fixed_candidates(candidates)
-    counts = first_picks(candidates, {"neutral": 0.5, "view": 0.5})
-    assert counts.get("neutral", 0) < counts.get("view", 0) / 3, counts
-
-
-def test_rarity_is_the_tempered_inverse_of_how_often_an_item_can_be_said():
-    made = builder({"common": 0.64, "rare": 0.04})
-    assert made.rarity("common") == pytest.approx(1.25)  # (1/0.64) ** 0.5
-    assert made.rarity("rare") == pytest.approx(5.0)     # (1/0.04) ** 0.5
-    assert made.rarity("never measured") == 1.0          # nothing known, nothing changed
-
-
-def test_every_item_in_the_library_can_be_weighed():
-    """rarity() is asked for a key on every draw, so an unmeasured item must not blow up."""
-    made = builder({})
-    assert all(made.rarity(item.key) == 1.0 for item in items.ITEMS)
+def theme_totals(solved, which):
+    totals = collections.Counter()
+    for key, share in zip(solved["keys"], solved[which]):
+        totals[items.theme_of(items.ITEMS[[i.key for i in items.ITEMS].index(key)].topic)] += share
+    return totals
 
 
 # ---------------------------------------------------------------------------
-# The life paragraph draws from facts, not items, but the crowding-out is the same
+# The opinion draw
 
 
-def details(*specs):
-    """An extra-detail pool of (key, theme, sentence) triples, as extra_options returns."""
-    return [(key, theme, text) for key, theme, text in specs]
+def test_the_general_draw_hits_its_targets_in_every_nation(builder):
+    for country in (1, 2, 3):
+        solved = builder.solved[(country, "general")]
+        assert np.abs(solved["shares"] - solved["targets"]).max() < 1e-4, country
 
 
-def test_a_fact_almost_nobody_can_state_is_lifted_over_one_everybody_can(monkeypatch):
-    pool = details(("common", "other", "Something nearly everyone can say."),
-                   ("rare", "other", "Something hardly anyone can say."))
-    monkeypatch.setattr(persona, "extra_options", lambda *a, **k: list(pool))
-    rarity = {"common": 0.9, "rare": 0.02}.get
-    lift = lambda key: (1 / rarity(key)) ** config.QUESTION_RARITY  # noqa: E731
-    picked = collections.Counter()
-    for seed in range(400):
-        got = persona.extra_clauses(None, 1, random.Random(seed), None, lift, count=1)
-        picked[got[0][1]] += 1
-    assert picked["Something hardly anyone can say."] > picked["Something nearly everyone can say."], picked
+def test_a_subject_split_into_many_questions_no_longer_outweighs_the_rest(builder):
+    """Five value-battery items put to nearly everyone would take a third of a flat draw; now their theme takes its target."""
+    solved = builder.solved[(1, "general")]
+    flat, share = theme_totals(solved, "flat")["inequality"], theme_totals(solved, "shares")["inequality"]
+    assert flat > 0.3
+    assert share < flat / 2
 
 
-def test_two_details_are_two_different_facts(monkeypatch):
-    pool = details(("a", "other", "First fact."), ("b", "other", "Second fact."), ("c", "other", "Third fact."))
-    monkeypatch.setattr(persona, "extra_options", lambda *a, **k: list(pool))
-    for seed in range(50):
-        got = persona.extra_clauses(None, 1, random.Random(seed), None, None, count=2)
-        assert len(got) == 2 and got[0][1] != got[1][1], got
+def test_a_question_few_were_asked_is_lifted_but_only_to_the_cap(builder):
+    solved = builder.solved[(1, "general")]
+    shares, flat = theme_totals(solved, "shares"), theme_totals(solved, "flat")
+    assert shares["monarchy"] > flat["monarchy"]  # asked of 15%: lifted
+    rate = balance.per_draw_rate(config.MAX_APPEARANCE, DRAWS["general"])
+    offered = np.array([solved["offered"][k] for k in solved["keys"]])
+    assert (solved["shares"] / offered).max() <= rate + 1e-6  # and nothing past the cap
 
 
-def test_asking_for_more_details_than_exist_gives_what_there_is(monkeypatch):
-    monkeypatch.setattr(persona, "extra_options", lambda *a, **k: [("a", "other", "The only fact.")])
-    got = persona.extra_clauses(None, 1, random.Random(0), None, None, count=config.LIFE_DETAILS)
-    assert len(got) == 1
+def test_what_voters_name_as_most_important_gets_more_airtime(builder):
+    """The synthetic panel names immigration twice as often as anything else."""
+    targets = theme_totals(builder.solved[(1, "general")], "targets")
+    assert targets["immigration"] == max(targets.values())
+    assert builder.salience[1]["immigration"] > builder.salience[1]["environment"]
 
 
-def test_the_paragraph_carries_both_details(monkeypatch):
-    """With nothing else to say, two drawn details should both reach the sentence list."""
-    for name in ("housing_clause", "money_clause", "job_clause", "class_clause"):
-        monkeypatch.setattr(persona, name, lambda *a, **k: None)
-    monkeypatch.setattr(persona, "extra_options",
-                        lambda *a, **k: [("a", "other", "first fact"), ("b", "other", "second fact")])
-    monkeypatch.setattr(config, "LIFE_DETAILS", 2)
-    said = persona.life_paragraph(None, 1, random.Random(0)).plain()
-    assert said == "First fact. Second fact." or said == "Second fact. First fact.", said
+def test_a_nation_only_question_is_measured_among_that_nation_alone(builder):
+    """Asked of 95% of Scots, it must count as 95% available in Scotland - not 11%, its share of all of Britain."""
+    scottish = builder.solved[(2, "nation")]["offered"]
+    assert scottish["scotIndy"] == pytest.approx(0.95, abs=0.05)
+    assert (1, "nation", "scotIndy") not in builder.weights  # never measured, never weighted, in England
+
+
+def test_a_middling_answer_is_still_held_back(builder):
+    """The fence-sitting penalty survives the solved weights: within one person's pool it still counts a fifth."""
+    fence, view = items.middling("Taxes should stay about where they are."), "Taxes should come down a lot."
+    item = items.ITEMS[[i.key for i in items.ITEMS].index("taxSpend")]
+    picks = collections.Counter()
+    stub = ProfileBuilder.__new__(ProfileBuilder)
+    stub.weights = {}
+    original = items.candidate_statements
+    try:
+        for seed, text in enumerate([fence, view] * 400):
+            items.candidate_statements = lambda row, country, rng=None, text=text: [
+                (item, text), (items.ITEMS[[i.key for i in items.ITEMS].index("immigSelf")], "Fewer immigrants, please.")]
+            spans, _ = stub.pick_opinions(None, 1, random.Random(seed), None, count=1)
+            picks[(text is fence, spans[0].template == str(text))] += 1
+    finally:
+        items.candidate_statements = original
+    middling_rate = picks[(True, True)] / (picks[(True, True)] + picks[(True, False)])
+    view_rate = picks[(False, True)] / (picks[(False, True)] + picks[(False, False)])
+    assert middling_rate < view_rate / 2
+
+
+def test_each_middle_answer_is_marked_where_it_is_written():
+    """A phrase list used to decide this, and missed two of the three Israel-Palestine middles among others."""
+    for key, code in (("israelPalestine", 3), ("nationaliseUtilities", 3), ("taxSpend", 5), ("welfare", 3), ("devoPrefWales", 3)):
+        item = items.ITEMS[[i.key for i in items.ITEMS].index(key)]
+        wordings = item.phrase(code)
+        assert all(items.is_neutral(t) for t in (wordings if isinstance(wordings, tuple) else (wordings,))), key
+
+
+def test_a_rare_answer_appears_on_no_more_than_about_half_its_cards(panel, builder):
+    """Simulated: the zero-hours question (3% of the panel) is lifted, but not onto every card of those who answered it."""
+    rows = [row for _, row in panel.iterrows() if not np.isnan(row["zeroHourContractW27"]) and row["countryW31"] == 1][:40]
+    shown = 0
+    for n, row in enumerate(rows * 10):
+        spans, _ = builder.pick_opinions(row, 1, random.Random(n), None, count=config.MAX_OPINIONS)
+        shown += any("zero-hours" in s.template for s in spans)
+    assert shown / (len(rows) * 10) <= config.MAX_APPEARANCE + 0.1
+
+
+# ---------------------------------------------------------------------------
+# The life paragraph
+
+
+def test_traits_start_at_the_outer_tenth_of_the_panel(builder):
+    """Agreeableness in the made-up panel runs 12-20, so "not agreeable" starts at 12, not at a fixed 7 nobody reaches."""
+    assert builder.cuts["agreeableness"][0] == 12
+    low, high = builder.cuts["extraversion"]
+    assert low < 8 and high > 16
+
+
+def test_tail_cut_keeps_within_the_share_but_never_less_than_the_extreme():
+    scores = np.array([1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] * 10, dtype=float)
+    weights = np.ones(len(scores))
+    assert tail_cut(scores, weights, 0.10, low=False) == 10  # the top value alone is a tenth
+    assert tail_cut(scores, weights, 0.10, low=True) == 1    # the bottom value is 18%: still the one kept
+
+
+def test_a_trait_is_only_said_beyond_its_cut(monkeypatch):
+    answers = {"big_five_extraversion": 15}
+    monkeypatch.setattr(persona, "value", lambda row, col, max_valid=9000: answers.get(col))
+    monkeypatch.setattr(persona, "lv", lambda row, stem: None)
+    monkeypatch.setattr(persona, "raw_code", lambda row, col: None)
+    said = lambda cuts: {k for k, *_ in persona.circumstance_details(None, 1, random.Random(0), cuts)}  # noqa: E731
+    assert "extraversion-high" not in said(None)                              # 15 is short of the old fixed 17
+    assert "extraversion-high" in said({"extraversion": (6, 15)})             # but the panel's own top tenth starts at 15
+
+
+def test_money_being_much_the_same_is_held_back_not_dropped(monkeypatch):
+    """It used to vanish on a coin flip; now it is a middling answer like any other."""
+    monkeypatch.setattr(persona, "value", lambda row, col, max_valid=9000: {"econPersonalRetroW31": 3}.get(col))
+    said = {persona.money_clause(None, random.Random(seed)) for seed in range(40)}
+    assert None not in said
+
+
+def test_weighted_counts_a_middling_option_at_the_neutral_weight():
+    options = [("a", persona.Middling("a middling thing")), ("b", "a plain thing")]
+    picks = collections.Counter(persona.weighted(options, random.Random(seed))[0] for seed in range(3000))
+    assert picks["a"] / 3000 == pytest.approx(config.NEUTRAL_WEIGHT / (1 + config.NEUTRAL_WEIGHT), abs=0.03)
+
+
+def test_the_life_paragraph_keeps_to_its_line_budget(panel):
+    cards = build_profiles(panel, count=150, position=0, verbose=False, out_path=_tmp())
+    budget = config.LIFE_MAX_LINES * config.LIFE_CHARS_PER_LINE
+    longest = max(len(c["life"]["template"].format(**c["life"]["bold"])) for c in cards)
+    assert longest <= budget + 60  # home, money and work always stand; only the extra details answer to the budget
+
+
+def test_every_built_card_carries_the_generator_that_drew_it(panel):
+    cards = build_profiles(panel, count=40, position=0, verbose=False, out_path=_tmp())
+    assert {c["generator"] for c in cards} == {config.GENERATOR}
+    assert all(len(c["bubbles"]) == 4 for c in cards)
 
 
 def test_the_pools_are_always_lists_even_with_nothing_to_say(monkeypatch):
-    """A respondent who answered none of it must give an empty pool, not None.
-
-    The availability pass reads these pools directly, so a None here stops a build
-    dead - which is exactly what it did the first time this shipped.
-    """
+    """A respondent who answered none of it must give an empty pool, not None: the build reads these pools directly."""
     monkeypatch.setattr(persona, "value", lambda row, col, max_valid=9000: None)
     monkeypatch.setattr(persona, "lv", lambda row, stem: None)
     monkeypatch.setattr(persona, "latest", lambda row, cols, max_valid=9000: (None, None))
@@ -162,4 +184,10 @@ def test_the_pools_are_always_lists_even_with_nothing_to_say(monkeypatch):
     assert persona.extra_options(None, 1, rng) == []
     assert persona.circumstance_details(None, 1, rng) == []
     assert persona.extra_clauses(None, 1, rng, None, None, count=2) == []
-    assert persona.money_clause(None, rng) is None  # the sentence is still absent, as before
+    assert persona.money_clause(None, rng) is None
+
+
+def _tmp():
+    import tempfile
+    from pathlib import Path
+    return Path(tempfile.mkdtemp()) / "queue.jsonl.gz"

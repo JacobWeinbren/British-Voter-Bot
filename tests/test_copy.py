@@ -5,7 +5,7 @@ import re
 import pytest
 
 from voterbot import anonymise, codes, config, items, persona
-from voterbot.sample import load_profiles
+from voterbot.sample import load_profiles, wording_shares
 
 US_SPELLINGS = re.compile(
     r"\b(color|favorite|center|organization|neighbor|labor|defense|realize|analyze|honor|gray|traveled|fulfill|skeptic|mom)\b",
@@ -119,3 +119,21 @@ def test_no_queued_card_still_carries_retired_wording():
                 assert was not in span["template"], (was, card["id"])
             for pattern, _ in anonymise.RETIRED_PATTERNS:
                 assert not pattern.search(span["template"]), (pattern.pattern, card["id"])
+
+
+# ---------------------------------------------------------------------------
+# How often one wording comes round (config.MAX_WORDING_SHARE: twice a week at four cards a day)
+
+
+@pytest.mark.skipif(not config.PROFILES_PATH.exists(), reason="no queue built")
+def test_no_wording_comes_round_more_than_twice_a_week():
+    cards = [c for c in load_profiles() if c.get("generator") == config.GENERATOR]
+    if len(cards) < 5000:
+        pytest.skip("the queue predates this generator: rebuild it to measure")
+    over = {s: round(share, 3) for s, share in wording_shares(cards).items() if share > config.MAX_WORDING_SHARE}
+    assert not over, over
+
+
+def test_the_class_sentence_has_the_wordings_its_reach_needs():
+    """On seven cards in ten, it needs at least 0.7 / MAX_WORDING_SHARE wordings to keep to twice a week."""
+    assert len(codes.CLASS_TEMPLATES) >= 0.7 / config.MAX_WORDING_SHARE

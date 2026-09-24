@@ -14,7 +14,7 @@ import re
 
 import pytest
 
-from voterbot import config, geo, render
+from voterbot import config, geo
 from voterbot.brand import intro_html
 from voterbot.render import build_html, map_box, vote_steps
 from voterbot.sample import load_profiles

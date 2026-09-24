@@ -9,8 +9,10 @@ the target mix.
 
 from __future__ import annotations
 
+import collections
 import gzip
 import json
+import re
 from pathlib import Path
 
 import numpy as np
@@ -51,6 +53,10 @@ def build_profiles(panel: pd.DataFrame, count: int | None = config.PROFILE_COUNT
         position = read_position()
     pool = eligible_rows(panel).reset_index(drop=True)
     builder = ProfileBuilder(pool)
+    if verbose:
+        print("  draw weights solved per nation and draw (voterbot/balance.py):")
+        for line in builder.report:
+            print("    " + line)
     weights = card_weights(pool, builder, seed, verbose)
     minority = pd.to_numeric(pool["p_ethnicity2W31"], errors="coerce").ge(5).to_numpy()
     if verbose:
@@ -182,3 +188,20 @@ def read_position(path: Path = config.POSITION_PATH) -> int:
 def write_position(position: int, path: Path = config.POSITION_PATH) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(f"{position}\n")
+
+
+def wording_shares(profiles: list[dict]) -> dict[str, float]:
+    """The share of cards carrying each exact sentence (slots and numbers aside), by section.
+
+    What config.MAX_WORDING_SHARE caps: a wording on more than that share of cards comes round
+    more than twice a week at four cards a day.
+    """
+    seen: collections.Counter = collections.Counter()
+    for card in profiles:
+        on_card = set()
+        for kind, span in [("life", card["life"]), ("media", card.get("media"))] + [("bubble", b) for b in card["bubbles"]]:
+            for sentence in re.split(r"(?<=[.!?])\s+", span["template"]) if span else ():
+                on_card.add((kind, re.sub(r"\d[\d,]*", "N", re.sub(r"\{\w+\}", "{X}", sentence))))
+        seen.update(on_card)
+    return {f"[{kind}] {sentence}": n / len(profiles) for (kind, sentence), n in seen.items()} if profiles else {}
+

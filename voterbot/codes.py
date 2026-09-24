@@ -183,8 +183,12 @@ SECTOR = {
 
 # subjClass / subjClassSqueeze
 CLASS_ID = {1: "middle class", 2: "working class"}
+# The class sentence is on seven cards in ten, so it needs about ten wordings to come round no more
+# than twice a week (config.MAX_WORDING_SHARE).
 CLASS_TEMPLATES = ("I'd call myself {class_id}", "I think of myself as {class_id}", "I'm {class_id}, I'd say",
-                   "If you asked, I'd say I'm {class_id}", "Class-wise, I'd put myself down as {class_id}")
+                   "If you asked, I'd say I'm {class_id}", "Class-wise, I'd put myself down as {class_id}",
+                   "I see myself as {class_id}", "I'd describe myself as {class_id}", "In terms of class, I'm {class_id}",
+                   "I count myself as {class_id}", "When it comes to class, I'd say I'm {class_id}", "I consider myself {class_id}")
 
 # p_marital
 MARITAL = {

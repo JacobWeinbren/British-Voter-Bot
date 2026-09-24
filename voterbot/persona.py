@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 
 from . import codes, config, geo
 from .data import latest_value, latest, raw_code, text_value, value
+from .items import Middling
 
 
 @dataclass
@@ -20,6 +21,7 @@ class Span:
     """A sentence template with `{slot}` markers and the bold text for each slot."""
     template: str
     bold: dict[str, str] = field(default_factory=dict)
+    key: str | None = None  # for an opinion bubble, the item it came from (kept on the card for `stats`)
 
     def plain(self) -> str:
         return self.template.format(**self.bold)
@@ -30,8 +32,11 @@ class Span:
 
 # Alternative wordings for fixed sentences - each as faithful to the question as the original.
 # Picked per card with the card's seed, so the same person reads differently on a return visit.
+# How many a sentence needs depends on how many cards carry it: at four cards a day no one wording
+# should come round more than twice a week (config.MAX_WORDING_SHARE), so a fact on most cards
+# needs many and a fact on a few needs none.
 VARIANTS: dict[str, tuple[str, ...]] = {
-    "I own my home outright": ("I own my home, mortgage-free", "There's no mortgage on my home - I own it outright", "My home is bought and paid for, no mortgage"),
+    "I own my home outright": ("I own my home, mortgage-free", "There's no mortgage on my home - I own it outright", "My home is bought and paid for, no mortgage", "My home's fully paid off"),
     "I'm paying off a mortgage": ("I've got a mortgage on my home", "I own my home with a mortgage", "I'm still paying the mortgage on my place"),
     "I rent privately": ("I rent from a private landlord", "I'm a private tenant", "The place I live in is a private rental"),
     "I rent from the council": ("I'm a council tenant", "I live in council housing", "My landlord is the council"),
@@ -62,7 +67,7 @@ VARIANTS: dict[str, tuple[str, ...]] = {
     "I don't pay much attention to politics": ("Politics mostly passes me by", "I don't really keep up with politics", "I take very little notice of politics"),
     "I don't follow the news about politics at all": ("I don't follow political news at all", "I don't take in any news about politics", "I don't keep up with political news in any way"),
     "The paper I read most is my local daily.": ("My paper is the local daily.", "The local daily is the paper I read most often.", "I read the local daily paper more than any other."),
-    "The paper I read most is {paper}.": ("My paper is {paper}.", "I read {paper} more than any other paper.", "The daily paper I read most often is {paper}.", "When it comes to papers, I mostly read {paper}."),
+    "The paper I read most is {paper}.": ("My paper is {paper}.", "I read {paper} more than any other paper.", "The daily paper I read most often is {paper}.", "When it comes to papers, I mostly read {paper}.", "The paper I pick up most is {paper}."),
 }
 
 
@@ -77,18 +82,16 @@ def one_of(rng: random.Random | None, *wordings: str) -> str:
     return rng.choice(wordings) if rng and len(wordings) > 1 else wordings[0]
 
 
-def weighted(options, rng: random.Random, rarity):
-    """One option from a pool, lifting the ones few respondents could offer at all.
+def weighted(options, rng: random.Random, weigh=None):
+    """One option from a pool of (key, ..., text) tuples, by the weight solved for its key.
 
-    The same correction the opinion bubbles get (ProfileBuilder.pick_opinions): a fact
-    nearly everyone can state - a housing tenure, an income band - sits in almost every
-    pool and would otherwise crowd out one only a handful of people can state, purely by
-    turning up more often. Each option carries a key naming the fact; `rarity` maps that
-    key to how much to lift it. With no rarity to hand the draw is flat, as it was.
+    `weigh(key)` gives the weight the build solved for (voterbot/balance.py), so that facts nearly
+    everyone can state - a housing tenure, an income band - do not crowd out the ones only a few
+    can. A middling answer counts at config.NEUTRAL_WEIGHT. With nothing to weigh by, the draw is flat.
     """
-    if rarity is None:
-        return rng.choice(options)
-    return rng.choices(options, weights=[rarity(option[0]) for option in options], k=1)[0]
+    weights = [(weigh(option[0]) if weigh else 1.0) * (config.NEUTRAL_WEIGHT if isinstance(option[-1], Middling) else 1.0)
+               for option in options]
+    return rng.choices(options, weights=weights, k=1)[0]
 
 
 def lv(row, stem: str):
@@ -239,7 +242,7 @@ def money_options(row, rng: random.Random) -> list[tuple[str, str]]:
         add("money-past-year", {
             1: "money has got a lot tighter this past year",
             2: "money has got a bit tighter this past year",
-            3: "money is much the same as it was a year ago",
+            3: Middling("money is much the same as it was a year ago"),  # nothing much to say: drawn at config.NEUTRAL_WEIGHT
             4: "money has got a little easier this past year",
             5: "money has got a lot easier this past year",
         }[int(retro)])
@@ -277,19 +280,17 @@ def money_options(row, rng: random.Random) -> list[tuple[str, str]]:
     return options
 
 
-def money_clause(row, rng: random.Random, rarity=None) -> str | None:
+def money_clause(row, rng: random.Random, weigh=None) -> str | None:
     """The most telling thing their answers say about money, in one clause."""
     options = money_options(row, rng)
     if not options:
         return None
-    # hardship signals first; otherwise let chance pick among the rest for variety
+    # hardship signals first; otherwise the solved weights pick among the rest
     for _key, hard in options[:2]:
         if hard.startswith(("I've had to borrow", "an unexpected")):
             return vary(hard, rng)
-    _key, choice = weighted(options, rng, rarity)
-    if choice.startswith("money is much the same") and rng.random() < 0.5:
-        return None  # nothing much to say - leave it out half the time
-    return vary(choice, rng)
+    _key, choice = weighted(options, rng, weigh)
+    return vary(str(choice), rng)
 
 
 def job_clause(row, rng: random.Random) -> str | None:
@@ -339,7 +340,7 @@ def job_clause(row, rng: random.Random) -> str | None:
             return one_of(rng, "I'm retired and never had a paid job", "I'm retired, and I was never in paid work", "I'm retired now and never had a paid job in my life")
         if not job:
             return one_of(rng, "I'm retired", "I've retired", "I'm retired now")
-        frame = rng.choice((one_of(rng, "I'm retired - before that I {past}", "I'm retired - in my working days I {past}", "Before I retired, I {past}"), one_of(rng, "I'm retired now. In my working life I {past}", "I'm retired now. Back when I was working, I {past}", "These days, I'm retired, but when I was working I {past}")))
+        frame = rng.choice((one_of(rng, "I'm retired - before that I {past}", "I'm retired - in my working days I {past}", "Before I retired, I {past}"), one_of(rng, "I'm retired these days. In my working life I {past}", "I'm retired now. Back when I was working, I {past}", "These days, I'm retired, but when I was working I {past}")))
         return frame.format(past=describe(job, tense_past=True))
     if status == 4:
         if nssec == codes.NSSEC_NEVER_WORKED:
@@ -378,7 +379,16 @@ def class_clause(row, rng: random.Random) -> tuple[str, str | None] | None:
     return None
 
 
-def extra_options(row, country: int, rng: random.Random, seat: str | None = None) -> list[tuple[str, str, str]]:
+# Where a personality or risk score counts as a trait worth saying: (at or below, at or above).
+# The build replaces these with the panel's own outer tenth either side (config.TRAIT_TAIL); these
+# are the fixed cut-offs used before, kept for anything run without a panel to measure.
+TRAIT_CUTS = {"extraversion": (7, 17), "neuroticism": (7, 17), "openness": (7, 17), "conscientiousness": (7, 17),
+              "agreeableness": (7, 17), "risk": (2, 12)}
+TRAIT_COLUMNS = {**{trait: f"big_five_{trait}" for trait in ("extraversion", "neuroticism", "openness", "conscientiousness", "agreeableness")},
+                 "risk": "riskScaleW20"}
+
+
+def extra_options(row, country: int, rng: random.Random, seat: str | None = None, cuts: dict | None = None) -> list[tuple[str, str, str]]:
     """Every human detail they told us, as (key naming the fact, theme, sentence)."""
     options: list[tuple[str, str, str]] = []
     marital = value(row, "p_maritalW31")
@@ -435,7 +445,7 @@ def extra_options(row, country: int, rng: random.Random, seat: str | None = None
             options.append(("worship-monthly", "other", one_of(rng, f"I get to {place} most months", f"I'm at {place} at least once a month", f"I go to {place} once or twice a month")))
     if lv(row, "sickElderlyInHouse") == 1:
         options.append(("cares-at-home", "other", one_of(rng, "I look after a sick or elderly relative at home", "There's a sick or elderly relative living with me that I care for", "I care for a sick or elderly relative who lives with me")))
-    options += circumstance_details(row, country, rng)
+    options += circumstance_details(row, country, rng, cuts)
     disability = value(row, "p_disabilityW31")
     if disability == 1:
         options.append(("disability-a-lot", "other", one_of(rng, "I have a disability that limits my day-to-day life a lot", "a health problem or disability limits a lot of what I can do day to day", "My day-to-day activities are limited a lot by a disability")))
@@ -467,19 +477,20 @@ def extra_options(row, country: int, rng: random.Random, seat: str | None = None
 
 
 def extra_clauses(row, country: int, rng: random.Random, seat: str | None = None,
-                  rarity=None, count: int = 1) -> list[tuple[str, str]]:
+                  weigh=None, count: int = 1, cuts: dict | None = None) -> list[tuple[str, str]]:
     """Up to `count` human details from what they told us, each a different fact, tagged by theme."""
-    options = extra_options(row, country, rng, seat)
+    options = extra_options(row, country, rng, seat, cuts)
     chosen: list[tuple[str, str]] = []
     while options and len(chosen) < count:
-        key, theme, text = weighted(options, rng, rarity)
+        key, theme, text = weighted(options, rng, weigh)
         options = [option for option in options if option[0] != key]
         chosen.append((theme, vary(text, rng)))
     return chosen
 
 
-def circumstance_details(row, country: int, rng: random.Random) -> list[tuple[str, str, str]]:
+def circumstance_details(row, country: int, rng: random.Random, cuts: dict | None = None) -> list[tuple[str, str, str]]:
     """The smaller facts of a life that the survey happens to record, keyed and tagged home / money / other."""
+    cuts = {**TRAIT_CUTS, **(cuts or {})}
     options: list[tuple[str, str, str]] = []
     alone = value(row, "p_hh_sizeW31") == 1  # "my household income" and "I've got two bedrooms" for a one-person household
     our, we_have = ("my", "I've got") if alone else ("our", "we've got")
@@ -574,21 +585,22 @@ def circumstance_details(row, country: int, rng: random.Random) -> list[tuple[st
             options.append((col, "other", text))
 
     risk = value(row, "riskScaleW20")
-    if risk is not None and risk <= 2:
+    if risk is not None and risk <= cuts["risk"][0]:
         options.append(("risk-averse", "other", one_of(rng, "I'd take a sure thing over a gamble every time", "Give me a guaranteed payment over a gamble any day", "I'll always go for the safe bet rather than a gamble")))
-    elif risk is not None and risk >= 12:
+    elif risk is not None and risk >= cuts["risk"][1]:
         options.append(("risk-taking", "other", one_of(rng, "I'd take a gamble over a sure thing", "I'd rather take my chances than settle for a sure thing", "I'll gamble rather than take the safe option")))
-    # Mini-IPIP personality items: life of the party / keep in the background; mood swings / relaxed;
-    # vivid imagination and abstract ideas; chores done right away and liking order; sympathy for others
+    # Mini-IPIP personality scores (4-20): life of the party / keep in the background; mood swings / relaxed;
+    # vivid imagination and abstract ideas; chores done right away and liking order; sympathy for others.
+    # Each is said only at the ends of the panel's own spread (cuts, from config.TRAIT_TAIL).
     for trait, high, low in (("extraversion", one_of(rng, "I'm an extrovert", "I'd describe myself as an extrovert", "I'm an outgoing sort of person"), one_of(rng, "I'm an introvert", "I'd describe myself as an introvert", "I'm the sort who keeps in the background")),
                              ("neuroticism", one_of(rng, "I'm a worrier", "I'm someone who worries a lot", "I'd say I'm a worrier by nature"), one_of(rng, "not much rattles me", "I'm pretty relaxed most of the time", "I don't get rattled easily")),
                              ("openness", one_of(rng, "I've a vivid imagination and a taste for abstract ideas", "I've got a vivid imagination and I like abstract ideas", "I'm imaginative, and I enjoy getting into abstract ideas"), None),
                              ("conscientiousness", one_of(rng, "I'm organised and tidy", "I keep things tidy and organised", "I'm a tidy, organised person"), one_of(rng, "I'm not the tidiest or most organised person", "I'm not very tidy or organised", "Being organised and tidy isn't my strong point")),
                              ("agreeableness", one_of(rng, "I'm the sympathetic sort", "I'd describe myself as a sympathetic person", "I'm someone who feels for other people"), None)):
         score = value(row, f"big_five_{trait}", max_valid=21)
-        if score is not None and score >= 17 and high:
+        if score is not None and score >= cuts[trait][1] and high:
             options.append((f"{trait}-high", "other", high))
-        elif score is not None and score <= 7 and low:
+        elif score is not None and score <= cuts[trait][0] and low:
             options.append((f"{trait}-low", "other", low))
 
     first_home = lv(row, "buyHouseYear")
@@ -673,7 +685,7 @@ def join_clauses(first: str, second: str) -> str:
     return first + ", and " + second
 
 
-def life_paragraph(row, country: int, rng: random.Random, seat: str | None = None, rarity=None) -> Span:
+def life_paragraph(row, country: int, rng: random.Random, seat: str | None = None, weigh=None, cuts: dict | None = None) -> Span:
     """Home, money, work, a couple of extra details, then class - each detail kept to its own theme.
 
     A description of the home itself (what it is worth, the bedrooms, when they
@@ -683,15 +695,18 @@ def life_paragraph(row, country: int, rng: random.Random, seat: str | None = Non
     its own after work, so two unrelated thoughts are never run together.
 
     config.LIFE_DETAILS says how many details to draw. Those that join an existing
-    sentence are free; a detail that would stand on its own only lands while the
-    paragraph is still short enough to carry it, which is what keeps a card from
-    filling up with them.
+    sentence are free; a detail that would stand on its own lands only if the whole
+    paragraph, class included, still fits in config.LIFE_MAX_LINES lines as drawn.
+    `weigh(group, key)` gives the solved weights for the "money" and "details" draws.
     """
     bold: dict[str, str] = {}
     home = housing_clause(row, rng)
-    money = money_clause(row, rng, rarity)
+    money = money_clause(row, rng, (lambda key: weigh("money", key)) if weigh else None)
     work = job_clause(row, rng)
-    details = extra_clauses(row, country, rng, seat, rarity, count=config.LIFE_DETAILS)
+    details = extra_clauses(row, country, rng, seat, (lambda key: weigh("details", key)) if weigh else None,
+                            count=config.LIFE_DETAILS, cuts=cuts)
+    cls = class_clause(row, rng)
+    closing = (cls[0].format(class_id=cls[1]) if cls[1] else cls[0]) if cls else ""
     take = lambda theme: next((d for d in details if d[0] == theme), None)  # noqa: E731
     sentences: list[str] = []
     about_home = take("home")
@@ -708,11 +723,11 @@ def life_paragraph(row, country: int, rng: random.Random, seat: str | None = Non
         sentences.append(money)
     if work:
         sentences.append(work)
+    budget = config.LIFE_MAX_LINES * config.LIFE_CHARS_PER_LINE
     for _theme, detail in details:
-        if sum(len(s) for s in sentences) < 190:
+        if sum(len(s) + 2 for s in sentences + [detail, closing]) <= budget:
             sentences.append(detail)
     # Class comes last, as the closing thought after the facts of their life.
-    cls = class_clause(row, rng)
     if cls:
         template, class_id = cls
         if class_id:
@@ -837,8 +852,8 @@ def media_paragraph(row, country: int, rng: random.Random | None = None) -> Span
     if talk:
         sentences.append(talk + ".")
     shared = shared_content(row, bold, rng)
-    if shared and sum(len(s) for s in sentences) < 200:  # keep the paragraph to a few lines
-        sentences.append(shared)
+    if shared and sum(len(s) + 1 for s in sentences + [shared]) <= config.MEDIA_MAX_LINES * config.MEDIA_CHARS_PER_LINE:
+        sentences.append(shared)  # only while the paragraph still fits its line budget
     if not sentences:
         return None
     return Span(" ".join(sentences), bold)
@@ -947,14 +962,15 @@ def leader_bubble(row, country: int, intention_party: int | None, rng: random.Ra
     best_name, worst_name = codes.LEADERS[best][0], codes.LEADERS[worst][0]
     bold = {"best": best_name, "worst": worst_name}
     if top <= 5:
-        return Span(rng.choice((one_of(rng, "I don't much like any of the leaders - {best} comes closest. My least favourite is {worst}.", "I'm not keen on any of the leaders, though {best} is the nearest to it. {worst} is my least favourite.", "I don't think much of any of the leaders - {best} is the best of a bad lot, {worst} the worst."),
+        return Span(rng.choice((one_of(rng, "I don't much like any of the leaders - {best} comes closest. The one I like least is {worst}.", "I'm not keen on any of the leaders, though {best} is the nearest to it. {worst} is my least favourite.", "I don't think much of any of the leaders - {best} is the best of a bad lot, {worst} the worst."),
                                 one_of(rng, "None of the leaders does much for me. {best} comes closest; {worst} comes last.", "I've not got much time for any of the leaders. {best} comes nearest; {worst} is bottom of the pile.", "None of the leaders really does it for me - {best} comes closest, and {worst} is last."))), bold)
     if bottom >= 5:
         return Span(rng.choice((one_of(rng, "I quite like all the leaders, {best} most of all. {worst} is my least favourite.", "I'm fairly keen on all the leaders, with {best} top of the list and {worst} at the bottom.", "There's none of the leaders I dislike - {best} is my favourite, {worst} my least favourite."),
                                 one_of(rng, "I've a fair amount of time for all the leaders - {best} most, {worst} least.", "I've got some time for every one of the leaders, though {best} comes first and {worst} last.", "None of the leaders is bad in my book - I'd rank {best} highest and {worst} lowest."))), bold)
     return Span(rng.choice((one_of(rng, "My favourite leader is {best}. My least favourite is {worst}.", "Out of all the leaders, {best} is the one I like best, and {worst} the one I like least.", "Top of the leaders for me is {best}, bottom is {worst}."),
                             one_of(rng, "Of the party leaders, I like {best} most and {worst} least.", "When it comes to the party leaders, {best} is my pick and {worst} is my least favourite.", "I rate {best} highest of the party leaders and {worst} lowest."),
-                            one_of(rng, "{best} is my favourite of the party leaders; {worst} is my least favourite.", "{best} is the leader I've most time for, {worst} the one I've least time for.", "If I had to rank the party leaders, {best} would be first and {worst} last."))), bold)
+                            one_of(rng, "{best} is my favourite of the party leaders; {worst} is my least favourite.", "{best} is the leader I've most time for, {worst} the one I've least time for.", "If I had to rank the party leaders, {best} would be first and {worst} last."),
+                            one_of(rng, "Among the party leaders, I like {best} most and {worst} least.", "{best} comes top of the party leaders for me, and {worst} comes bottom.", "The leader I think most of is {best}; the one I think least of is {worst}."))), bold)
 
 
 def vote_2024(row) -> tuple[str | None, str] | None:

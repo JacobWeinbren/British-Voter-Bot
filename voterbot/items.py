@@ -4,8 +4,8 @@ Each `Item` knows which columns hold the answer (most recent wave first), which
 nations it applies to, a topic (so one card never carries two bubbles on the
 same subject) and how to phrase each answer. Middling answers either return
 None or read as an explicit mixed verdict; either way a clear view comes
-first - fence-sitting statements are drawn at NEUTRAL_WEIGHT, because surveys
-nudge people towards the middle option.
+first - fence-sitting statements (marked with middling()) are drawn at
+config.NEUTRAL_WEIGHT, because surveys nudge people towards the middle option.
 
 House style: UK spelling, plain hyphens, short sentences, no more than about
 90 characters, and nothing a real person would not say out loud.
@@ -63,13 +63,30 @@ def _stem(column: str) -> str:
 # Phrasing helpers
 
 
+class Middling(str):
+    """A fence-sitting answer - the middle of a scale, "about right", "neither well nor badly".
+
+    Marked where the wording is written, so the draw can tell (is_neutral) without guessing from
+    the words: a phrase list misses every new way of saying the middle.
+    """
+
+
+def middling(texts):
+    """Mark a wording, or a tuple of wordings, as the middle answer. None stays None."""
+    if texts is None:
+        return None
+    if isinstance(texts, tuple):
+        return tuple(Middling(t) for t in texts)
+    return Middling(texts)
+
+
 def by_code(mapping: dict[int, str]) -> Phraser:
     return lambda answer: mapping.get(int(answer))
 
 
 def agree5(strong_agree: str, agree: str, disagree: str, strong_disagree: str, neither: str | None = None) -> Phraser:
     """Five-point agree scale: 1 strongly disagree ... 5 strongly agree."""
-    return by_code({5: strong_agree, 4: agree, 3: neither, 2: disagree, 1: strong_disagree})
+    return by_code({5: strong_agree, 4: agree, 3: middling(neither), 2: disagree, 1: strong_disagree})
 
 
 def scale11(low_strong: str, low_lean: str, high_lean: str, high_strong: str, middle: str | None = None) -> Phraser:
@@ -81,7 +98,7 @@ def scale11(low_strong: str, low_lean: str, high_lean: str, high_strong: str, mi
         if n <= 4:
             return low_lean
         if n == 5:
-            return middle
+            return middling(middle)
         if n <= 7:
             return high_lean
         return high_strong
@@ -90,7 +107,7 @@ def scale11(low_strong: str, low_lean: str, high_lean: str, high_strong: str, mi
 
 def too_far5(much_too_far: str, too_far: str, about_right: str, not_far_enough: str, nowhere_near: str) -> Phraser:
     """'Gone too far' scale: 1 not nearly far enough ... 5 gone much too far."""
-    return by_code({5: much_too_far, 4: too_far, 3: about_right, 2: not_far_enough, 1: nowhere_near})
+    return by_code({5: much_too_far, 4: too_far, 3: middling(about_right), 2: not_far_enough, 1: nowhere_near})
 
 
 def worse_better5(lot_worse: str, little_worse: str, little_better: str, lot_better: str) -> Phraser:
@@ -117,8 +134,8 @@ def fair_share5(who: str, of_what: str = "from the Union") -> Phraser:
             f"{who} is badly short-changed when it comes to its fair share {of_what}."),
         2: (f"{who} gets a little less than its fair share {of_what}.", f"{who} doesn't quite get its fair share {of_what}.",
             f"{who} gets a bit less than its fair share {of_what}."),
-        3: (f"{who} gets more or less its fair share {of_what}.", f"On the whole, {mid} gets more or less its fair share {of_what}.",
-            f"I'd say {mid} gets more or less its fair share {of_what}."),
+        3: middling((f"{who} gets more or less its fair share {of_what}.", f"On the whole, {mid} gets more or less its fair share {of_what}.",
+            f"I'd say {mid} gets more or less its fair share {of_what}.")),
         4: (f"{who} gets a little more than its fair share {of_what}.", f"{who} gets a bit more than its fair share {of_what}.",
             f"{who} does slightly better than its fair share {of_what}."),
         5: (f"{who} gets much more than its fair share {of_what}.", f"{who} gets far more than its fair share {of_what}.",
@@ -179,7 +196,7 @@ def identity_statement(row, country: int) -> str | None:
         return (f"I feel more {adjective} than British.", f"I'd say I'm more {adjective} than British.", f"I feel {adjective} more than I feel British.")
     if gap == 0:
         if nation >= 6:
-            return (f"I feel strongly {adjective} and strongly British, in equal measure.", f"I'm strongly {adjective} and strongly British, in equal measure.", f"I feel very {adjective} and very British, in equal measure.")
+            return middling((f"I feel strongly {adjective} and strongly British, in equal measure.", f"I'm strongly {adjective} and strongly British, in equal measure.", f"I feel very {adjective} and very British, in equal measure."))
         if nation <= 2:
             return (f"I don't feel especially {adjective} or British.", f"I don't feel particularly {adjective} or particularly British.", f"Being {adjective} or British isn't a big part of how I see myself.")
         return None  # middling and equal: nothing worth a bubble
@@ -349,7 +366,7 @@ def brexit_effect5(what: str) -> Phraser:
     return by_code({
         1: (f"Brexit has made {what} much worse.", f"{cap} {be} much worse because of Brexit.", f"Brexit has done {what} a great deal of harm."),
         2: (f"Brexit has made {what} worse.", f"{cap} {be} worse because of Brexit.", f"Brexit has done {what} harm."),
-        3: (f"Brexit hasn't made much difference to {what}.", f"{cap} {be} about the same as before Brexit.", f"Brexit has left {what} about where {'they were' if pl else 'it was'}."),
+        3: middling((f"Brexit hasn't made much difference to {what}.", f"{cap} {be} about the same as before Brexit.", f"Brexit has left {what} about where {'they were' if pl else 'it was'}.")),
         4: (f"Brexit has made {what} better.", f"{cap} {be} better because of Brexit.", f"Brexit has done {what} good."),
         5: (f"Brexit has made {what} much better.", f"{cap} {be} much better because of Brexit.", f"Brexit has done {what} a great deal of good."),
     })
@@ -362,7 +379,7 @@ def remain_effect5(what: str) -> Phraser:
     return by_code({
         1: (f"If Britain had stayed in the EU, {what} {be} much worse.", f"Had we stayed in the EU, {what} {be} a lot worse.", f"Staying in the EU would have left {what} much worse off."),
         2: (f"If Britain had stayed in the EU, {what} {be} worse.", f"Had we stayed in the EU, {what} {be} worse.", f"Staying in the EU would have left {what} worse off."),
-        3: (f"If Britain had stayed in the EU, {what} {be} about the same.", f"Staying in the EU would have made little difference to {what}.", f"Had we stayed in the EU, {what} {be} much as {'they are' if pl else 'it is'} now."),
+        3: middling((f"If Britain had stayed in the EU, {what} {be} about the same.", f"Staying in the EU would have made little difference to {what}.", f"Had we stayed in the EU, {what} {be} much as {'they are' if pl else 'it is'} now.")),
         4: (f"If Britain had stayed in the EU, {what} {be} better.", f"Had we stayed in the EU, {what} {be} better.", f"Staying in the EU would have left {what} better off."),
         5: (f"If Britain had stayed in the EU, {what} {be} much better.", f"Had we stayed in the EU, {what} {be} a lot better.", f"Staying in the EU would have left {what} much better off."),
     })
@@ -375,7 +392,7 @@ def globalisation5(what: str) -> Phraser:
     return by_code({
         1: (f"{cap} {has} been mainly bad for Britain.", f"On the whole, {what} {has} been a bad thing for Britain.", f"{cap} {does} Britain more harm than good, by a long way."),
         2: (f"{cap} {has} been slightly more bad than good for Britain.", f"On balance, {what} {has} done Britain a bit more harm than good.", f"{cap} {be} a little more of a bad thing than a good thing for Britain."),
-        3: (f"{cap} {has} been good and bad for Britain in equal measure.", f"{cap} {has} done Britain good and harm in equal measure."),
+        3: middling((f"{cap} {has} been good and bad for Britain in equal measure.", f"{cap} {has} done Britain good and harm in equal measure.")),
         4: (f"{cap} {has} been slightly more good than bad for Britain.", f"On balance, {what} {has} done Britain a bit more good than harm.", f"{cap} {be} a little more of a good thing than a bad thing for Britain."),
         5: (f"{cap} {has} been mainly good for Britain.", f"On the whole, {what} {has} been a good thing for Britain.", f"{cap} {does} Britain far more good than harm."),
     })
@@ -410,13 +427,15 @@ def impact_item(cols: tuple[str, ...], lot_damage: str, some_damage: str, good: 
                 very_good: str | tuple[str, ...] | None, mixed: str | tuple[str, ...] | None = None) -> Callable:
     """BES economic-impact scale, 0 (large negative impact) to 100 (large positive).
 
-    The middle (41-59) reads as the `mixed` wordings, which is_neutral() picks up
-    so they are drawn at NEUTRAL_WEIGHT. A band passed as None stays unspoken:
+    The middle (41-59) reads as the `mixed` wordings, marked middling so they are
+    drawn at config.NEUTRAL_WEIGHT. A band passed as None stays unspoken:
     the conflicts items do this for their positive side, where a high score reads
     as a signal against Ukraine rather than a belief that wars help the economy.
     Someone who gave the identical answer to every item in the grid is skipped -
     that is a straight-liner, not a view.
     """
+    mixed = middling(mixed)
+
     def custom(row, country: int) -> str | None:
         answer, col = latest(row, cols)
         if answer is None:
@@ -511,7 +530,7 @@ def gone_too_far_item(what: str) -> Phraser:
     return by_code({
         1: (f"{cap} haven't gone nearly far enough.", f"There's a long way still to go on {what}.", f"{cap} have a very long way to go yet."),
         2: (f"{cap} haven't gone far enough.", f"There's further to go on {what}.", f"{cap} need to go further."),
-        3: (f"{cap} are about right.", f"Things are about right on {what}.", f"{cap} are about where they should be, as far as I'm concerned."),
+        3: middling((f"{cap} are about right.", f"Things are about right on {what}.", f"{cap} are about where they should be, as far as I'm concerned.")),
         4: (f"{cap} have gone too far.", f"Things have gone too far on {what}.", f"{cap} have been pushed too far."),
         5: (f"{cap} have gone much too far.", f"Things have gone much too far on {what}.", f"{cap} have been pushed much too far."),
     })
@@ -644,7 +663,7 @@ ITEMS: list[Item] = [
                       "Families on benefits get much more than they should."),
                   2: ("Families on welfare get too much money.", "Welfare payments to families are too high.",
                       "Families on benefits get more than they should."),
-                  3: ("The money families on welfare get is about right.", "Welfare payments to families are about right."),
+                  3: middling(("The money families on welfare get is about right.", "Welfare payments to families are about right.")),
                   4: ("Families on welfare get too little money.", "Welfare payments to families are too low.",
                       "Families on benefits get less than they should."),
                   5: ("Families on welfare get far too little money.", "Welfare payments to families are much too low.",
@@ -750,7 +769,7 @@ ITEMS: list[Item] = [
     Item("israelPalestine", "israel-palestine", ("israelPalestineW31", "israelPalestineW28"),
          by_code({1: ("My sympathies lie firmly with Israel over the Palestinians.", "I sympathise much more with the Israeli side than the Palestinian side.", "On Israel and Palestine, I'm very much on Israel's side."),
                   2: ("I sympathise a little more with the Israeli side.", "My sympathies lean slightly towards Israel.", "On Israel and Palestine, I'm a little more on the Israeli side."),
-                  3: ("On Israel and Palestine, I don't take either side.", "I don't favour either side over the other on Israel and Palestine.", "On Israel and Palestine, I sympathise with neither side more than the other."),
+                  3: middling(("On Israel and Palestine, I don't take either side.", "I don't favour either side over the other on Israel and Palestine.", "On Israel and Palestine, I sympathise with neither side more than the other.")),
                   4: ("I sympathise a little more with the Palestinian side.", "My sympathies lean slightly towards the Palestinians.", "On Israel and Palestine, I'm a little more on the Palestinian side."),
                   5: ("My sympathies lie firmly with the Palestinians.", "I sympathise much more with the Palestinian side than the Israeli side.", "On Israel and Palestine, I'm very much on the Palestinians' side.")})),
     Item("happyTrump", "trump", ("happyTrumpW31", "happyTrumpW30"),
@@ -832,7 +851,7 @@ ITEMS: list[Item] = [
          agree5(("Britain should stop all overseas aid spending, every penny of it.", "I strongly believe Britain should stop all overseas aid spending.", "Britain should end overseas aid spending completely, not a penny more."), ("Britain should stop spending on overseas aid.", "I think Britain should stop all government spending on overseas aid.", "I'd end Britain's overseas aid spending."),
                 ("Britain should keep spending on overseas aid.", "I don't think Britain should stop spending on overseas aid.", "I'd keep the overseas aid spending going."), ("Cutting overseas aid to nothing would be shameful.", "I strongly disagree with stopping all overseas aid spending.", "Britain should definitely not stop spending on overseas aid."))),
     Item("natSecuritySpending", "defence", ("natSecuritySpendingW30", "natSecuritySpendingW25"),
-         by_code({5: ("Britain should spend a lot more on defence.", "I'd spend a lot more on defence.", "The government should be putting a lot more money into defence."), 4: ("I'd spend a bit more on defence.", "The government should spend somewhat more on defence.", "I'd put a little more money into defence."), 3: ("Defence spending is about right.", "I think the amount we spend on defence is about right.", "Defence spending is about right as it is, so I'd keep it the same."),
+         by_code({5: ("Britain should spend a lot more on defence.", "I'd spend a lot more on defence.", "The government should be putting a lot more money into defence."), 4: ("I'd spend a bit more on defence.", "The government should spend somewhat more on defence.", "I'd put a little more money into defence."), 3: middling(("Defence spending is about right.", "I think the amount we spend on defence is about right.", "Defence spending is about right as it is, so I'd keep it the same.")),
                   2: ("I'd spend a bit less on defence.", "The government should spend somewhat less on defence.", "I'd trim defence spending a little."), 1: ("Britain should spend a lot less on defence.", "I'd cut defence spending by a lot.", "The government should spend a lot less on defence.")})),
     Item("renationaliseRail", "nationalisation", ("renationaliseRailW26",),
          agree5(("Bringing the railways back into public ownership is right, and about time too.", "I strongly believe Britain should renationalise the railways.", "The railways absolutely should be back in public ownership."), ("Bringing the railways back into public ownership is the right thing to do.", "I think Britain should renationalise the railways.", "I support bringing the railways back into public ownership."),
@@ -840,7 +859,7 @@ ITEMS: list[Item] = [
     Item("nationaliseUtilities", "nationalisation", ("nationalizeUtilitiesW26",),
          by_code({1: ("Gas, electricity and water should be run entirely by the public sector.", "Gas, electricity and water should be completely in public hands.", "I think the public sector alone should provide gas, electricity and water."),
                   2: ("Gas, electricity and water should be mostly in public hands.", "Gas, electricity and water should be provided mostly by the public sector.", "I'd have the public sector running most of our gas, electricity and water."),
-                  3: ("Gas, electricity and water should be a mix of public and private.", "Gas, electricity and water should be provided equally by the public and private sectors.", "I'd split gas, electricity and water evenly between public and private."),
+                  3: middling(("Gas, electricity and water should be a mix of public and private.", "Gas, electricity and water should be provided equally by the public and private sectors.", "I'd split gas, electricity and water evenly between public and private.")),
                   4: ("Gas, electricity and water should be mostly run by private firms.", "Gas, electricity and water should be provided mostly by the private sector.", "I'd have private companies running most of our gas, electricity and water."),
                   5: ("Gas, electricity and water should be run entirely by private firms.", "Gas, electricity and water should be completely in private hands.", "I think the private sector alone should provide gas, electricity and water.")})),
     Item("nationaliseHospitals", "nationalisation", ("nationalizeHospitalsW26",),
@@ -876,7 +895,7 @@ ITEMS: list[Item] = [
                   5: ("Cut the deficit through spending cuts alone - no tax rises.", "Reduce the deficit purely by cutting spending, not by raising taxes.", "If we're cutting the deficit, it should be done only through spending cuts.")}), weight=0.6),
     Item("inequalityLevel", "inequality", ("inequalityLevelW25",),
          by_code({1: ("The gap between rich and poor is much too wide.", "The income gap between rich and poor is far too big.", "Income inequality in the UK is much too high."), 2: ("The gap between rich and poor is too wide.", "The income gap between rich and poor is too big.", "Income inequality in the UK is too high."),
-                  3: ("The gap between rich and poor is about right.", "The income gap between rich and poor is about right as it is.", "I think the difference in incomes between rich and poor is about right."), 4: ("The gap between rich and poor is too small.", "The income gap between rich and poor is too narrow.", "Income inequality in the UK is too low."),
+                  3: middling(("The gap between rich and poor is about right.", "The income gap between rich and poor is about right as it is.", "I think the difference in incomes between rich and poor is about right.")), 4: ("The gap between rich and poor is too small.", "The income gap between rich and poor is too narrow.", "Income inequality in the UK is too low."),
                   5: ("The gap between rich and poor is far too small.", "The income gap between rich and poor is much too narrow.", "Income inequality in the UK is much too low.")})),
     Item("changeInequality", "inequality", ("changeInequalityW21",),
          by_code({5: ("The gap between rich and poor is getting much wider.", "Inequality in Britain is getting much higher.", "The gap between rich and poor is growing a lot."), 4: ("The gap between rich and poor is getting wider.", "Inequality in Britain is getting higher.", "The gap between rich and poor is growing."),
@@ -1008,11 +1027,11 @@ ITEMS: list[Item] = [
     # Brexit, looking back
     Item("brexitEcon", "brexit-effects", ("effectsEUEconRetroW27",),
          by_code({1: ("Brexit has made the economy much worse.", "The economy is much worse off because of Brexit.", "Brexit has done the economy a lot of harm."), 2: ("Brexit has made the economy worse.", "The economy is worse off because of Brexit.", "Brexit has done the economy harm."),
-                  3: ("Brexit hasn't made much difference to the economy.", "The economy is neither better nor worse for Brexit.", "Brexit has made little difference to the economy either way."), 4: ("Brexit has made the economy better.", "The economy is better off because of Brexit.", "Brexit has done the economy good."),
+                  3: middling(("Brexit hasn't made much difference to the economy.", "The economy is neither better nor worse for Brexit.", "Brexit has made little difference to the economy either way.")), 4: ("Brexit has made the economy better.", "The economy is better off because of Brexit.", "Brexit has done the economy good."),
                   5: ("Brexit has made the economy much better.", "The economy is much better off because of Brexit.", "Brexit has done the economy a lot of good.")})),
     Item("brexitNHS", "brexit-effects", ("effectsNHSRetroW27",),
          by_code({1: ("Brexit has made the NHS much worse.", "The NHS is much worse off because of Brexit.", "Brexit has done the NHS a lot of harm."), 2: ("Brexit has made the NHS worse.", "The NHS is worse off because of Brexit.", "Brexit has done the NHS harm."),
-                  3: ("Brexit hasn't made much difference to the NHS.", "The NHS is about the same as it was before Brexit.", "Brexit has made little difference to the NHS either way."),
+                  3: middling(("Brexit hasn't made much difference to the NHS.", "The NHS is about the same as it was before Brexit.", "Brexit has made little difference to the NHS either way.")),
                   4: ("Brexit has been good for the NHS.", "The NHS is better off because of Brexit.", "Brexit has done the NHS good."), 5: ("Brexit has been very good for the NHS.", "The NHS is much better off because of Brexit.", "Brexit has done the NHS a lot of good.")}), weight=0.6),
     # The wave-27 questionnaire (effectsEURetro grid) asks whether immigration is higher or
     # lower because the UK left the EU; the SPSS value labels ("Much worse ... Much better")
@@ -1020,20 +1039,20 @@ ITEMS: list[Item] = [
     Item("brexitImmigration", "brexit-effects", ("effectsEUImmigrationRetroW27",),
          by_code({1: ("Brexit has made immigration to Britain much lower.", "Immigration is much lower because of Brexit.", "Brexit has cut immigration a great deal."),
                   2: ("Brexit has made immigration to Britain lower.", "Immigration is lower because of Brexit.", "Brexit has brought immigration down."),
-                  3: ("Brexit hasn't made much difference to immigration levels.", "Immigration is about the same as it was before Brexit.", "Brexit has left immigration levels about the same."),
+                  3: middling(("Brexit hasn't made much difference to immigration levels.", "Immigration is about the same as it was before Brexit.", "Brexit has left immigration levels about the same.")),
                   4: ("Brexit has made immigration to Britain higher.", "Immigration is higher because of Brexit.", "Brexit has pushed immigration up."),
                   5: ("Brexit has made immigration to Britain much higher.", "Immigration is much higher because of Brexit.", "Brexit has pushed immigration up a great deal.")}), weight=0.6),
     Item("brexitVoice", "brexit-effects", ("euLeaveVoiceRetroW27",),
          by_code({1: ("Brexit has left Britain with far less clout in the world.", "Britain has much less of a voice in the world since Brexit.", "Brexit has badly weakened Britain's voice in the world."), 2: ("Brexit has left Britain with less clout in the world.", "Britain has less of a voice in the world since Brexit.", "Brexit has weakened Britain's voice in the world."),
-                  3: ("Brexit hasn't made much difference to Britain's influence in the world.", "Britain has about the same influence in the world as before Brexit.", "Brexit has made little difference to Britain's clout either way."),
+                  3: middling(("Brexit hasn't made much difference to Britain's influence in the world.", "Britain has about the same influence in the world as before Brexit.", "Brexit has made little difference to Britain's clout either way.")),
                   4: ("Brexit has given Britain more clout in the world.", "Britain has more of a voice in the world since Brexit.", "Brexit has strengthened Britain's voice in the world."), 5: ("Brexit has given Britain far more clout in the world.", "Britain has much more of a voice in the world since Brexit.", "Brexit has greatly strengthened Britain's voice in the world.")}), weight=0.6),
     Item("brexitFinance", "brexit-effects", ("effectsEUFinanceRetroW27",),
          by_code({1: ("Brexit has left me personally much worse off.", "My own finances are much worse because of Brexit.", "Brexit has hit my own finances hard."), 2: ("Brexit has left me personally worse off.", "My own finances are worse because of Brexit.", "Brexit has left my own finances worse off."),
-                  3: ("Brexit hasn't made any difference to my own finances.", "My own finances are neither better nor worse for Brexit.", "Brexit has made no difference to my own finances."), 4: ("Brexit has left me personally better off.", "My own finances are better because of Brexit.", "Brexit has left my own finances better off."),
+                  3: middling(("Brexit hasn't made any difference to my own finances.", "My own finances are neither better nor worse for Brexit.", "Brexit has made no difference to my own finances.")), 4: ("Brexit has left me personally better off.", "My own finances are better because of Brexit.", "Brexit has left my own finances better off."),
                   5: ("Brexit has left me personally much better off.", "My own finances are much better because of Brexit.", "Brexit has done my own finances a lot of good.")}), weight=0.6),
     Item("handleEUPost", "brexit-effects", ("handleEUPostW27",),
          by_code({1: ("The government made a complete mess of taking Britain out of the EU.", "The government handled Britain's exit from the EU very badly.", "Britain's exit from the EU was handled terribly by the government."), 2: ("The government made a mess of taking Britain out of the EU.", "The government handled Britain's exit from the EU badly.", "Britain's exit from the EU was handled badly by the government."),
-                  3: ("The government handled leaving the EU neither well nor badly.", "The government's handling of Brexit was neither good nor bad.", "The government took Britain out of the EU neither well nor badly, as I see it."),
+                  3: middling(("The government handled leaving the EU neither well nor badly.", "The government's handling of Brexit was neither good nor bad.", "The government took Britain out of the EU neither well nor badly, as I see it.")),
                   4: ("The government handled leaving the EU well.", "The government did a good job of taking Britain out of the EU.", "Britain's exit from the EU was handled well by the government."), 5: ("The government handled leaving the EU very well.", "The government did a very good job of taking Britain out of the EU.", "Britain's exit from the EU was handled very well by the government.")}), weight=0.5),
     Item("euRefDoOver", "europe", ("euRefDoOverW29",),
          by_code({1: ("I'd like another referendum on EU membership.", "There should be another referendum on EU membership.", "I want another EU referendum."), 0: ("I don't want another EU referendum.", "There shouldn't be another referendum on EU membership.", "I'm against holding another EU referendum.")}), weight=0.7),
@@ -1106,11 +1125,11 @@ ITEMS: list[Item] = [
          scale11(("I'd be gutted if Scotland left the UK.", "It would break my heart to see Scotland leave the UK.", "I'd be absolutely devastated if Scotland left the UK."), ("I'd be disappointed if Scotland left the UK.", "I'd be sorry to see Scotland leave the UK.", "It'd be a shame if Scotland ended up leaving the UK."),
                  ("I'd be fairly happy to see Scotland go independent.", "I'd be quite pleased if Scotland became independent.", "I'd be reasonably happy if Scotland went independent."), ("I'd be delighted to see Scotland become independent.", "I'd be over the moon if Scotland became independent.", "I'd be thrilled to bits if Scotland went independent.")), weight=0.5),
     Item("scotDevoMax", "devolution", ("scotDevoMaxW21",),
-         by_code({5: ("Holyrood should have many more powers.", "The Scottish Parliament should have a lot more powers than it does now.", "I'd hand Holyrood many more powers."), 4: ("Holyrood should have some more powers.", "I'd give the Scottish Parliament a few more powers.", "Holyrood could do with some more powers than it has now."), 3: ("Holyrood's powers are about right.", "The powers Holyrood has now are about right.", "I'd say the Scottish Parliament's powers are about right as they are."),
+         by_code({5: ("Holyrood should have many more powers.", "The Scottish Parliament should have a lot more powers than it does now.", "I'd hand Holyrood many more powers."), 4: ("Holyrood should have some more powers.", "I'd give the Scottish Parliament a few more powers.", "Holyrood could do with some more powers than it has now."), 3: middling(("Holyrood's powers are about right.", "The powers Holyrood has now are about right.", "I'd say the Scottish Parliament's powers are about right as they are.")),
                   2: ("Holyrood should have fewer powers.", "The Scottish Parliament should have fewer powers than it does now.", "I'd take some powers away from Holyrood."), 1: ("Holyrood should have far fewer powers.", "The Scottish Parliament should have many fewer powers than it does now.", "I'd strip Holyrood of a great many of its powers.")}), nations=(2,), weight=0.8),
     Item("devoPrefWales", "devolution", ("devoPrefWalesW27", "devoPrefWalesW21"),
          by_code({1: ("Wales shouldn't have a devolved government at all.", "There should be no devolved government in Wales.", "I'd scrap devolution in Wales altogether."), 2: ("The Senedd should have fewer powers.", "I'd take some powers away from the Senedd.", "The Welsh Parliament should have fewer powers than it does now."),
-                  3: ("I'd leave Welsh devolution as it is.", "I'd keep Welsh devolution just as it is now.", "I'd leave things as they are with the Senedd."), 4: ("The Senedd should have more powers.", "I'd give the Senedd more powers.", "The Welsh Parliament should have more powers than it does now."), 5: ("Wales should be independent.", "I'd like to see Wales become an independent country.", "Wales should go independent.")}),
+                  3: middling(("I'd leave Welsh devolution as it is.", "I'd keep Welsh devolution just as it is now.", "I'd leave things as they are with the Senedd.")), 4: ("The Senedd should have more powers.", "I'd give the Senedd more powers.", "The Welsh Parliament should have more powers than it does now."), 5: ("Wales should be independent.", "I'd like to see Wales become an independent country.", "Wales should go independent.")}),
          nations=(3,), weight=1.0),
 
     # ------------------------------------------------------------------
@@ -1121,7 +1140,7 @@ ITEMS: list[Item] = [
     Item("turnoutLikely", "turnout", ("turnoutUKGeneralW31",),
          by_code({1: ("If there were an election tomorrow, I very probably wouldn't vote.", "It's very unlikely I'd vote if there were a general election tomorrow.", "If a general election were held tomorrow, I almost certainly wouldn't turn out."),
                   2: ("If there were an election tomorrow, I probably wouldn't bother voting.", "I probably wouldn't turn out if there were a general election tomorrow.", "If a general election were held tomorrow, I doubt I'd vote."),
-                  3: ("If there were an election tomorrow, I'm not sure I'd bother voting.", "If a general election were held tomorrow, I'm not sure I'd bother turning out.", "Honestly, if there were an election tomorrow I'm not sure I'd bother voting.")}), weight=0.6, fallback=False),
+                  3: middling(("If there were an election tomorrow, I'm not sure I'd bother voting.", "If a general election were held tomorrow, I'm not sure I'd bother turning out.", "Honestly, if there were an election tomorrow I'm not sure I'd bother voting."))}), weight=0.6, fallback=False),
     # Parties: likes, bonds, unity, who they look after
     Item("regionFairShare", "fair-share", ("regionFairShareW31", "regionFairShareW21"),
          fair_share5("My region", "of government spending"), nations=(1,), weight=0.4),
@@ -1424,16 +1443,9 @@ def theme_of(topic: str) -> str:
 NATION_TOPICS = {"identity", "independence", "fair-share", "scottish-government", "welsh-government"}
 
 
-NEUTRAL = re.compile(r"more or less its fair share|about right|in equal measure|not sure I'd bother"
-                     r"|as much good as harm|mixed effects|much impact|hasn't made much difference|hasn't made any difference"
-                     r"|made little difference|made no difference|about the same|neither better nor worse|don't take either side"
-                     r"|stay about where they are|a mix of public and private|neither well nor badly|neither good nor bad|cut both ways")
-NEUTRAL_WEIGHT = 0.2  # a middling answer is drawn at a fifth of the weight of a view either way
-
-
 def is_neutral(text: str) -> bool:
-    """A statement that sits on the fence ('England gets more or less its fair share')."""
-    return bool(NEUTRAL.search(text))
+    """A statement that sits on the fence ('England gets more or less its fair share'): marked with middling() where written."""
+    return isinstance(text, Middling)
 
 
 def candidate_statements(row, country: int, rng=None) -> list[tuple[Item, str]]:
