@@ -130,6 +130,13 @@ def group_of(item: items.Item) -> str:
 DRAWS = {"general": config.MAX_OPINIONS, "nation": 1, "money": 1, "details": config.LIFE_DETAILS}
 ITEMS_BY_KEY = {item.key: item for item in items.ITEMS}
 
+# What a card gives up, in order, when it would run past its canvas with every line of text at its
+# design size (the card never shrinks its text; voterbot/fit.py): first the news paragraph's line
+# on where they shared political content, then the life paragraph's standalone details one by one.
+# Each is drawn all the same and only left off, so the bubbles and everything else stay as they were.
+TRIMS = ({}, {"shared_sentence": False}, {"shared_sentence": False, "max_details": 1},
+         {"shared_sentence": False, "max_details": 0})
+
 
 class ProfileBuilder:
     """Holds the population-level context needed per card: the two spectrums, where a trait starts,
@@ -218,7 +225,7 @@ class ProfileBuilder:
         """The solved weight for one option; 1 (the solved weights' typical size) for one never measured."""
         return self.weights.get((country, group, key), 1.0)
 
-    def build(self, row: pd.Series, seed: int) -> dict | None:
+    def build(self, row: pd.Series, seed: int, trim: int = 0) -> dict | None:
         """A full card, or None when the basics (nation, age, any vote answer) are missing or they hold too few recorded views to fill four bubbles.
 
         Nobody is left out for their answers: people who neither voted in 2024
@@ -227,8 +234,12 @@ class ProfileBuilder:
         the postcode gave no constituency, a plain statement when leaders were
         not rated. Wording choices (alternative phrasings, which bubbles) come
         from the card's seed, so a returning respondent reads differently.
+
+        `trim` indexes TRIMS: the same card with less optional copy, for one that would not
+        otherwise fit its canvas at design size.
         """
         rng = random.Random(seed)
+        cut = TRIMS[trim]
         country = value(row, "countryW31")
         if country is None or int(country) not in codes.NATIONS:
             return None
@@ -256,8 +267,9 @@ class ProfileBuilder:
         leader = persona.leader_bubble(row, country, int(intention_code) if intention_code is not None else None, rng)
         seat = constituency.code if constituency else None
         head = persona.headline(row, country, place, age, seat)
-        life = persona.life_paragraph(row, country, rng, seat, lambda group, key: self.weight(country, group, key), self.cuts)
-        media = persona.media_paragraph(row, country, rng)
+        life = persona.life_paragraph(row, country, rng, seat, lambda group, key: self.weight(country, group, key), self.cuts,
+                                      max_details=cut.get("max_details"))
+        media = persona.media_paragraph(row, country, rng, shared_sentence=cut.get("shared_sentence", True))
 
         # config.MAX_OPINIONS opinion bubbles besides the leader line: four bubbles in all
         opinions, kinds = self.pick_opinions(row, country, rng, issue_code, count=config.MAX_OPINIONS)

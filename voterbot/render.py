@@ -120,8 +120,12 @@ def map_box(profile: dict) -> tuple[int, int]:
     return width, height
 
 
-def build_html(profile: dict) -> str:
-    """Render the card HTML for one profile (a dict as stored in profiles.jsonl)."""
+def build_html(profile: dict, fonts: bool = True) -> str:
+    """Render the card HTML for one profile (a dict as stored in profiles.jsonl).
+
+    `fonts=False` leaves out the inlined Archivo files, for a page that has loaded them already
+    (fit.Measurer lays out thousands of cards in one page).
+    """
     map_width, map_height = map_box(profile)
     headline = _emphasise(profile["headline"]["template"], **profile["headline"]["bold"])
     place = html.escape(profile["headline"]["bold"]["place"]).replace("-", "&#8209;")  # keep "Stratford-on-Avon" on one line
@@ -130,7 +134,7 @@ def build_html(profile: dict) -> str:
     return template.render(
         width=config.CARD_WIDTH, height=config.CARD_HEIGHT,
         map_width=map_width, map_height=map_height,
-        font_css=font_css(),
+        font_css=font_css() if fonts else "",
         ink=config.INK, body=config.BODY, secondary=config.SECONDARY, accent=config.ACCENT,
         bubble_fill=config.BUBBLE_FILL, track=config.TRACK, middle_band=config.MIDDLE_BAND, scale_band=config.SCALE_BAND,
         alt_title=profile["alt_text"][:80],

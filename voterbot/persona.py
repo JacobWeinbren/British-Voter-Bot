@@ -685,7 +685,8 @@ def join_clauses(first: str, second: str) -> str:
     return first + ", and " + second
 
 
-def life_paragraph(row, country: int, rng: random.Random, seat: str | None = None, weigh=None, cuts: dict | None = None) -> Span:
+def life_paragraph(row, country: int, rng: random.Random, seat: str | None = None, weigh=None, cuts: dict | None = None,
+                   max_details: int | None = None) -> Span:
     """Home, money, work, a couple of extra details, then class - each detail kept to its own theme.
 
     A description of the home itself (what it is worth, the bedrooms, when they
@@ -697,6 +698,8 @@ def life_paragraph(row, country: int, rng: random.Random, seat: str | None = Non
     config.LIFE_DETAILS says how many details to draw. Those that join an existing
     sentence are free; a detail that would stand on its own lands only if the whole
     paragraph, class included, still fits in config.LIFE_MAX_LINES lines as drawn.
+    `max_details` caps those standalone details further, for a card that would not otherwise
+    fit its canvas (profile.TRIMS); they are drawn all the same, so nothing else on the card moves.
     `weigh(group, key)` gives the solved weights for the "money" and "details" draws.
     """
     bold: dict[str, str] = {}
@@ -724,9 +727,11 @@ def life_paragraph(row, country: int, rng: random.Random, seat: str | None = Non
     if work:
         sentences.append(work)
     budget = config.LIFE_MAX_LINES * config.LIFE_CHARS_PER_LINE
+    room = len(details) if max_details is None else max_details
     for _theme, detail in details:
-        if sum(len(s) + 2 for s in sentences + [detail, closing]) <= budget:
+        if room > 0 and sum(len(s) + 2 for s in sentences + [detail, closing]) <= budget:
             sentences.append(detail)
+            room -= 1
     # Class comes last, as the closing thought after the facts of their life.
     if cls:
         template, class_id = cls
@@ -830,7 +835,9 @@ def social_media(row, bold: dict[str, str], rng: random.Random | None = None) ->
     return " ".join(sentences)
 
 
-def media_paragraph(row, country: int, rng: random.Random | None = None) -> Span | None:
+def media_paragraph(row, country: int, rng: random.Random | None = None, shared_sentence: bool = True) -> Span | None:
+    """`shared_sentence=False` leaves off where they shared political content, for a card that would
+    not otherwise fit its canvas (profile.TRIMS); it is drawn all the same, so nothing else moves."""
     bold: dict[str, str] = {}
     sentences = []
     habit = news_habit(row, rng)
@@ -852,7 +859,7 @@ def media_paragraph(row, country: int, rng: random.Random | None = None) -> Span
     if talk:
         sentences.append(talk + ".")
     shared = shared_content(row, bold, rng)
-    if shared and sum(len(s) + 1 for s in sentences + [shared]) <= config.MEDIA_MAX_LINES * config.MEDIA_CHARS_PER_LINE:
+    if shared and shared_sentence and sum(len(s) + 1 for s in sentences + [shared]) <= config.MEDIA_MAX_LINES * config.MEDIA_CHARS_PER_LINE:
         sentences.append(shared)  # only while the paragraph still fits its line budget
     if not sentences:
         return None
