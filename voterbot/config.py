@@ -78,9 +78,11 @@ NATION_BUBBLE_CHANCE = {1: 0.45, 2: 0.85, 3: 0.85}
 TRAIT_TAIL = 0.10
 # Line budgets, from the card as drawn: a line of the life paragraph holds about 100 characters of
 # Archivo at 22px, a line of the news paragraph about 115 at 19px (measured over 400 queued cards).
+# They are a first cut per paragraph. Whether the whole card fits is measured after: the build lays
+# every card out at its design sizes and leaves optional copy off any that would run over (voterbot/fit.py).
 LIFE_MAX_LINES, LIFE_CHARS_PER_LINE = 4, 100
 MEDIA_MAX_LINES, MEDIA_CHARS_PER_LINE = 3, 115
-GENERATOR = 2  # stamped on every built card; tests of build-time behaviour apply to queues built by this version
+GENERATOR = 3  # stamped on every built card; tests of build-time behaviour apply to queues built by this version
 REPEAT_GAP_CYCLES = 3  # a voter can come round again only after this many yearly cycles
 # How often one exact sentence may come round: at four cards a day, no more than twice a week. A
 # sentence family on many cards (class, the leader line) needs as many wordings as that takes; a

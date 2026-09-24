@@ -71,4 +71,10 @@ def synthetic_panel(size: int = 3000, seed: int = 7) -> pd.DataFrame:
         panel[f"al{i}W31"] = some([1, 2, 3, 4, 5], 0.9)
     for column in codes.LEADERS:
         panel[column] = some(range(0, 11), 0.9)
+    # Where they shared political content in 2024 (wave 28, a subsample), from a generator of its
+    # own so the columns above come out as they always have.
+    shared = np.random.default_rng(seed + 1)
+    asked = shared.random(size) < 0.3
+    for n in (1, 2, 3, 4, 6, 7, 8):
+        panel[f"sharedContentOnline_{n}W28"] = np.where(asked, shared.choice([0, 1], size, p=[0.7, 0.3]), np.nan)
     return panel

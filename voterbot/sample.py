@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 
 from . import config
-from .profile import ProfileBuilder
+from .profile import TRIMS, ProfileBuilder
 
 
 def eligible_rows(panel: pd.DataFrame) -> pd.DataFrame:
@@ -35,7 +35,8 @@ def eligible_rows(panel: pd.DataFrame) -> pd.DataFrame:
 
 
 def build_profiles(panel: pd.DataFrame, count: int | None = config.PROFILE_COUNT, seed: int = config.RANDOM_SEED,
-                   out_path: Path = config.PROFILES_PATH, position: int | None = None, verbose: bool = True) -> list[dict]:
+                   out_path: Path = config.PROFILES_PATH, position: int | None = None, verbose: bool = True,
+                   fit: bool = True) -> list[dict]:
     """Build the posting queue as a run of yearly cycles, each a weighted draw from everyone.
 
     A single weighted draw without replacement starts representative and drifts
@@ -48,6 +49,10 @@ def build_profiles(panel: pd.DataFrame, count: int | None = config.PROFILE_COUNT
     A rebuild keeps the posting position (outputs/position.txt), so the feed
     carries straight on into the new queue; the card at that position is made
     an ethnic-minority voter.
+
+    Every card is then laid out in Chromium and any that would run past its
+    canvas with its text at design size is composed again with less optional
+    copy (fit_to_canvas). `fit=False` skips that, for tests of the draw alone.
     """
     if position is None:
         position = read_position()
@@ -67,6 +72,7 @@ def build_profiles(panel: pd.DataFrame, count: int | None = config.PROFILE_COUNT
     cycles = int(np.ceil(len(pool) / cycle_size))
     last_shown = np.full(len(pool), -10**6)
     profiles: list[dict] = []
+    sources: list[tuple[int, int]] = []  # each card's respondent (row in the pool) and seed, to compose it again
     rng = np.random.default_rng(seed)
     for cycle in range(cycles):
         idx = np.flatnonzero(usable & (cycle - last_shown > config.REPEAT_GAP_CYCLES))
@@ -77,20 +83,63 @@ def build_profiles(panel: pd.DataFrame, count: int | None = config.PROFILE_COUNT
             lead_with_minority(chosen, minority, position - len(profiles))
         for i in chosen:
             row = pool.iloc[i]
-            profile = builder.build(row, seed=seed * 100_003 + int(row["id"]) * 31 + cycle)
+            card_seed = seed * 100_003 + int(row["id"]) * 31 + cycle
+            profile = builder.build(row, seed=card_seed)
             profile["seq"] = len(profiles)
             profile["cycle"] = cycle
             profiles.append(profile)
+            sources.append((int(i), card_seed))
             last_shown[i] = cycle
         if verbose:
             print(f"  cycle {cycle + 1}/{cycles}: {take} cards ({len(profiles)} in total)")
         if count is not None and len(profiles) >= count:
             break
+    if fit:
+        fit_to_canvas(profiles, sources, pool, builder, verbose)
     write_profiles(profiles, out_path)
     if verbose:
         print(f"Wrote {len(profiles)} profiles to {out_path} "
               f"({int((~usable).sum())} of {len(pool)} respondents could not make a full card)")
     return profiles
+
+
+def fit_to_canvas(profiles: list[dict], sources: list[tuple[int, int]], pool: pd.DataFrame,
+                  builder: ProfileBuilder, verbose: bool) -> None:
+    """Compose again, with less optional copy (profile.TRIMS), every card that would run past its
+    canvas with its text at design size. The card never shrinks its text, so this is what keeps it
+    readable. Stops the build if a card still does not fit with everything optional left off."""
+    from .fit import Measurer
+
+    trimmed: collections.Counter = collections.Counter()
+    stuck: list[str] = []
+    with Measurer() as measure:
+        for k, profile in enumerate(profiles):
+            if measure.fits(profile):
+                continue
+            i, card_seed = sources[k]
+            for trim in range(1, len(TRIMS)):
+                card = builder.build(pool.iloc[i], seed=card_seed, trim=trim)
+                card["seq"], card["cycle"], card["trim"] = profile["seq"], profile["cycle"], trim
+                if measure.fits(card):
+                    profiles[k] = card
+                    trimmed[trim] += 1
+                    break
+            else:
+                stuck.append(f"card {k} ({profile['constituency']}): {measure.room(card):.0f}px to spare")
+    if stuck:
+        raise RuntimeError(f"{len(stuck)} cards do not fit their canvas even with every optional line left off: "
+                           + "; ".join(stuck[:10]))
+    if verbose:
+        print(f"  every card fits at design size; {sum(trimmed.values())} of {len(profiles)} left optional copy off to get there:")
+        for trim, n in sorted(trimmed.items()):
+            print(f"    {n:>5} {TRIM_NAMES[trim]}")
+
+
+TRIM_NAMES = {1: "left off the line on where they shared political content",
+              2: "left that off and one extra life detail",
+              3: "left that off and both extra life details",
+              4: "left all that off and drew the map at 95%",
+              5: "left all that off and drew the map at 90%"}
 
 
 def card_weights(pool: pd.DataFrame, builder: ProfileBuilder, seed: int, verbose: bool) -> np.ndarray:

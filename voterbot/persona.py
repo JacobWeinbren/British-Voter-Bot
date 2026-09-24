@@ -340,7 +340,7 @@ def job_clause(row, rng: random.Random) -> str | None:
             return one_of(rng, "I'm retired and never had a paid job", "I'm retired, and I was never in paid work", "I'm retired now and never had a paid job in my life")
         if not job:
             return one_of(rng, "I'm retired", "I've retired", "I'm retired now")
-        frame = rng.choice((one_of(rng, "I'm retired - before that I {past}", "I'm retired - in my working days I {past}", "Before I retired, I {past}"), one_of(rng, "I'm retired these days. In my working life I {past}", "I'm retired now. Back when I was working, I {past}", "These days, I'm retired, but when I was working I {past}")))
+        frame = rng.choice((one_of(rng, "I'm retired - before that I {past}", "I'm retired - in my working days, I {past}", "Before I retired, I {past}"), one_of(rng, "I'm retired these days. In my working life, I {past}", "I'm retired now. Back when I was working, I {past}", "These days, I'm retired, but when I was working, I {past}")))
         return frame.format(past=describe(job, tense_past=True))
     if status == 4:
         if nssec == codes.NSSEC_NEVER_WORKED:
@@ -374,7 +374,7 @@ def class_clause(row, rng: random.Random) -> tuple[str, str | None] | None:
         return one_of(rng, "I think of myself as belonging to a class, just not middle or working class", "I do think of myself as belonging to a class, but not the middle or working class", "I'd say I belong to a class, though it's neither middle nor working class"), None
     if subj == 0:
         if squeeze is not None and int(squeeze) in codes.CLASS_ID:
-            return one_of(rng, "I don't really think in class terms, but if pushed I'd say I'm {class_id}", "I don't think of myself as belonging to a class, but if I had to choose I'd say {class_id}", "Class isn't something I think about much, though if pushed I'd go with {class_id}"), codes.CLASS_ID[int(squeeze)]
+            return one_of(rng, "I don't really think in class terms, but if pushed, I'd say I'm {class_id}", "I don't think of myself as belonging to a class, but if I had to choose, I'd say {class_id}", "Class isn't something I think about much, though if pushed, I'd go with {class_id}"), codes.CLASS_ID[int(squeeze)]
         return one_of(rng, "I don't think of myself as belonging to any class", "I don't see myself as belonging to any particular class", "I wouldn't say I belong to any class"), None
     return None
 
@@ -518,7 +518,7 @@ def circumstance_details(row, country: int, rng: random.Random, cuts: dict | Non
         options.append(("buying-prospects", "home", codes.BUY_HOME[int(buy)]))
     bedrooms, garden = lv(row, "statusBedrooms"), lv(row, "statusGardenSize")
     if bedrooms is not None and int(bedrooms) in codes.BEDROOMS:
-        home = one_of(rng, f"{we_have} {codes.BEDROOMS[int(bedrooms)]}", f"I've got {codes.BEDROOMS[int(bedrooms)]}", f"the place has {codes.BEDROOMS[int(bedrooms)]}")
+        home = one_of(rng, f"{we_have} {codes.BEDROOMS[int(bedrooms)]}", f"I've got {codes.BEDROOMS[int(bedrooms)]}")  # a verb that takes every garden ending, joined or on its own
         if garden is not None and int(garden) in codes.GARDEN:
             home += one_of(rng, f" with {codes.GARDEN[int(garden)]}", f" and {codes.GARDEN[int(garden)]}", f", plus {codes.GARDEN[int(garden)]}")
         elif lv(row, "statusHasGarden") == 0:
@@ -613,9 +613,9 @@ def circumstance_details(row, country: int, rng: random.Random, cuts: dict | Non
         options.append(("was-among-richest", "other", one_of(rng, "a few years back I put my household among the richest in the country", "a few years ago I rated my household as one of the richest in the UK", "when asked a few years back, I put my household near the richest end of the scale")))
     wealth = lv(row, "statusWealth")
     if wealth is not None and wealth <= 2:
-        options.append(("wealth-ladder-bottom", "other", one_of(rng, "on a ladder of wealth I'd put myself near the bottom", "for wealth, I'd place myself right down near the bottom of the ladder", "in terms of wealth I'd say I'm close to the bottom of the pile")))
+        options.append(("wealth-ladder-bottom", "other", one_of(rng, "on a ladder of wealth, I'd put myself near the bottom", "for wealth, I'd place myself right down near the bottom of the ladder", "in terms of wealth, I'd say I'm close to the bottom of the pile")))
     elif wealth is not None and wealth >= 9:
-        options.append(("wealth-ladder-top", "other", one_of(rng, "on a ladder of wealth I'd put myself near the top", "for wealth, I'd place myself right up near the top of the ladder", "in terms of wealth I'd say I'm close to the top of the pile")))
+        options.append(("wealth-ladder-top", "other", one_of(rng, "on a ladder of wealth, I'd put myself near the top", "for wealth, I'd place myself right up near the top of the ladder", "in terms of wealth, I'd say I'm close to the top of the pile")))
     standing = lv(row, "statusTopBottom")
     if standing is not None and standing <= 2:
         options.append(("social-ladder-bottom", "other", one_of(rng, "I'd put myself near the bottom of the social ladder", "In society, I'd say I'm one of those near the bottom", "I'd place myself close to the bottom of the social scale")))
@@ -698,8 +698,9 @@ def life_paragraph(row, country: int, rng: random.Random, seat: str | None = Non
     config.LIFE_DETAILS says how many details to draw. Those that join an existing
     sentence are free; a detail that would stand on its own lands only if the whole
     paragraph, class included, still fits in config.LIFE_MAX_LINES lines as drawn.
-    `max_details` caps those standalone details further, for a card that would not otherwise
-    fit its canvas (profile.TRIMS); they are drawn all the same, so nothing else on the card moves.
+    `max_details` keeps only the first few of the details the paragraph shows, joined or
+    standalone, for a card that would not otherwise fit its canvas (profile.TRIMS); they are
+    drawn all the same, so nothing else on the card moves.
     `weigh(group, key)` gives the solved weights for the "money" and "details" draws.
     """
     bold: dict[str, str] = {}
@@ -710,28 +711,40 @@ def life_paragraph(row, country: int, rng: random.Random, seat: str | None = Non
                             count=config.LIFE_DETAILS, cuts=cuts)
     cls = class_clause(row, rng)
     closing = (cls[0].format(class_id=cls[1]) if cls[1] else cls[0]) if cls else ""
-    take = lambda theme: next((d for d in details if d[0] == theme), None)  # noqa: E731
-    sentences: list[str] = []
-    about_home = take("home")
-    if home and about_home:
-        sentences.append(join_clauses(home, about_home[1]))
-        details.remove(about_home)
-    elif home:
-        sentences.append(home)
-    about_money = take("money")
-    if about_money:
-        sentences.append(join_clauses(about_money[1], money) if money else about_money[1])
-        details.remove(about_money)
-    elif money:
-        sentences.append(money)
-    if work:
-        sentences.append(work)
-    budget = config.LIFE_MAX_LINES * config.LIFE_CHARS_PER_LINE
-    room = len(details) if max_details is None else max_details
-    for _theme, detail in details:
-        if room > 0 and sum(len(s) + 2 for s in sentences + [detail, closing]) <= budget:
-            sentences.append(detail)
-            room -= 1
+
+    def compose(details: list) -> tuple[list[str], list]:
+        """The paragraph's sentences before class, and the details that made it in."""
+        details, shown = list(details), []
+        take = lambda theme: next((d for d in details if d[0] == theme), None)  # noqa: E731
+        sentences: list[str] = []
+        about_home = take("home")
+        if home and about_home:
+            sentences.append(join_clauses(home, about_home[1]))
+            details.remove(about_home)
+            shown.append(about_home)
+        elif home:
+            sentences.append(home)
+        about_money = take("money")
+        if about_money:
+            sentences.append(join_clauses(about_money[1], money) if money else about_money[1])
+            details.remove(about_money)
+            shown.append(about_money)
+        elif money:
+            sentences.append(money)
+        if work:
+            sentences.append(work)
+        budget = config.LIFE_MAX_LINES * config.LIFE_CHARS_PER_LINE
+        for detail in details:
+            if sum(len(s) + 2 for s in sentences + [detail[1], closing]) <= budget:
+                sentences.append(detail[1])
+                shown.append(detail)
+        return sentences, shown
+
+    sentences, shown = compose(details)
+    if max_details is not None and len(shown) > max_details:
+        # Only ever fewer of the details the full paragraph showed: never one it had no room for.
+        kept = [d for d in details if d in shown[:max_details]]
+        sentences, _ = compose(kept)
     # Class comes last, as the closing thought after the facts of their life.
     if cls:
         template, class_id = cls
@@ -898,7 +911,8 @@ def shared_content(row, bold: dict[str, str], rng: random.Random | None = None) 
         bold[key] = name
         slots.append("{" + key + "}")
     if names:
-        where = "on " + join_and(slots) + (", and " + join_and(other) if other else "")
+        platforms = "on " + join_and(slots)  # a comma before "and" only where the platforms already make a list
+        where = join_and([platforms] + other) if len(slots) == 1 else platforms + (", and " + join_and(other) if other else "")
         return one_of(rng, f"During the 2024 campaign, I shared political posts {where}.", f"I shared political content {where} during the 2024 election.",
                       f"In the 2024 campaign, I passed on political posts {where}.")
     return one_of(rng, f"During the 2024 campaign, I passed on political content {join_and(other)}.", f"I shared political content {join_and(other)} during the 2024 election.")

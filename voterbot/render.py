@@ -23,6 +23,17 @@ from .persona import article
 
 _env = Environment(loader=FileSystemLoader(config.TEMPLATE_DIR), autoescape=select_autoescape(["html"]))
 
+# Every Chromium that lays out a card starts with these. On Linux, Chromium hints glyphs to the
+# pixel grid by default, which widens a line just enough that about one card in sixty wraps
+# differently on the posting runner than on the Mac that built the queue - a whole extra line,
+# enough to push a card that fitted past its canvas. Unhinted, Linux lays out every card exactly as
+# macOS does (3,000 queued cards compared in the Playwright Linux image), and macOS is unchanged.
+CHROMIUM_ARGS = ["--font-render-hinting=none"]
+
+
+class CardOverflow(RuntimeError):
+    """The card runs past its canvas with its text at design size, so nothing was rendered."""
+
 
 @functools.lru_cache(maxsize=1)
 def font_css() -> str:
@@ -113,11 +124,16 @@ def vote_steps(profile: dict) -> dict:
 
 
 def map_box(profile: dict) -> tuple[int, int]:
-    """The map's width and height: the handoff's box, or a larger one where there are no scales to fit in."""
+    """The map's width and height: the handoff's box, or a larger one where there are no scales to fit in.
+
+    A card whose text would not otherwise fit at design size may carry a `map_scale` below 1
+    (profile.TRIMS): the map gives up a little room so that no line of text has to.
+    """
     width, height = config.MAP_WIDTH, config.MAP_HEIGHTS.get(profile["country"], config.MAP_HEIGHT)
+    scale = profile.get("map_scale", 1.0)
     if profile.get("econ_pct") is None or profile.get("cultural_pct") is None:
-        return round(width * config.MAP_SCALE_WITHOUT_SCALES), round(height * config.MAP_SCALE_WITHOUT_SCALES)
-    return width, height
+        scale *= config.MAP_SCALE_WITHOUT_SCALES
+    return round(width * scale), round(height * scale)
 
 
 def build_html(profile: dict, fonts: bool = True) -> str:
@@ -197,7 +213,7 @@ def render_card(profile: dict, out_png: Path, scale: float = config.RENDER_SCALE
 def screenshot_html(page_html: str, out_path: Path, width: int, height: int, selector: str = "#card", scale: float = 1.0) -> None:
     """Screenshot one element of an HTML document; `scale` sets the device pixel ratio (lossless PNG)."""
     with sync_playwright() as pw:
-        browser = pw.chromium.launch()
+        browser = pw.chromium.launch(args=CHROMIUM_ARGS)
         page = browser.new_page(viewport={"width": width, "height": height}, device_scale_factor=scale)
         page.set_content(page_html, wait_until="load")
         page.evaluate("document.fonts.ready")
@@ -207,6 +223,10 @@ def screenshot_html(page_html: str, out_path: Path, width: int, height: int, sel
         if failed:  # never let an image out in the fallback sans-serif - that is how the old bug went unseen
             browser.close()
             raise RuntimeError(f"typeface failed to load, nothing rendered: {', '.join(failed)}")
+        if page.evaluate("document.body.dataset.fit") == "overflow":  # the card never shrinks its text to fit
+            browser.close()
+            raise CardOverflow("the card runs past its canvas with its text at design size, nothing rendered "
+                               "(the build composes every card to fit: voterbot/fit.py)")
         page.locator(selector).screenshot(path=str(out_path), type="png")
         browser.close()
 
@@ -218,7 +238,7 @@ def check_fonts() -> dict[int, str]:
     """
     text = "".join(f'<p style="font: {weight} 20px Archivo">Archivo {weight}</p>' for weight in config.FONT_WEIGHTS)
     with sync_playwright() as pw:
-        browser = pw.chromium.launch()
+        browser = pw.chromium.launch(args=CHROMIUM_ARGS)
         page = browser.new_page()
         page.set_content(f"<!doctype html><style>{font_css()}</style><body>{text}</body>", wait_until="load")
         faces = page.evaluate("""Promise.allSettled([...document.fonts].map(f => f.load()))

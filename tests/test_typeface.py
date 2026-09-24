@@ -10,7 +10,7 @@ browser, so they sit apart from the layout tests and their shared one.
 import pytest
 
 from voterbot import config, render
-from voterbot.render import build_html
+from voterbot.render import CHROMIUM_ARGS, build_html
 
 from test_card_layout import CARD
 
@@ -20,7 +20,7 @@ def renders():
     sync_api = pytest.importorskip("playwright.sync_api")
     try:
         with sync_api.sync_playwright() as pw:
-            pw.chromium.launch().close()
+            pw.chromium.launch(args=CHROMIUM_ARGS).close()
     except Exception as error:  # no browser installed here
         pytest.skip(f"Chromium unavailable: {error}")
 

@@ -58,9 +58,18 @@ the posting workflow runs `python -m voterbot fontcheck` before it posts, and th
 refuses to screenshot any page whose typeface failed to load.
 
 The vote band reads as a step from 2024 to today (`render.vote_steps`), each side in its own
-party's colour, so a switch - or staying put - shows at a glance. The page fits its copy once
-the fonts are in: the views grow into any spare height up to 27px, and only a card that still
-overflows shrinks its views, then its paragraphs, a pixel at a time. Each nation is fitted to
+party's colour, so a switch - or staying put - shows at a glance. The card never shrinks its
+text to make room: small type on a phone is the one thing it cannot afford. The build lays every
+card out in Chromium at its design sizes (`voterbot/fit.py`) and, where one would run past the
+canvas, leaves optional copy off until it fits - the line on where they shared political
+content, then the extra life details, and last, for a long seat name beside Scotland's tall map,
+a tenth of the map (`profile.TRIMS`; about one card in a hundred). Once the fonts are in, the
+views grow into any spare height up to 27px; a card that still runs over closes up the space
+between its blocks, and one that overflows even then is refused by the renderer and passed over
+for the next card rather than posted clipped. Every Chromium starts with font hinting off
+(`render.CHROMIUM_ARGS`): with it on, Linux wraps about one card in sixty differently from macOS,
+so a card that fitted on the Mac that built the queue could run over on the posting runner.
+Each nation is fitted to
 the islands it actually draws, so it fills its box, and a coastal seat's dot can draw past the
 map's edge rather than be cut off.
 

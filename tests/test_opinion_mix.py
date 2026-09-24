@@ -161,14 +161,14 @@ def test_weighted_counts_a_middling_option_at_the_neutral_weight():
 
 
 def test_the_life_paragraph_keeps_to_its_line_budget(panel):
-    cards = build_profiles(panel, count=150, position=0, verbose=False, out_path=_tmp())
+    cards = build_profiles(panel, count=150, position=0, verbose=False, out_path=_tmp(), fit=False)
     budget = config.LIFE_MAX_LINES * config.LIFE_CHARS_PER_LINE
     longest = max(len(c["life"]["template"].format(**c["life"]["bold"])) for c in cards)
     assert longest <= budget + 60  # home, money and work always stand; only the extra details answer to the budget
 
 
 def test_every_built_card_carries_the_generator_that_drew_it(panel):
-    cards = build_profiles(panel, count=40, position=0, verbose=False, out_path=_tmp())
+    cards = build_profiles(panel, count=40, position=0, verbose=False, out_path=_tmp(), fit=False)
     assert {c["generator"] for c in cards} == {config.GENERATOR}
     assert all(len(c["bubbles"]) == 4 for c in cards)
 

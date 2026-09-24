@@ -132,10 +132,12 @@ ITEMS_BY_KEY = {item.key: item for item in items.ITEMS}
 
 # What a card gives up, in order, when it would run past its canvas with every line of text at its
 # design size (the card never shrinks its text; voterbot/fit.py): first the news paragraph's line
-# on where they shared political content, then the life paragraph's standalone details one by one.
-# Each is drawn all the same and only left off, so the bubbles and everything else stay as they were.
-TRIMS = ({}, {"shared_sentence": False}, {"shared_sentence": False, "max_details": 1},
-         {"shared_sentence": False, "max_details": 0})
+# on where they shared political content, then the life paragraph's extra details one by one, and
+# last - for a long seat name beside Scotland's tall map - a tenth of the map. The copy is drawn all
+# the same and only left off, so the bubbles and everything else stay as they were.
+_BARE = {"shared_sentence": False, "max_details": 0}
+TRIMS = ({}, {"shared_sentence": False}, {"shared_sentence": False, "max_details": 1}, _BARE,
+         {**_BARE, "map_scale": 0.95}, {**_BARE, "map_scale": 0.9})
 
 
 class ProfileBuilder:
@@ -303,6 +305,8 @@ class ProfileBuilder:
             "generator": config.GENERATOR,
             "footnote": ("Party they identify with" if "supporter*" in band_text else "Party they feel closest to, at a push" if "at a push" in band_text else "Voting intention"),
         }
+        if "map_scale" in cut:
+            profile["map_scale"] = cut["map_scale"]
         profile["alt_text"] = alt_text(profile)
         profile["post_text"] = post_text(profile)
         return profile
@@ -398,7 +402,7 @@ def alt_text(profile: dict) -> str:
         scales = (f"Where they sit on the BES 0 to 10 value scales: economic, left to right, {economic}; "
                   f"social, liberal to authoritarian, {cultural}.")
     else:
-        scales = "The value scales are left off because they did not answer those questions."
+        scales = "The value scales are left off because they did not answer enough of those questions."
     map_line = (f"A map of {profile['nation']} with a dot on {profile['constituency']}." if profile.get("constituency_code")
                 else f"A map of {profile['nation']}; their constituency is not recorded.")
     sections = [

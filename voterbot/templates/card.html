@@ -10,8 +10,9 @@
   strong { font-weight: 700; }
 
   .card { width: {{ width }}px; height: {{ height }}px; background: #ffffff; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; }
-  /* At least 32px between the blocks. The views grow into any spare height (the fit script below);
-     what is left after that is shared out evenly between the blocks rather than pooling in one hole. */
+  /* 32px between the blocks. The views grow into any spare height (the fit script below); what is left
+     after that is shared out evenly between the blocks rather than pooling in one hole. Only a card
+     that would otherwise run over closes the gaps up, down to 20px. */
   .content { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 32px; padding: 46px 56px 32px; box-sizing: border-box; }
 
   .intro { display: flex; flex-direction: column; gap: 16px; }
@@ -111,9 +112,11 @@
 </div>
 <script>
   // Fit the copy to the fixed canvas once every Archivo face has loaded (fallback metrics would fit
-  // a line the real face then wraps): the views first grow into any spare room, up to 27px; if the
-  // card overflows, the views and then the paragraphs shrink a pixel at a time; a vote label too long
-  // for its half shrinks rather than clips. The body is then marked fitted for the screenshot.
+  // a line the real face then wraps). Text never goes below its design size: the build composes every
+  // card to fit at those sizes (voterbot/fit.py). The views grow into any spare room, up to 27px. A
+  // card that still runs over - a machine laying a line out a hair wider than the one that built the
+  // queue - closes up the space between its blocks, down to 20px; one that overflows even then, or has
+  // a vote label too long for its half, is marked "overflow" and the renderer refuses to screenshot it.
   Promise.allSettled([...document.fonts].map(face => face.load())).then(() => {
     const content = document.getElementById("content");
     const over = () => content.scrollHeight > content.clientHeight;
@@ -126,13 +129,10 @@
       return changed;
     };
     for (let i = 0; i < 8 && !over(); i++) if (!step(".bubble", 1, 27)) break;
-    if (over()) step(".bubble", -1, 0);
-    for (let i = 0; i < 12 && over(); i++) if (!step(".bubble", -1, 17)) break;
-    for (let i = 0; i < 12 && over(); i++) if (!step(".life, .media, .headline", -1, 16)) break;
-    document.querySelectorAll(".journey .who").forEach(el => {
-      for (let i = 0; i < 14 && el.scrollWidth > el.clientWidth; i++) el.style.fontSize = (parseFloat(getComputedStyle(el).fontSize) - 1) + "px";
-    });
-    document.body.dataset.fit = "done";
+    if (over()) step(".bubble", -1, 22);  // back to the last size that fitted, never below the design size
+    for (let gap = 30; gap >= 20 && over(); gap -= 2) content.style.rowGap = gap + "px";
+    const clipped = [...document.querySelectorAll(".journey .who")].some(el => el.scrollWidth > el.clientWidth);
+    document.body.dataset.fit = over() || clipped ? "overflow" : "done";
   });
 </script>
 </body>

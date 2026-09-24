@@ -16,7 +16,7 @@ import pytest
 
 from voterbot import config, geo
 from voterbot.brand import intro_html
-from voterbot.render import build_html, map_box, vote_steps
+from voterbot.render import CHROMIUM_ARGS, build_html, map_box, vote_steps
 from voterbot.sample import load_profiles
 
 from test_alt_text import PROFILE
@@ -96,7 +96,7 @@ def chromium():
     sync_api = pytest.importorskip("playwright.sync_api")
     try:
         pw = sync_api.sync_playwright().start()
-        browser = pw.chromium.launch()
+        browser = pw.chromium.launch(args=CHROMIUM_ARGS)
     except Exception as error:  # no browser installed here
         pytest.skip(f"Chromium unavailable: {error}")
     yield browser

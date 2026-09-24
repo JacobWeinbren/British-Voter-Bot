@@ -14,14 +14,16 @@ from __future__ import annotations
 from playwright.sync_api import sync_playwright
 
 from . import config
-from .render import build_html, font_css
+from .render import CHROMIUM_ARGS, build_html, font_css
 
 _SHELL = ('<!doctype html><html lang="en-GB"><head><meta charset="utf-8">'
           '<style id="fonts">{fonts}</style><style id="card-style"></style></head><body></body></html>')
 
 # Swap one card into the page (its script does not run, so nothing is grown or fitted) and return
 # the height left over in the content column at design sizes - negative where the card runs past
-# the canvas - and whether each vote label fits its half of the band.
+# the canvas - and whether each vote label fits its half of the band. The test is the card's own
+# (content.scrollHeight > clientHeight), which lets the blocks run into the column's bottom padding
+# above the vote band, measured in fractions of a pixel so that the cut can only err on the safe side.
 _MEASURE = """html => {
   const doc = new DOMParser().parseFromString(html, "text/html");
   document.getElementById("card-style").textContent = doc.querySelector("style").textContent;
@@ -29,7 +31,7 @@ _MEASURE = """html => {
   const content = document.getElementById("content");
   const style = getComputedStyle(content);
   const blocks = [...content.children];
-  const used = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom)
+  const used = parseFloat(style.paddingTop)
     + blocks.reduce((sum, el) => sum + el.getBoundingClientRect().height, 0)
     + parseFloat(style.rowGap) * Math.max(0, blocks.length - 1);
   const labels = [...document.querySelectorAll(".journey .who")].every(el => el.scrollWidth <= el.clientWidth);
@@ -46,8 +48,8 @@ class Measurer:
 
     def __enter__(self) -> "Measurer":
         self._pw = sync_playwright().start()
-        self._browser = self._pw.chromium.launch()
-        self._page = self._browser.new_page(viewport={"width": config.CARD_WIDTH, "height": config.CARD_HEIGHT})
+        self.browser = self._pw.chromium.launch(args=CHROMIUM_ARGS)
+        self._page = self.browser.new_page(viewport={"width": config.CARD_WIDTH, "height": config.CARD_HEIGHT})
         self._page.set_content(_SHELL.format(fonts=font_css()), wait_until="load")
         faces = self._page.evaluate("""Promise.allSettled([...document.fonts].map(f => f.load()))
                                        .then(() => [...document.fonts].map(f => f.status))""")
@@ -57,7 +59,7 @@ class Measurer:
         return self
 
     def __exit__(self, *exc) -> None:
-        self._browser.close()
+        self.browser.close()
         self._pw.stop()
 
     def room(self, profile: dict) -> float:

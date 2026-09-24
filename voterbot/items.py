@@ -287,11 +287,11 @@ def holyrood_vote(row, country: int) -> str | None:
     c = codes.SCOTTISH_PARTY.get(int(const)) if const is not None else None
     l = codes.SCOTTISH_PARTY.get(int(lst)) if lst is not None else None
     if c and l and c == l:
-        return (f"In May's Holyrood election I voted {c} on both ballots.", f"I voted {c} on both ballots in May's Scottish Parliament election.", f"At the Holyrood election in May, I voted {c} on both the constituency and the list ballot.")
+        return (f"In May's Holyrood election, I voted {c} on both ballots.", f"I voted {c} on both ballots in May's Scottish Parliament election.", f"At the Holyrood election in May, I voted {c} on both the constituency and the list ballot.")
     if c and l:
-        return (f"In May's Holyrood election I voted {c} on the constituency ballot and {l} on the list.", f"I voted {c} for my constituency MSP and {l} on the regional list in May's Holyrood election.", f"At the Scottish Parliament election in May, I went {c} on the constituency ballot and {l} on the list.")
+        return (f"In May's Holyrood election, I voted {c} on the constituency ballot and {l} on the list.", f"I voted {c} for my constituency MSP and {l} on the regional list in May's Holyrood election.", f"At the Scottish Parliament election in May, I went {c} on the constituency ballot and {l} on the list.")
     if c or l:
-        return (f"In May's Holyrood election I voted {c or l}.", f"I voted {c or l} in May's Scottish Parliament election.", f"At the Holyrood election in May, I voted {c or l}.")
+        return (f"In May's Holyrood election, I voted {c or l}.", f"I voted {c or l} in May's Scottish Parliament election.", f"At the Holyrood election in May, I voted {c or l}.")
     return None
 
 
@@ -302,7 +302,7 @@ def senedd_vote(row, country: int) -> str | None:
     if turnout == 0 or vote == 0:
         return ("I didn't vote in May's Senedd election.", "I didn't turn out for the Senedd election in May.", "I gave May's Senedd election a miss.")
     if turnout == 1 and vote is not None and int(vote) in codes.SENEDD_PARTY:
-        return (f"In May's Senedd election I voted {codes.SENEDD_PARTY[int(vote)]}.", f"I voted {codes.SENEDD_PARTY[int(vote)]} in May's Senedd election.", f"At the Senedd election in May, I voted {codes.SENEDD_PARTY[int(vote)]}.")
+        return (f"In May's Senedd election, I voted {codes.SENEDD_PARTY[int(vote)]}.", f"I voted {codes.SENEDD_PARTY[int(vote)]} in May's Senedd election.", f"At the Senedd election in May, I voted {codes.SENEDD_PARTY[int(vote)]}.")
     return None
 
 
@@ -972,7 +972,7 @@ ITEMS: list[Item] = [
          by_code({1: ("Most people can be trusted.", "Generally speaking, most people can be trusted.", "On the whole, people can be trusted."), 2: ("You can't be too careful in dealing with people.", "You can't be too careful with people.", "When it comes to dealing with people, you can't be too careful.")})),
     Item("homenorm", "home-ownership", ("homenormW23",),
          agree5(("If you haven't bought a home by 40, you haven't made it.", "Anyone who hasn't bought a home by 40 hasn't made it.", "If you're 40 and still haven't bought a home, you haven't made it."),
-                ("To count as a success you need to own a home by 40.", "Owning a home by 40 is part of being a success in life.", "You need to own your own home by 40 to count as successful."),
+                ("To count as a success, you need to own a home by 40.", "Owning a home by 40 is part of being a success in life.", "You need to own your own home by 40 to count as successful."),
                 ("You don't need to own a home by 40 to be a success.", "You can be a success without owning a home by 40.", "Not owning a home by 40 doesn't mean you haven't made it."),
                 ("Owning a home by 40 has nothing to do with success in life.", "Whether you own a home by 40 has nothing to do with success in life.", "Success in life has nothing to do with owning a home by 40.")), weight=0.6),
     Item("econSecurityFuture", "personal-outlook", ("EconSecurityFutureW25", "EconSecurityFutureW23"),

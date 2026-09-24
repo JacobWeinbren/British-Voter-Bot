@@ -89,19 +89,30 @@ def cmd_preview(args) -> None:
     print(f"rendered {len(picks)} cards as lossless WebP and alt_texts.md in {config.PREVIEW_DIR}")
 
 
+MAX_SKIPS = 2  # cards in a row cmd_post may pass over because they would not fit; more means the layout is broken
+
+
 def cmd_post(args) -> None:
     from .bluesky import post_card
-    from .render import render_card
+    from .render import CardOverflow, render_card
     from .sample import load_profiles, read_position, write_position
     from .schedule import write_last_post
 
     profiles = load_profiles()
     position = read_position()
-    if position >= len(profiles):
-        print("Queue exhausted - run `build` to generate more profiles.")
-        sys.exit(1)
-    profile = profiles[position]
-    png, webp = render_card(profile, config.CARDS_DIR / f"card_{position:04d}.png")
+    for _ in range(MAX_SKIPS + 1):
+        if position >= len(profiles):
+            print("Queue exhausted - run `build` to generate more profiles.")
+            sys.exit(1)
+        profile = profiles[position]
+        try:
+            png, webp = render_card(profile, config.CARDS_DIR / f"card_{position:04d}.png")
+            break
+        except CardOverflow as error:  # never posted with shrunken text or clipped: skip it, keep the feed going
+            print(f"::warning::skipped profile {position} ({profile['constituency']}): {error}")
+            position += 1
+    else:
+        sys.exit(f"{MAX_SKIPS + 1} cards in a row ran past their canvas - something is wrong with the layout, not the cards")
     if args.dry_run:
         print(f"[dry run] would post profile {position}:\n{profile['post_text']}\nimage: {webp} (fallback {png})\n"
               f"alt text ({len(profile['alt_text'])} characters): {profile['alt_text']}")
