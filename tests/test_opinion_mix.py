@@ -16,7 +16,7 @@ import numpy as np
 import pytest
 
 from voterbot import balance, config, items, persona
-from voterbot.profile import DRAWS, ProfileBuilder, tail_cut
+from voterbot.profile import DRAWS, ProfileBuilder, strengths, tail_cut
 from voterbot.sample import build_profiles
 
 from synthetic_panel import synthetic_panel
@@ -191,3 +191,81 @@ def _tmp():
     import tempfile
     from pathlib import Path
     return Path(tempfile.mkdtemp()) / "queue.jsonl.gz"
+
+
+# ---------------------------------------------------------------------------
+# The draw the solver models is the draw the cards make
+
+
+def test_a_middling_answer_goes_into_the_solve_at_the_weight_it_is_drawn_at():
+    offer = strengths([("a", items.Middling("about the same")), ("b", "a lot tighter"), ("c", "on a credit card"), ("c", "with a loan")])
+    assert offer == {"a": config.NEUTRAL_WEIGHT, "b": 1.0, "c": 2.0}
+
+
+def test_the_shares_the_solver_reports_are_the_shares_the_draw_gives():
+    """Draw for real - each option's weight times its strength on the card - with the solved weights."""
+    rng = np.random.default_rng(3)
+    presence = (rng.random((4000, 5)) < 0.5).astype(float)
+    presence[:, 0] *= config.NEUTRAL_WEIGHT  # option 0 is a middling answer wherever it is offered
+    presence[presence.sum(axis=1) == 0, 1] = 1.0
+    result = balance.solve(presence, np.full(5, 0.2), max_rate=1.0)
+    draw, picks = random.Random(4), np.zeros(5)
+    for row in presence:
+        picks[draw.choices(range(5), weights=row * result["weights"])[0]] += 1
+    assert np.abs(picks / len(presence) - result["shares"]).max() < 0.02
+    assert np.abs(result["shares"] - result["targets"]).max() < 1e-4
+
+
+def test_every_money_fact_is_filed_under_its_bes_question(panel):
+    import inspect
+    import re
+    written = set(re.findall(r'add\("([a-z0-9-]+)"', inspect.getsource(persona.money_options)))
+    drawn = {key for _, row in panel.iterrows() for key, _ in persona.money_options(row, random.Random(0))}
+    assert written and drawn <= written <= set(persona.MONEY_QUESTION)
+
+
+def test_the_money_sentence_follows_the_solved_weights_hardship_included(monkeypatch):
+    """A shortcut once said a hardship fact whenever one came first, whatever the weights: the solve decides now."""
+    answers = {"borrowEssentialsW31": 1, "savingsAmtbW31": 5}
+    monkeypatch.setattr(persona, "value", lambda row, col, max_valid=9000: answers.get(col))
+    weigh = lambda key: 1e6 if key == "savings-band" else 1.0  # noqa: E731
+    said = [persona.money_clause(None, random.Random(seed), weigh) for seed in range(50)]
+    assert sum("borrow" in s for s in said) <= 2
+
+
+def test_where_they_stand_in_society_is_said_once_as_a_bubble_not_again_in_the_life_paragraph(panel):
+    for answer in (1, 10):  # right at the bottom, right at the top
+        row = panel.iloc[0].copy()
+        row["statusTopBottomW30"] = answer
+        assert persona.lv(row, "statusTopBottom") == answer
+        keys = {key for key, *_ in persona.extra_options(row, 1, random.Random(0))}
+        assert not keys & {"social-ladder-top", "social-ladder-bottom"}
+        assert [text for _, text in items.candidate_statements(row, 1) if _.key == "statusLadder"]
+
+
+def test_the_news_line_and_the_talk_line_never_disagree_about_conversation(monkeypatch):
+    """'I get most of my politics from talking to people, one to two hours a day' then 'politics comes up
+    a few days a week' contradicted itself: when talking is their main source, the talk line goes."""
+    answers = {"infoSourcePeopleW29": 4, "discussPolDaysW28": 3}
+    monkeypatch.setattr(persona, "value", lambda row, col, max_valid=9000: answers.get(col))
+    for seed in range(20):
+        text = persona.media_paragraph(None, 1, random.Random(seed)).template
+        assert "talking to people" in text and "week" not in text
+
+
+def test_every_opinion_item_has_a_key_of_its_own():
+    """Two questions under one key were filed by the solver under whichever came last."""
+    keys = [item.key for item in items.ITEMS]
+    assert len(keys) == len(set(keys))
+
+
+def test_rows_of_one_frame_share_one_entry_in_the_question_cache(panel):
+    """A row taken with .iloc carries a fresh Index each time; caching by that object kept one entry per
+    card and filled the memory of a full build."""
+    from voterbot import data
+    data._FIELDINGS.clear()
+    for i in range(200):
+        persona.lv(panel.iloc[i], "statusTopBottom")
+    for _, row in panel.head(50).iterrows():
+        persona.lv(row, "statusTopBottom")
+    assert len(data._FIELDINGS) == 1

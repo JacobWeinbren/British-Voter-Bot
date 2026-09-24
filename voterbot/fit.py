@@ -21,9 +21,9 @@ _SHELL = ('<!doctype html><html lang="en-GB"><head><meta charset="utf-8">'
 
 # Swap one card into the page (its script does not run, so nothing is grown or fitted) and return
 # the height left over in the content column at design sizes - negative where the card runs past
-# the canvas - and whether each vote label fits its half of the band. The test is the card's own
-# (content.scrollHeight > clientHeight), which lets the blocks run into the column's bottom padding
-# above the vote band, measured in fractions of a pixel so that the cut can only err on the safe side.
+# the canvas - and whether each vote label fits its half of the band. The sum is the one the card's own
+# fit script makes: the blocks may run into the column's bottom padding, down to config.BAND_CLEARANCE
+# above the vote band.
 _MEASURE = """html => {
   const doc = new DOMParser().parseFromString(html, "text/html");
   document.getElementById("card-style").textContent = doc.querySelector("style").textContent;
@@ -68,6 +68,7 @@ class Measurer:
         A vote label too wide for its half of the band counts as not fitting too.
         """
         room, labels_fit = self._page.evaluate(_MEASURE, build_html(profile, fonts=False))
+        room -= config.BAND_CLEARANCE
         return room if labels_fit else min(room, -1.0)
 
     def fits(self, profile: dict) -> bool:

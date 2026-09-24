@@ -122,7 +122,7 @@ def text_value(row, column: str) -> str | None:
 
 
 _WAVE_RE = re.compile(r"^(.*?)(W\d+(?:_?W\d+)*)$")
-_FIELDINGS: dict[int, dict[str, list[str]]] = {}
+_FIELDINGS: dict[tuple, dict[str, list[str]]] = {}  # (id, length, first and last name of a column set) -> stem -> fieldings
 
 
 def _max_wave(column: str) -> int:
@@ -136,7 +136,12 @@ def fieldings(columns, stem: str, floor: int = 20) -> list[str]:
     The BES keeps a variable name stable when the question is unchanged, so
     `fieldings(row.index, "enviroGrowth")` gives the full run of that question.
     """
-    key = id(columns)
+    # A row taken with .iloc carries a fresh Index object each time, but over the frame's own array
+    # of names, which the frame keeps alive: that array is the key, one entry per frame. Holding on
+    # to each row's Index instead filled the memory of a whole build. The length and the end columns
+    # guard against an array id that a freed frame has handed on to a different one.
+    names = getattr(columns, "values", columns)
+    key = (id(names), len(columns), columns[0] if len(columns) else None, columns[-1] if len(columns) else None)
     if key not in _FIELDINGS:
         registry: dict[str, list[str]] = {}
         for column in columns:

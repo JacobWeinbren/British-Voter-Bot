@@ -80,6 +80,19 @@ def test_a_card_a_little_over_closes_up_its_gaps_rather_than_its_text(measure):
     page.close()
 
 
+def test_the_fullest_card_that_fits_still_keeps_clear_of_the_vote_band(measure):
+    """The blocks may run into the padding above the band, never nearer it than BAND_CLEARANCE, so
+    the scale labels do not sit on the band - growing views included."""
+    n = 0
+    while measure.fits(with_life(n + 1)):
+        n += 1
+    page = settled(measure.browser, build_html(with_life(n)))
+    gap = page.evaluate("document.querySelector('.journey').getBoundingClientRect().top"
+                        " - document.getElementById('content').lastElementChild.getBoundingClientRect().bottom")
+    assert gap >= config.BAND_CLEARANCE - 0.5
+    page.close()
+
+
 def test_the_renderer_refuses_a_card_that_runs_over(chromium_installed, tmp_path):
     with pytest.raises(RuntimeError, match="runs past its canvas"):
         render_png(OVERLONG, tmp_path / "card.png")

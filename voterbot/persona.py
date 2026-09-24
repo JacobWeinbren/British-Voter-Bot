@@ -53,7 +53,7 @@ VARIANTS: dict[str, tuple[str, ...]] = {
     "I expect money to get a bit tighter over the next year": ("I think I'll be a bit worse off this time next year", "I reckon my finances will get a little worse over the next twelve months", "I expect to be slightly worse off a year from now"),
     "I expect money to get a lot tighter over the next year": ("I think I'll be a lot worse off this time next year", "I reckon my finances will get a lot worse over the next twelve months", "I expect to be a good deal worse off a year from now"),
     "I expect to be a lot better off this time next year": ("I expect money to get a lot easier over the next year", "I reckon my finances will get a lot better over the next twelve months", "I think I'll be a good deal better off a year from now"),
-    "I've had to borrow money for essentials this year": ("I've borrowed money this year just to cover essentials", "I've needed to borrow to pay for bills and groceries this past year", "this last year I've had to borrow just to get by on the basics"),
+    "I've had to borrow money for essentials this year": ("I've borrowed money this year just to cover essentials", "I've needed to borrow to pay for bills and groceries this past year", "this last year, I've had to borrow just to get by on the basics"),
     "I've got a degree": ("I'm a graduate", "I went to university and got my degree", "I've a degree to my name"),
     "I've got a postgraduate degree": ("I've done a postgraduate degree", "I stayed on after my degree and did a postgraduate qualification", "I've got a postgrad degree on top of my first one"),
     "I've got A-levels": ("My highest qualifications are A-levels", "I finished school with A-levels", "A-levels are the top qualifications I've got"),
@@ -175,6 +175,12 @@ def age_band(age: int) -> str:
     return next((band for below, band in AGE_BANDS if age < below), OLDEST_BAND)
 
 
+def seat_article(name: str) -> str:
+    """ "the " before a seat named "X of Y" ("from the City of Durham", "the Vale of Glamorgan",
+    "the Isle of Wight East"); nothing before the rest, "The Wrekin" having its own."""
+    return "the " if name.startswith(("City of ", "Cities of ", "Vale of ", "Forest of ", "Weald of ", "Isle of ")) else ""
+
+
 def headline(row, country: int, place: str, age: int, seat: str | None = None) -> Span:
     gender = codes.GENDER[int(value(row, "gender"))]
     words = []
@@ -192,7 +198,7 @@ def headline(row, country: int, place: str, age: int, seat: str | None = None) -
     slots["gender"] = gender
     template_words.append("{gender}")
     first_word = words[0] if words else gender
-    template = f"I'm {article(first_word)} " + " ".join(template_words) + " from {place}, in my {age}."
+    template = f"I'm {article(first_word)} " + " ".join(template_words) + f" from {seat_article(place)}{{place}}, in my {{age}}."
     slots["place"] = place
     slots["age"] = age_band(age)
     return Span(template, slots)
@@ -225,6 +231,21 @@ def housing_clause(row, rng: random.Random | None = None) -> str | None:
     if code is not None and int(code) in codes.P_HOUSING:
         return vary(codes.P_HOUSING[int(code)], rng)
     return None
+
+
+# The BES question behind each money fact. The build gives every question an equal share of the money
+# sentence and splits it evenly between the facts it gives (ProfileBuilder.solve_group), so the eight
+# ways of being short of money do not get eight shares between them.
+MONEY_QUESTION = {
+    "borrowed-for-essentials": "borrowEssentials",
+    "no-300-for-emergency": "smallEmergency", "how-to-cover-300": "smallEmergency",
+    "money-past-year": "econPersonalRetro",
+    "worried-about-money": "worryEconSecurity", "not-worried-about-money": "worryEconSecurity",
+    "expects-to-run-short": "riskPoverty",
+    "no-savings": "savings", "savings-band": "savings", "savings-cushion": "savings",
+    "expects-lot-tighter": "econPersonalProsp", "expects-bit-tighter": "econPersonalProsp", "expects-better-off": "econPersonalProsp",
+    "expects-job-loss": "riskUnemployment",
+}
 
 
 def money_options(row, rng: random.Random) -> list[tuple[str, str]]:
@@ -276,19 +297,15 @@ def money_options(row, rng: random.Random) -> list[tuple[str, str]]:
         for col, how in (("smallEmergency2_6W31", one_of(rng, "put it on the credit card", "stick it on a credit card and pay it off over time", "pay for it on a credit card")), ("smallEmergency2_4W31", one_of(rng, "borrow it from family or friends", "ask family or friends to lend it to me", "go to family or friends for the money")),
                          ("smallEmergency2_2W31", one_of(rng, "take out a loan", "get a loan to cover it", "borrow it from a lender")), ("smallEmergency2_3W31", one_of(rng, "sell something", "sell something I own", "flog something to raise the cash"))):
             if value(row, col) == 1:
-                add("how-to-cover-300", one_of(rng, f"an unexpected £300 bill would mean I'd have to {how}", f"if a £300 bill turned up out of the blue, I'd have to {how}", f"to cover a surprise £300 expense I'd need to {how}"))
+                add("how-to-cover-300", one_of(rng, f"an unexpected £300 bill would mean I'd have to {how}", f"if a £300 bill turned up out of the blue, I'd have to {how}", f"to cover a surprise £300 expense, I'd need to {how}"))
     return options
 
 
 def money_clause(row, rng: random.Random, weigh=None) -> str | None:
-    """The most telling thing their answers say about money, in one clause."""
+    """One thing their answers say about money, in one clause, by the weights the build solved for."""
     options = money_options(row, rng)
     if not options:
         return None
-    # hardship signals first; otherwise the solved weights pick among the rest
-    for _key, hard in options[:2]:
-        if hard.startswith(("I've had to borrow", "an unexpected")):
-            return vary(hard, rng)
     _key, choice = weighted(options, rng, weigh)
     return vary(str(choice), rng)
 
@@ -340,17 +357,17 @@ def job_clause(row, rng: random.Random) -> str | None:
             return one_of(rng, "I'm retired and never had a paid job", "I'm retired, and I was never in paid work", "I'm retired now and never had a paid job in my life")
         if not job:
             return one_of(rng, "I'm retired", "I've retired", "I'm retired now")
-        frame = rng.choice((one_of(rng, "I'm retired - before that I {past}", "I'm retired - in my working days, I {past}", "Before I retired, I {past}"), one_of(rng, "I'm retired these days. In my working life, I {past}", "I'm retired now. Back when I was working, I {past}", "These days, I'm retired, but when I was working, I {past}")))
+        frame = rng.choice((one_of(rng, "I'm retired - before that, I {past}", "I'm retired - in my working days, I {past}", "Before I retired, I {past}"), one_of(rng, "I'm retired these days. In my working life, I {past}", "I'm retired now. Back when I was working, I {past}", "These days, I'm retired, but when I was working, I {past}")))
         return frame.format(past=describe(job, tense_past=True))
     if status == 4:
         if nssec == codes.NSSEC_NEVER_WORKED:
             return one_of(rng, "I'm looking for my first job", "I'm out of work and looking for my first ever job", "I've never had a job yet, and I'm looking for one")
-        return one_of(rng, f"I'm out of work and looking for a job - before that I {describe(job, tense_past=True)}", f"I'm unemployed and job-hunting at the moment - before that I {describe(job, tense_past=True)}", f"I'm between jobs and looking for work. Before this I {describe(job, tense_past=True)}") if job \
+        return one_of(rng, f"I'm out of work and looking for a job - before that, I {describe(job, tense_past=True)}", f"I'm unemployed and job-hunting at the moment - before that, I {describe(job, tense_past=True)}", f"I'm between jobs and looking for work. Before this, I {describe(job, tense_past=True)}") if job \
             else one_of(rng, "I'm out of work and looking for a job", "I'm unemployed and looking for work", "I'm job-hunting at the moment, not in work")
     if status == 8:
         if nssec == codes.NSSEC_NEVER_WORKED:
             return one_of(rng, "I'm not in paid work and never have been", "I've never been in paid work", "I don't do paid work and never have done")
-        return one_of(rng, f"I'm not in paid work at the moment - before that I {describe(job, tense_past=True)}", f"These days, I'm not in paid work - previously I {describe(job, tense_past=True)}", f"I'm not doing paid work right now. Before this I {describe(job, tense_past=True)}") if job \
+        return one_of(rng, f"I'm not in paid work at the moment - before that, I {describe(job, tense_past=True)}", f"These days, I'm not in paid work - previously, I {describe(job, tense_past=True)}", f"I'm not doing paid work right now. Before this, I {describe(job, tense_past=True)}") if job \
             else one_of(rng, "I'm not in paid work at the moment", "I'm not doing paid work right now", "I'm not in a paid job just now")
     if status == 10:
         return one_of(rng, "I'm on furlough", "I've been furloughed", "I'm furloughed from my job")
@@ -559,7 +576,7 @@ def circumstance_details(row, country: int, rng: random.Random, cuts: dict | Non
     if faith == 4 and religion not in (None, 1):
         options.append(("faith-matters", "other", one_of(rng, "my faith makes a great difference to my life", "my spiritual beliefs make a huge difference to how I live", "my religion makes a great deal of difference to my life")))
     elif faith == 1 and religion not in (None, 1, 16):
-        options.append(("faith-matters-little", "other", one_of(rng, "my religion doesn't make much difference to my day-to-day life", "my spiritual beliefs don't really affect my day-to-day life", "day to day, my religion doesn't make any real difference to my life")))
+        options.append(("faith-matters-little", "other", one_of(rng, "my religion makes no difference to my life", "my spiritual beliefs make no difference to my life", "my religion doesn't make any difference to how I live")))
     if value(row, "belongGroup_2W26") == 1:
         options.append(("belongs-locally", "other", one_of(rng, "I feel a real sense of belonging to my local community", "I feel I really belong in my local community", "My local community is somewhere I feel I belong")))
     if country == codes.ENGLAND and raw_code(row, "belongGroup_6W26") == 1:
@@ -574,7 +591,7 @@ def circumstance_details(row, country: int, rng: random.Random, cuts: dict | Non
 
     for col, text in (("participation_3W29", one_of(rng, "I had a poster up for the 2024 election", "I put an election poster up in 2024", "During the 2024 campaign, I displayed a poster")),
                       ("participation_2W29", one_of(rng, "I gave money to a party during the 2024 campaign", "I donated to a political party during the 2024 election campaign", "In the 2024 campaign, I put some money towards a party")),
-                      ("participation_1W29", one_of(rng, "I did some campaigning for a party in 2024", "I did some work for a party or campaign group during the 2024 election", "In 2024 I helped out with a party's campaign"))):
+                      ("participation_1W29", one_of(rng, "I did some campaigning for a party in 2024", "I did some work for a party or campaign group during the 2024 election", "In 2024, I helped out with a party's campaign"))):
         if value(row, col) == 1:
             options.append((col, "other", text))
     for col, text in (("nonelecParticipation_6W26", one_of(rng, "I've been on a demonstration", "I've taken part in a public demonstration", "I've been out on a protest")),
@@ -608,19 +625,16 @@ def circumstance_details(row, country: int, rng: random.Random, cuts: dict | Non
         options.append(("bought-first-home", "home", one_of(rng, f"I bought my first home in {int(first_home)}", f"I first owned a home back in {int(first_home)}", f"I got on the housing ladder in {int(first_home)}")))
     ladder = lv(row, "mapHouse")
     if ladder is not None and ladder <= 15:
-        options.append(("was-among-poorest", "other", one_of(rng, "a few years back I put my household among the poorest in the country", "a few years ago I rated my household as one of the poorest in the UK", "when asked a few years back, I put my household near the poorest end of the scale")))
+        options.append(("was-among-poorest", "other", one_of(rng, "a few years back, I put my household among the poorest in the country", "a few years ago, I rated my household as one of the poorest in the UK", "when asked a few years back, I put my household near the poorest end of the scale")))
     elif ladder is not None and ladder >= 85:
-        options.append(("was-among-richest", "other", one_of(rng, "a few years back I put my household among the richest in the country", "a few years ago I rated my household as one of the richest in the UK", "when asked a few years back, I put my household near the richest end of the scale")))
+        options.append(("was-among-richest", "other", one_of(rng, "a few years back, I put my household among the richest in the country", "a few years ago, I rated my household as one of the richest in the UK", "when asked a few years back, I put my household near the richest end of the scale")))
     wealth = lv(row, "statusWealth")
     if wealth is not None and wealth <= 2:
         options.append(("wealth-ladder-bottom", "other", one_of(rng, "on a ladder of wealth, I'd put myself near the bottom", "for wealth, I'd place myself right down near the bottom of the ladder", "in terms of wealth, I'd say I'm close to the bottom of the pile")))
     elif wealth is not None and wealth >= 9:
         options.append(("wealth-ladder-top", "other", one_of(rng, "on a ladder of wealth, I'd put myself near the top", "for wealth, I'd place myself right up near the top of the ladder", "in terms of wealth, I'd say I'm close to the top of the pile")))
-    standing = lv(row, "statusTopBottom")
-    if standing is not None and standing <= 2:
-        options.append(("social-ladder-bottom", "other", one_of(rng, "I'd put myself near the bottom of the social ladder", "In society, I'd say I'm one of those near the bottom", "I'd place myself close to the bottom of the social scale")))
-    elif standing is not None and standing >= 9:
-        options.append(("social-ladder-top", "other", one_of(rng, "I'd put myself near the top of the social ladder", "In society, I'd say I'm one of those near the top", "I'd place myself close to the top of the social scale")))
+    # Where they place themselves in society (statusTopBottom) is a bubble instead (items statusLadder),
+    # worded answer by answer: said here as well, it could land on a card twice at two strengths.
     # Need for cognition and empathy short scales
     if value(row, "nfc5W21") == 5 or value(row, "nfc2W21") == 5:
         options.append(("enjoys-thinking", "other", one_of(rng, "I love a problem that takes a lot of thinking", "I really enjoy a task where I have to work out new solutions", "Give me something that needs a lot of thinking and I'm happy")))
@@ -869,8 +883,8 @@ def media_paragraph(row, country: int, rng: random.Random | None = None, shared_
     if social:
         sentences.append(social)
     talk = talking_politics(row, rng)
-    if talk:
-        sentences.append(talk + ".")
+    if talk and not (habit and codes.NEWS_SOURCES["infoSourcePeopleW29"] in habit):
+        sentences.append(talk + ".")  # unless the news line has them getting politics from talking to people already
     shared = shared_content(row, bold, rng)
     if shared and shared_sentence and sum(len(s) + 1 for s in sentences + [shared]) <= config.MEDIA_MAX_LINES * config.MEDIA_CHARS_PER_LINE:
         sentences.append(shared)  # only while the paragraph still fits its line budget

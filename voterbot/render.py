@@ -148,7 +148,7 @@ def build_html(profile: dict, fonts: bool = True) -> str:
     headline = headline.replace(_bold(profile["headline"]["bold"]["place"]), f'<strong class="place">{place}</strong>')
     template = _env.get_template("card.html")
     return template.render(
-        width=config.CARD_WIDTH, height=config.CARD_HEIGHT,
+        width=config.CARD_WIDTH, height=config.CARD_HEIGHT, band_clearance=config.BAND_CLEARANCE,
         map_width=map_width, map_height=map_height,
         font_css=font_css() if fonts else "",
         ink=config.INK, body=config.BODY, secondary=config.SECONDARY, accent=config.ACCENT,

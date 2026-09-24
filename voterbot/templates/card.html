@@ -119,7 +119,12 @@
   // a vote label too long for its half, is marked "overflow" and the renderer refuses to screenshot it.
   Promise.allSettled([...document.fonts].map(face => face.load())).then(() => {
     const content = document.getElementById("content");
-    const over = () => content.scrollHeight > content.clientHeight;
+    const over = () => {  // the blocks and the gaps between them, against the height down to {{ band_clearance }}px above the band
+      const style = getComputedStyle(content), blocks = [...content.children];
+      const used = parseFloat(style.paddingTop) + blocks.reduce((sum, el) => sum + el.getBoundingClientRect().height, 0)
+        + parseFloat(style.rowGap) * Math.max(0, blocks.length - 1);
+      return used > content.clientHeight - {{ band_clearance }};
+    };
     const step = (selector, by, limit) => {
       let changed = false;
       document.querySelectorAll(selector).forEach(el => {

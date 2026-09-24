@@ -79,3 +79,10 @@ def test_a_theme_split_into_many_topics_gets_no_more_than_one_split_into_few():
     paths = [("elections", f"t{i}") for i in range(9)] + [("monarchy", "monarchy")]
     shares = balance.tree_targets([str(i) for i in range(10)], paths, [1.0] * 10)
     assert shares[:9].sum() == pytest.approx(shares[9])
+
+
+def test_ceilings_stretched_to_a_hair_under_one_still_give_targets():
+    """Stretching ceilings that fall short of one can leave them summing to 0.9999999999999999, and the
+    search for a scale that reaches one used to double for ever."""
+    targets, held = balance.feasible_targets(np.array([0.5, 0.5]), np.array([0.09, 0.09]))
+    assert targets.sum() == pytest.approx(1.0) and held.all()

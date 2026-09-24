@@ -7,10 +7,12 @@ each option (an opinion item, a life fact) should win across the feed - and its 
 for once per build, per nation, so that the draws hit those targets as far as the answers allow.
 
 The model is the draw itself. On a card, an option on offer is picked with probability
-weight / (sum of the weights on offer), so across the panel each option's expected share of picks
-is weight x sum over its cards of 1 / (that card's total). The weights that give each option its
-target share are found by the multiplicative update w <- w * target / share: the
-minorisation-maximisation fixed point for Luce choice strengths, which converges from any start.
+weight / (sum of the weights on offer), a middling answer's weight counted at the fraction the draw
+gives it (config.NEUTRAL_WEIGHT), so across the panel each option's expected share of picks is
+weight x sum over its cards of (that fraction) / (that card's total). The weights that give each
+option its target share are found by the multiplicative update w <- w * target / share: the
+minorisation-maximisation fixed point for Luce choice strengths, which converges from any start
+whenever the targets can be met at all.
 
 One limit, set before solving. An answer held by a handful of people could only reach its share
 of the feed by being shown on nearly every one of their cards, and then everyone who gave it would
@@ -32,7 +34,7 @@ def per_draw_rate(appearance: float, draws: int) -> float:
 
 
 def flat_shares(presence: np.ndarray) -> np.ndarray:
-    """Each option's share of picks if every option on a card were equally likely."""
+    """Each option's share of picks with every weight equal (a middling answer still at its fraction)."""
     sizes = presence.sum(axis=1, keepdims=True)
     return (presence / np.where(sizes == 0, np.inf, sizes)).sum(axis=0) / max(int((sizes > 0).sum()), 1)
 
@@ -54,18 +56,21 @@ def feasible_targets(targets: np.ndarray, ceiling: np.ndarray, floor: np.ndarray
     if reachable.sum() < 1.0:
         ceiling = ceiling * (1.0 / reachable.sum())
     fill = lambda scale: np.clip(scale * wanted, floor, ceiling)  # noqa: E731
+    enough = 1.0 - 1e-12  # stretched ceilings can sum to a hair under one, and no scale would ever reach it
     low, high = 0.0, 1.0
-    while fill(high).sum() < 1.0:
+    while fill(high).sum() < enough and high < 1e300:
         high *= 2.0
     for _ in range(200):  # the total rises steadily with the scale: bisect for the scale that makes it one
         middle = (low + high) / 2
-        low, high = (middle, high) if fill(middle).sum() < 1.0 else (low, middle)
+        low, high = (middle, high) if fill(middle).sum() < enough else (low, middle)
     result = fill(high)
     return result / result.sum(), (wanted > 0) & (high * wanted >= ceiling * (1 - 1e-9))
 
 
 def solve(presence: np.ndarray, targets: np.ndarray, max_rate: float, iterations: int = 3000, tolerance: float = 1e-5) -> dict:
-    """Weights for the columns of `presence` (cards x options, 1 where the card offers the option).
+    """Weights for the columns of `presence` (cards x options): 1 where the card offers the option, or
+    the fraction of a weight it is drawn at there (config.NEUTRAL_WEIGHT for a middling answer), so the
+    model is the draw the card actually makes.
 
     Returns the weights, the shares they achieve, the flat-draw shares, the (feasible) targets they
     were solved for, and which options are held at their ceiling. Rows offering nothing are ignored.
@@ -77,10 +82,13 @@ def solve(presence: np.ndarray, targets: np.ndarray, max_rate: float, iterations
         empty = np.zeros(options)
         return {"weights": np.ones(options), "shares": empty, "flat": empty, "targets": empty, "held": np.zeros(options, bool)}
     flat = flat_shares(presence)
-    offered = presence.sum(axis=0) / cards
-    solo = presence[presence.sum(axis=1) == 1].sum(axis=0) / cards  # the cards where an option is all there is
+    on_offer = presence > 0
+    offered = on_offer.sum(axis=0) / cards
+    solo = on_offer[on_offer.sum(axis=1) == 1].sum(axis=0) / cards  # the cards where an option is all there is
     goal, held = feasible_targets(targets, np.maximum(max_rate * offered, solo), solo)
     live = goal > 0
+    if not live.any():
+        return {"weights": np.zeros(options), "shares": np.zeros(options), "flat": flat, "targets": goal, "held": held}
     weights = np.where(live, 1.0, 0.0)
     shares = np.zeros(options)
     for _ in range(iterations):

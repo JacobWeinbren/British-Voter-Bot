@@ -120,6 +120,15 @@ def trait_cuts(panel: pd.DataFrame) -> dict[str, tuple[float, float]]:
     return cuts
 
 
+def strengths(options) -> dict[str, float]:
+    """What a card offers one draw, as the weight each fact goes in at: a middling answer at
+    config.NEUTRAL_WEIGHT, and a fact the card can state more than one way once for each."""
+    offer: dict[str, float] = collections.defaultdict(float)
+    for key, text in options:
+        offer[key] += config.NEUTRAL_WEIGHT if isinstance(text, items.Middling) else 1.0
+    return dict(offer)
+
+
 def group_of(item: items.Item) -> str:
     """Which draw an opinion item belongs to: the card's closing nation-and-identity bubble, or the rest."""
     return "nation" if item.topic in items.NATION_TOPICS else "general"
@@ -165,7 +174,7 @@ class ProfileBuilder:
         """For every respondent, what each draw could offer them, by nation; and how much weight each
         nation's voters put on each opinion theme, from the issue they name as most important."""
         rng = random.Random(config.RANDOM_SEED)  # picks between wordings of one fact only, which leaves the keys alone
-        pools: dict[int, dict[str, list[list[str]]]] = {}
+        pools: dict[int, dict[str, list[dict[str, float]]]] = {}
         salience: dict[int, collections.Counter] = {}
         for _, row in panel.iterrows():
             country = value(row, "countryW31")
@@ -175,10 +184,10 @@ class ProfileBuilder:
             seat = text_value(row, "new_pcon_codeW31")
             nation = pools.setdefault(country, {"general": [], "nation": [], "money": [], "details": []})
             offered = items.candidate_statements(row, country)
-            nation["general"].append([i.key for i, _ in offered if group_of(i) == "general"])
-            nation["nation"].append([i.key for i, _ in offered if group_of(i) == "nation"])
-            nation["money"].append([key for key, _ in persona.money_options(row, rng)])
-            nation["details"].append([key for key, *_ in persona.extra_options(row, country, rng, seat, self.cuts)])
+            nation["general"].append(strengths((i.key, t) for i, t in offered if group_of(i) == "general"))
+            nation["nation"].append(strengths((i.key, t) for i, t in offered if group_of(i) == "nation"))
+            nation["money"].append(strengths(persona.money_options(row, rng)))
+            nation["details"].append(strengths((key, text) for key, _theme, text in persona.extra_options(row, country, rng, seat, self.cuts)))
             _, _, issue = top_issue(row)
             topics = items.ISSUE_TOPICS.get(issue or 0, set())
             weight = value(row, config.WEIGHT_COLUMN) or 0.0
@@ -186,7 +195,7 @@ class ProfileBuilder:
                 salience.setdefault(country, collections.Counter())[items.theme_of(topic)] += weight / len(topics)
         return pools, salience
 
-    def solve_group(self, country: int, group: str, cards: list[list[str]], salience: collections.Counter) -> None:
+    def solve_group(self, country: int, group: str, cards: list[dict[str, float]], salience: collections.Counter) -> None:
         """Solve one nation's weights for one draw, and note in the report how close they come."""
         keys = sorted({key for card in cards for key in card})
         if not keys:
@@ -194,7 +203,8 @@ class ProfileBuilder:
         column = {key: j for j, key in enumerate(keys)}
         presence = np.zeros((len(cards), len(keys)), dtype=np.float32)
         for i, card in enumerate(cards):
-            presence[i, [column[key] for key in card]] = 1.0
+            for key, strength in card.items():
+                presence[i, column[key]] = strength
         if group in ("general", "nation"):
             paths = [(items.theme_of(ITEMS_BY_KEY[key].topic), ITEMS_BY_KEY[key].topic) for key in keys]
             themes = sorted({path[0] for path in paths})
@@ -204,12 +214,14 @@ class ProfileBuilder:
                 top = {theme: config.SALIENCE_SHARE * (salience.get(theme, 0.0) / named if named else 1 / len(themes))
                        + (1 - config.SALIENCE_SHARE) / len(themes) for theme in themes}
             targets = balance.tree_targets(keys, paths, [ITEMS_BY_KEY[key].weight for key in keys], top)
+        elif group == "money":  # an equal share per BES question, split evenly between the facts it gives
+            targets = balance.tree_targets(keys, [(persona.MONEY_QUESTION[key],) for key in keys], [1.0] * len(keys))
         else:
             targets = np.full(len(keys), 1.0 / len(keys))
         result = balance.solve(presence, targets, balance.per_draw_rate(config.MAX_APPEARANCE, DRAWS[group]))
         for key, weight in zip(keys, result["weights"]):
             self.weights[(country, group, key)] = float(weight)
-        self.solved[(country, group)] = {"keys": keys, "offered": dict(zip(keys, presence.mean(axis=0).tolist())), **result}
+        self.solved[(country, group)] = {"keys": keys, "offered": dict(zip(keys, (presence > 0).mean(axis=0).tolist())), **result}
         gap = float(np.abs(result["shares"] - result["targets"]).max())
         self.report.append(f"{codes.NATIONS[country]:>8} {group:<8} {len(cards):6d} cards {len(keys):4d} options; "
                            f"{int(result['held'].sum())} held at the appearance cap; largest miss {gap:.4f}")
@@ -403,7 +415,7 @@ def alt_text(profile: dict) -> str:
                   f"social, liberal to authoritarian, {cultural}.")
     else:
         scales = "The value scales are left off because they did not answer enough of those questions."
-    map_line = (f"A map of {profile['nation']} with a dot on {profile['constituency']}." if profile.get("constituency_code")
+    map_line = (f"A map of {profile['nation']} with a dot on {persona.seat_article(profile['constituency'])}{profile['constituency']}." if profile.get("constituency_code")
                 else f"A map of {profile['nation']}; their constituency is not recorded.")
     sections = [
         "Voter card.",

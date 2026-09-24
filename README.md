@@ -21,19 +21,33 @@ The targets, and the dials behind them (all in `voterbot/config.py`):
   evenly over every theme, so the subjects nobody names still get a hearing. Within a theme its
   topics share equally, and within a topic the items share by their editorial weight. How many
   questions the BES asked, or how many the library phrased, no longer decides anything.
-- **Life details and the money sentence.** Every fact gets an equal share, as far as the answers
-  allow, so the ones a handful of people can state stand level with an income band.
+- **Life details and the money sentence.** Every life detail gets an equal share, as far as the
+  answers allow, so the ones a handful of people can state stand level with an income band. The
+  money sentence gives every BES question behind it an equal share, split evenly between the facts
+  that question gives (`persona.MONEY_QUESTION`): per fact, the eight ways of being short of money
+  would have wanted more of the sentence than the cards that can say any of them could give. Even
+  per question the rarer facts cannot all reach their share, because they cluster on the same
+  cards - someone who has borrowed for essentials usually has no savings and worries about money
+  too - so the build gets within a few points (it prints the largest miss), and a card that holds
+  one of them says one of them.
 - **A cap.** No view or fact appears on more than `MAX_APPEARANCE` (half) of the cards that could
   carry it. A rare answer is lifted up to that point and no further - otherwise everyone who gave it
   would say it every time they came round. What a capped answer cannot use goes to the rest.
 - **Middling answers** - marked where each wording is written (`items.middling`) - are drawn at
-  `NEUTRAL_WEIGHT` (a fifth), because surveys nudge people to the middle and a view says more.
+  `NEUTRAL_WEIGHT` (a fifth), because surveys nudge people to the middle and a view says more. The
+  solver counts them the same way.
 - **The top issue** still gets a bubble whenever the respondent holds a view on it, and a card's
   last bubble is about nation and identity `NATION_BUBBLE_CHANCE` of the time: most cards in
   Scotland and Wales, where the constitution is the second axis of politics, fewer in England.
 
 The build prints what the solved weights achieve, nation by nation, next to what a flat draw would
-have given; `python -m voterbot stats` shows each theme's share of the built queue.
+have given; `python -m voterbot stats` shows each theme's share of the built queue. The two can
+differ. The solver models each group as one draw from everything on offer, which is exactly what
+the money sentence does. The bubbles have more to them - the top issue's bubble comes first and no
+two bubbles share a theme - so the economy and immigration come out a few points above the report
+and the rarest themes below it. The two life details are drawn without replacement, which the
+model does not follow either: the commonest facts land up to a third above their share, and a
+fact can reach about 55% of the cards that could carry it rather than the cap's half.
 
 Two smaller rules follow the same idea. A personality or risk trait is mentioned only for the outer
 `TRAIT_TAIL` (tenth) of the panel either side, measured at build time, so "I'm an extrovert" means
@@ -69,9 +83,8 @@ between its blocks, and one that overflows even then is refused by the renderer 
 for the next card rather than posted clipped. Every Chromium starts with font hinting off
 (`render.CHROMIUM_ARGS`): with it on, Linux wraps about one card in sixty differently from macOS,
 so a card that fitted on the Mac that built the queue could run over on the posting runner.
-Each nation is fitted to
-the islands it actually draws, so it fills its box, and a coastal seat's dot can draw past the
-map's edge rather than be cut off.
+Each nation is fitted to the islands it actually draws, so it fills its box, and a coastal seat's
+dot can draw past the map's edge rather than be cut off.
 
 ## Keeping respondents anonymous
 

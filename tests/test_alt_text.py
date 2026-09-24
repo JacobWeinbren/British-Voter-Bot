@@ -56,3 +56,17 @@ def test_alt_text_never_exceeds_limit_even_with_long_copy():
     long_profile["life"] = {"template": "x" * 1500, "bold": {}}
     long_profile["media"] = {"template": "y" * 400, "bold": {}}
     assert len(alt_text(long_profile)) <= ALT_TEXT_LIMIT
+
+
+def test_a_seat_named_x_of_y_takes_the_in_the_headline_and_the_alt_text():
+    import pandas as pd
+
+    from voterbot import persona
+    for seat in ("City of Durham", "Cities of London and Westminster", "Vale of Glamorgan", "Forest of Dean", "Isle of Wight East"):
+        assert persona.seat_article(seat) == "the "
+    assert persona.seat_article("Durham") == persona.seat_article("The Wrekin") == ""
+    head = persona.headline(pd.Series({"gender": 2}), 1, "City of Durham", 44)
+    assert "from the {place}, in my {age}." in head.template and head.bold["place"] == "City of Durham"
+    card = dict(PROFILE, constituency="City of Durham", headline=head.as_dict())
+    assert "from the City of Durham, in my forties." in post_text(card)
+    assert "with a dot on the City of Durham." in alt_text(card)
