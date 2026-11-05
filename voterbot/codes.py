@@ -130,7 +130,8 @@ STUDENT = {5: "I'm a full-time university student", 6: "I'm a full-time student"
 
 # NS-SEC operational categories (ns_sec*) -> what the job is, in plain words.
 # These are the occupational class codes that exist in the data; the survey does
-# not release job titles. Examples are drawn from the official NS-SEC grouping.
+# not release job titles. Examples are drawn from the official NS-SEC grouping, and go in
+# brackets after the job (persona.job_clause): "a routine service job (like cleaning or waiting tables)".
 NSSEC_JOB = {
     10: "run a large business",
     20: "have a senior management job",
@@ -158,16 +159,16 @@ NSSEC_JOB = {
     111: "have a skilled trade",
     112: "am a skilled process operative",
     121: "have a shop floor job",
-    122: "have a semi-skilled service job - care work etc.",
+    122: "have a semi-skilled service job - like care work",
     123: "have a semi-skilled technical job",
     124: "have a semi-skilled operative job",
     125: "have a semi-skilled farm job",
     126: "have a semi-skilled clerical job",
     127: "work in childcare",
-    131: "have a routine service job - cleaning, waiting tables etc.",
-    132: "have a routine production job - factory work",
+    131: "have a routine service job - like cleaning or waiting tables",
+    132: "have a routine production job - like factory work",
     133: "have a routine technical job",
-    134: "have a routine operative job - driving, machine operating etc.",
+    134: "have a routine operative job - like driving or operating machinery",
     135: "have a routine farm job",
 }
 NSSEC_NEVER_WORKED = 141
@@ -210,7 +211,7 @@ SEXUALITY = {2: "gay" , 3: "bisexual"}  # 2 = gay or lesbian; refined by gender
 # p_edlevel
 EDUCATION = {
     0: "I left school with no qualifications",
-    1: "I left school before GCSEs",
+    1: "I've got some qualifications, but nothing up to GCSE level",  # "below GCSE": not the same as leaving school before them
     2: "I left school with GCSEs",
     3: "I've got A-levels",
     4: "I've got a degree",

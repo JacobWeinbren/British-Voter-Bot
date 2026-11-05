@@ -106,21 +106,31 @@ def solve(presence: np.ndarray, targets: np.ndarray, max_rate: float, iterations
 
 def tree_targets(options: list[str], parents: list[tuple[str, ...]], leaf_weight: list[float],
                  top_share: dict[str, float] | None = None) -> np.ndarray:
-    """Targets that split evenly down a tree: each top-level group its share, each branch below it an
-    equal part of that, and the options on a branch in proportion to `leaf_weight`.
+    """Targets that split down a tree: each top-level group its share, each branch below it a part of
+    that, and the options on a branch in proportion to `leaf_weight`.
 
     `parents[i]` is option i's path from the top (for an opinion item: its theme, then its topic).
-    `top_share` gives the top-level groups their shares; without it they share equally.
+    `top_share` gives the top-level groups their shares; without it they share equally, as branches
+    below the top do. At every level a branch's part is scaled by the weight of the best option under
+    it, at most 1: a subject whose questions are all stale or say little (items.draw_weight) takes
+    less, while one strong question keeps its subject a full part, however many weaker ones sit
+    beside it. With every weight 1, the split is even.
     """
+    weight = np.asarray(leaf_weight, dtype=float)
     tops = sorted({path[0] for path in parents})
-    top = {name: (top_share or {}).get(name, 0.0 if top_share else 1.0) for name in tops}
-    total = sum(top.values()) or 1.0
+    given = {name: (top_share or {}).get(name, 0.0 if top_share else 1.0) for name in tops}
+
+    def part(branch: tuple[str, ...]) -> float:
+        under = [j for j, p in enumerate(parents) if p[:len(branch)] == branch]
+        return (given[branch[0]] if len(branch) == 1 else 1.0) * min(1.0, float(weight[under].max()))
+
     shares = np.zeros(len(options))
     for i, path in enumerate(parents):
-        share = top[path[0]] / total
-        for depth in range(1, len(path)):  # each level below the top splits its parent's share equally
-            siblings = {p[depth] for p in parents if p[:depth] == path[:depth]}
-            share /= len(siblings)
+        share = 1.0
+        for depth in range(len(path)):  # each level splits its parent's share between the branches on it
+            siblings = sorted({p[:depth + 1] for p in parents if p[:depth] == path[:depth]})
+            whole = sum(part(sibling) for sibling in siblings)
+            share *= part(path[:depth + 1]) / whole if whole else 0.0
         mates = [j for j, p in enumerate(parents) if p == path]
-        shares[i] = share * leaf_weight[i] / sum(leaf_weight[j] for j in mates)
+        shares[i] = share * weight[i] / weight[mates].sum()
     return shares

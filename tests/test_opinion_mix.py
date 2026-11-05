@@ -3,8 +3,9 @@
 A card draws from the questions its respondent was asked, so left flat the feed fills up with
 whatever the BES puts to everyone, and with whatever subject the library happens to split into the
 most questions. The build solves the draw weights instead (voterbot/balance.py): each theme gets a
-target share - half by what voters in that nation say matters most, half evenly - and the weights
-are fitted per nation over the whole panel, within a cap on how often any one answer appears.
+target share - partly by what voters in that nation say matters most, the rest evenly, and less for
+questions gone stale - and the weights are fitted per nation over the whole panel, within a cap on
+how often any one answer appears.
 These tests run a whole build on a made-up panel (tests/synthetic_panel.py) and check what reaches
 the cards, not just the arithmetic.
 """
@@ -15,8 +16,8 @@ import random
 import numpy as np
 import pytest
 
-from voterbot import balance, config, items, persona
-from voterbot.profile import DRAWS, ProfileBuilder, strengths, tail_cut
+from voterbot import balance, codes, config, items, persona
+from voterbot.profile import DRAWS, ITEMS_BY_KEY, ProfileBuilder, hold_trends, strengths, tail_cut
 from voterbot.sample import build_profiles
 
 from synthetic_panel import synthetic_panel
@@ -73,6 +74,15 @@ def test_what_voters_name_as_most_important_gets_more_airtime(builder):
     assert builder.salience[1]["immigration"] > builder.salience[1]["environment"]
 
 
+def test_the_issue_bubble_does_not_lean_on_what_voters_name_a_second_time(builder):
+    """Its subject is the issue they named. Drawn with the general draw's lean as well, the economy's
+    questions took most of the bubble for anyone whose issue touched the economy at all."""
+    solved = builder.solved[(1, "issue")]
+    assert np.abs(solved["shares"] - solved["targets"]).max() < 1e-4
+    general, issue = theme_totals(builder.solved[(1, "general")], "targets"), theme_totals(solved, "targets")
+    assert issue["immigration"] < general["immigration"]
+
+
 def test_a_nation_only_question_is_measured_among_that_nation_alone(builder):
     """Asked of 95% of Scots, it must count as 95% available in Scotland - not 11%, its share of all of Britain."""
     scottish = builder.solved[(2, "nation")]["offered"]
@@ -120,7 +130,76 @@ def test_a_rare_answer_appears_on_no_more_than_about_half_its_cards(panel, build
 
 
 # ---------------------------------------------------------------------------
+# Which questions the draw leans towards
+
+
+def test_a_subject_keeps_most_of_its_share_for_views_not_which_way_things_are_going():
+    """"Immigration is going up" was on a fifth of all cards, crowding out what people want done about it."""
+    keys, themes = ["changeImmig", "immigSelf", "taxSpend"], ["immigration", "immigration", "public-spending"]
+    held = hold_trends(keys, themes, np.array([0.3, 0.2, 0.5]))
+    assert held[0] == pytest.approx(config.TREND_SHARE * 0.5)
+    assert held[0] + held[1] == pytest.approx(0.5) and held[2] == pytest.approx(0.5)
+
+
+def test_a_subject_with_nothing_but_trends_keeps_its_share_for_them():
+    assert hold_trends(["changeCrime"], ["crime-and-punishment"], np.array([1.0]))[0] == pytest.approx(1.0)
+
+
+def test_every_item_knows_when_its_question_was_last_asked():
+    for item in items.ITEMS:
+        assert item.asked in config.WAVE_YEARS, item.key
+        assert item.kind in ("view", "trend", "record"), item.key
+
+
+def test_a_view_given_years_ago_weighs_less_than_one_given_now_and_a_record_never_fades():
+    now = items.Item("now", "immigration", ("immigSelfW31",))
+    then = items.Item("then", "immigration", ("immigSelfW21",))
+    record = items.Item("record", "vote-2024", ("votingWishW21",), kind="record")
+    assert items.draw_weight(now) == now.weight
+    assert items.draw_weight(then) < now.weight / 2  # five years on, at a four-year half-life
+    assert items.draw_weight(record) == record.weight
+
+
+def test_the_bubble_on_their_top_issue_can_always_be_which_party_handles_it_best():
+    best = ITEMS_BY_KEY["bestOnIssue"]
+    assert all(items.speaks_to(best, code) for code in codes.TOP_ISSUE)
+    assert not items.speaks_to(best, None)
+
+
+def test_every_question_an_issue_points_to_exists():
+    for code, keys in items.ISSUE_ITEMS.items():
+        assert code in codes.TOP_ISSUE and keys <= set(ITEMS_BY_KEY), code
+
+
+@pytest.mark.parametrize("answers,said", [
+    ({"mii_cat_llmW31": 12, "bestOnMIIW31": 12, "generalElectionVoteW31": 1}, True),
+    ({"mii_cat_llmW31": 12, "bestOnMIIW31": 0, "generalElectionVoteW31": 1}, True),
+    ({"mii_cat_llmW31": 12, "bestOnMIIW31": 12, "generalElectionVoteW31": 12}, False),  # the band says it already
+    ({"mii_cat_llmW31": 45, "bestOnMIIW31": 2, "generalElectionVoteW31": 1}, False),    # not the issue printed on the card
+])
+def test_which_party_is_best_on_their_issue_is_said_only_when_it_adds_something(monkeypatch, answers, said):
+    monkeypatch.setattr(items, "value", lambda row, col, max_valid=9000: answers.get(col))
+    assert (items.best_on_issue(None, 1) is not None) == said
+
+
+def test_no_party_being_best_on_their_issue_is_held_back_like_any_answer_on_the_fence(monkeypatch):
+    answers = {"mii_cat_llmW31": 12, "bestOnMIIW31": 0, "generalElectionVoteW31": 1}
+    monkeypatch.setattr(items, "value", lambda row, col, max_valid=9000: answers.get(col))
+    assert all(items.is_neutral(text) for text in items.best_on_issue(None, 1))
+
+
+# ---------------------------------------------------------------------------
 # The life paragraph
+
+
+def test_a_card_never_gives_two_details_that_say_the_same_thing(monkeypatch):
+    """"I've done a postgraduate degree" and "I stayed in education until I was 20 or older" on one card."""
+    degree, stayed = "I've done a postgraduate degree", "I stayed in education until I was 20 or older"
+    options = [("education", "other", degree), ("left-education-at", "other", stayed), ("risk-averse", "other", "I'd rather not take risks")]
+    monkeypatch.setattr(persona, "extra_options", lambda *args, **kwargs: list(options))
+    for seed in range(40):
+        said = [text for _, text in persona.extra_clauses(None, 1, random.Random(seed), count=2)]
+        assert len(said) == 2 and not (degree in said and stayed in said)
 
 
 def test_traits_start_at_the_outer_tenth_of_the_panel(builder):
@@ -251,6 +330,17 @@ def test_the_news_line_and_the_talk_line_never_disagree_about_conversation(monke
     for seed in range(20):
         text = persona.media_paragraph(None, 1, random.Random(seed)).template
         assert "talking to people" in text and "week" not in text
+
+
+def test_someone_who_follows_no_political_news_is_not_said_to_get_politics_from_social_media(monkeypatch):
+    """"I don't follow the news about politics at all" then "I get some of my politics from Facebook"."""
+    answers = {**dict.fromkeys(codes.NEWS_SOURCES, 1), "fbUseW28": 1, "fbInfo_2W28": 1}
+    monkeypatch.setattr(persona, "value", lambda row, col, max_valid=9000: answers.get(col))
+    monkeypatch.setattr(persona, "raw_code", lambda row, col: answers.get(col))
+    for seed in range(30):
+        text = persona.media_paragraph(None, 1, random.Random(seed)).template
+        assert "political post" in text
+        assert not any(says in text for says in ("of my politics from", "about politics comes from", "political news reaches me"))
 
 
 def test_every_opinion_item_has_a_key_of_its_own():

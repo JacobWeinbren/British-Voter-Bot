@@ -294,7 +294,7 @@ def money_options(row, rng: random.Random) -> list[tuple[str, str]]:
     if status in (1, 2, 3) and value(row, "riskUnemploymentW31") in (4, 5):
         add("expects-job-loss", one_of(rng, "I could well be out of a job within the year", "there's a real chance I'll be out of work and job-hunting this year", "I think it's likely I'll lose my job in the next twelve months"))
     if value(row, "smallEmergency2_5W31") != 1:
-        for col, how in (("smallEmergency2_6W31", one_of(rng, "put it on the credit card", "stick it on a credit card and pay it off over time", "pay for it on a credit card")), ("smallEmergency2_4W31", one_of(rng, "borrow it from family or friends", "ask family or friends to lend it to me", "go to family or friends for the money")),
+        for col, how in (("smallEmergency2_6W31", one_of(rng, "put it on the credit card", "stick it on a credit card", "pay for it on a credit card")), ("smallEmergency2_4W31", one_of(rng, "borrow it from family or friends", "ask family or friends to lend it to me", "go to family or friends for the money")),
                          ("smallEmergency2_2W31", one_of(rng, "take out a loan", "get a loan to cover it", "borrow it from a lender")), ("smallEmergency2_3W31", one_of(rng, "sell something", "sell something I own", "flog something to raise the cash"))):
             if value(row, col) == 1:
                 add("how-to-cover-300", one_of(rng, f"an unexpected £300 bill would mean I'd have to {how}", f"if a £300 bill turned up out of the blue, I'd have to {how}", f"to cover a surprise £300 expense, I'd need to {how}"))
@@ -322,17 +322,29 @@ def job_clause(row, rng: random.Random) -> str | None:
         return None
     status = int(status)
 
-    def describe(verb_phrase: str, tense_past: bool = False) -> str:
-        """The job with its sector; in the past tense the aside trails after a comma."""
+    def describe(verb_phrase: str, tense_past: bool = False, size: float | None = None) -> str:
+        """The job, any example of it in brackets straight after, then its sector and, when given, the
+        size of the employer (selfOccOrgSize: 1 under 25 staff, 3 at least 500), worded to follow the sector."""
         core, _, aside = verb_phrase.partition(" - ")
         if tense_past:
             core = (core.replace("have a", "had a").replace("have an", "had an").replace("am a", "was a")
                     .replace("am self-employed", "was self-employed").replace("run a", "ran a")
                     .replace("work for myself", "worked for myself").replace("work as", "worked as")
                     .replace("work in", "worked in").replace("do office", "did office"))
-        if sector is not None and int(sector) in codes.SECTOR and "self" not in core and "run" not in core:
+        employed = "self" not in core and "run" not in core
+        if aside:
+            core += f" ({aside})"
+        known = sector is not None and int(sector) in codes.SECTOR and employed
+        if known:
             core += " " + codes.SECTOR[int(sector)]
-        return f"{core} ({aside})" if aside else core
+        if size is not None and employed:
+            if known and int(sector) in (2, 4):  # "for a charity with fewer than 25 staff", never "for a charity for a small employer"
+                core += one_of(rng, " with fewer than 25 staff", " employing fewer than 25 people") if size == 1 else one_of(rng, " with 500 or more staff", " employing 500-plus people")
+            elif size == 1:  # a firm is a business: not in the public sector
+                core += one_of(rng, " for a small employer", " at a place with fewer than 25 staff", " at a small firm" if not known or int(sector) == 1 else " at a small workplace")
+            else:
+                core += one_of(rng, " for a big employer with 500 or more staff", " at a place with 500-plus staff", ", somewhere with 500-plus people on the books")
+        return core
 
     if status in codes.WORKING:
         hours = codes.WORKING[status]
@@ -341,12 +353,9 @@ def job_clause(row, rng: random.Random) -> str | None:
         if job.startswith(("run", "work for myself", "work as a self", "am self-employed")):
             sentence = f"I {describe(job)}".replace("I am ", "I'm ")
         else:
-            sentence = one_of(rng, f"I work {hours} and {describe(job)}", f"I'm working {hours} and {describe(job)}", f"I {describe(job)}, working {hours}")
             size = lv(row, "selfOccOrgSize")
-            if size == 1 and rng.random() < 0.5:
-                sentence += one_of(rng, " at a small firm", " for a small employer", " at a place with under 25 staff")
-            elif size == 3 and rng.random() < 0.5:
-                sentence += one_of(rng, " at a place with 500-plus staff", " for a big employer with over 500 staff", " somewhere with more than 500 people on the books")
+            told = describe(job, size=size if size in (1, 3) and rng.random() < 0.5 else None)
+            sentence = one_of(rng, f"I work {hours} and {told}", f"I'm working {hours} and {told}", f"I {told}, working {hours}").replace("I am ", "I'm ")
         if supervises == 1 and rng.random() < 0.5 and not any(w in job for w in ("supervis", "manage", "team leader", "run")):
             sentence += one_of(rng, ", supervising other people", ", and I'm responsible for other people's work", ", with people working under me")
         return sentence
@@ -493,14 +502,33 @@ def extra_options(row, country: int, rng: random.Random, seat: str | None = None
     return options
 
 
+# Details that say much the same thing as each other. A card takes one from each family, so it
+# never says both "I've done a postgraduate degree" and "I stayed in education until I was 20 or
+# older", or "I did some campaigning for a party in 2024" and "I've done work for a political party".
+DETAIL_FAMILIES = {
+    **dict.fromkeys(("education", "left-education-at", "started-university", "private-school"), "schooling"),
+    **dict.fromkeys(("participation_1W29", "worked-for-a-party"), "party-work"),
+    **dict.fromkeys(("participation_2W29", "gave-to-a-party"), "party-money"),
+    **dict.fromkeys(("worship-weekly", "worship-monthly", "faith-matters", "faith-matters-little"), "faith"),
+    **dict.fromkeys(("was-among-poorest", "was-among-richest", "wealth-ladder-bottom", "wealth-ladder-top"), "wealth-rank"),
+    **dict.fromkeys(("could-borrow-rent", "could-not-borrow-rent", "family-could-lend", "family-could-lend-nothing"), "lenders"),
+    **dict.fromkeys(("cares-at-home", "cares-for-parents", "helps-parents", "supports-children"), "caring"),
+    **dict.fromkeys(("belongs-locally", "belongs-to-england"), "belonging"),
+    **dict.fromkeys(("risk-averse", "risk-taking", "enjoys-thinking", "avoids-thinking", "reads-feelings", "misses-feelings")
+                    + tuple(f"{trait}-{end}" for trait in TRAIT_COLUMNS if trait != "risk" for end in ("high", "low")), "temperament"),
+}
+
+
 def extra_clauses(row, country: int, rng: random.Random, seat: str | None = None,
                   weigh=None, count: int = 1, cuts: dict | None = None) -> list[tuple[str, str]]:
-    """Up to `count` human details from what they told us, each a different fact, tagged by theme."""
+    """Up to `count` human details from what they told us, each a different fact from a different
+    family (DETAIL_FAMILIES), tagged by theme."""
     options = extra_options(row, country, rng, seat, cuts)
+    family = lambda key: DETAIL_FAMILIES.get(key, key)  # noqa: E731
     chosen: list[tuple[str, str]] = []
     while options and len(chosen) < count:
         key, theme, text = weighted(options, rng, weigh)
-        options = [option for option in options if option[0] != key]
+        options = [option for option in options if family(option[0]) != family(key)]
         chosen.append((theme, vary(text, rng)))
     return chosen
 
@@ -525,9 +553,13 @@ def circumstance_details(row, country: int, rng: random.Random, cuts: dict | Non
     if lv(row, "inheritMoney") == 1:
         inherit = one_of(rng, "I'm expecting an inheritance that will change things for me", "I'm likely to inherit, and it'll make a big difference to my finances", "There's an inheritance coming my way that will be a major change for me financially") if lv(row, "inheritChangeCircs") == 1 else one_of(rng, "I'm expecting to inherit some money or property one day", "I'll probably come into some money or property at some point", "There's likely to be an inheritance for me down the line")
         options.append(("inheritance", "other", inherit))
-    loan = lv(row, "homeFinance")
+    # BES: how much a family member could give them for a big purchase such as a house. Asked of
+    # everyone, but it is what stands between a renter and a home of their own, so only they say it.
+    loan = lv(row, "homeFinance") if not is_owner(row) else None
     if loan == 1:
         options.append(("family-could-lend-nothing", "other", one_of(rng, "nobody in my family could lend me a penny towards a house", "there's no one in my family who could lend or give me anything towards a house", "if I needed money for a house, my family couldn't put anything towards it")))
+    elif loan == 2:
+        options.append(("family-could-lend", "other", one_of(rng, "my family could only help a little towards a house, with under £5,000", "if I needed money for a house, my family could put in less than £5,000", "my family could give me something towards a house, but less than £5,000")))
     elif loan is not None and int(loan) in codes.FAMILY_LOAN:
         options.append(("family-could-lend", "other", one_of(rng, f"my family could lend me {codes.FAMILY_LOAN[int(loan)]} towards a house if I needed it", f"if I needed it, someone in my family could put {codes.FAMILY_LOAN[int(loan)]} towards a house for me", f"my family could find me {codes.FAMILY_LOAN[int(loan)]} towards a house if it came to it")))
     buy = lv(row, "buyHomeFuture")
@@ -772,6 +804,9 @@ def life_paragraph(row, country: int, rng: random.Random, seat: str | None = Non
 # Media paragraph
 
 
+NO_NEWS = "I don't follow the news about politics at all"
+
+
 def news_habit(row, rng: random.Random | None = None) -> str | None:
     """How much politics they take in, and through what."""
     scores = {col: value(row, col) for col in codes.NEWS_SOURCES}
@@ -779,7 +814,7 @@ def news_habit(row, rng: random.Random | None = None) -> str | None:
     if answered:
         top = max(answered.values())
         if top <= 1:
-            return vary("I don't follow the news about politics at all", rng)
+            return vary(NO_NEWS, rng)
         sources = [codes.NEWS_SOURCES[c] for c, s in answered.items() if s == top][:2]
         amount = {2: one_of(rng, ", a few minutes a day", ", less than half an hour a day", ", only a few minutes each day"), 3: one_of(rng, ", half an hour or so a day", ", somewhere between half an hour and an hour a day", ", a good half hour a day"), 4: one_of(rng, ", an hour or two a day", ", one to two hours a day", ", between one and two hours a day"), 5: one_of(rng, ", for hours every day", ", more than two hours a day", ", several hours a day")}[top]
         frame = rng.choice((one_of(rng, "I mostly follow politics {sources}{amount}", "I keep up with politics mainly {sources}{amount}", "Most of what I take in about politics is {sources}{amount}"), one_of(rng, "I get most of my politics {sources}{amount}", "The politics I take in is mostly {sources}{amount}", "For politics, I mostly rely on what I get {sources}{amount}"))) if rng else "I mostly follow politics {sources}{amount}"
@@ -796,11 +831,13 @@ def news_habit(row, rng: random.Random | None = None) -> str | None:
     return vary("I follow politics very closely", rng)
 
 
-def social_media(row, bold: dict[str, str], rng: random.Random | None = None) -> str | None:
+def social_media(row, bold: dict[str, str], rng: random.Random | None = None, follows_news: bool = True) -> str | None:
     """What they use, and whether politics reaches them there (wave 28 follow-ups).
 
     Three honest states per platform: they saw political content on it; they said
     outright that they don't follow politics on it; or we only know they use it.
+    `follows_news=False`, for someone who said they take in no political news at all,
+    words the first as political posts reaching them rather than as where they get it.
     """
     political, not_political, just_used, source_types = [], [], [], [0, 0, 0]
     answered = False
@@ -853,7 +890,10 @@ def social_media(row, bold: dict[str, str], rng: random.Random | None = None) ->
         best = max(source_types)
         if len(political) <= 2 and source_types.count(best) == 1:
             tail = ", " + codes.POLITICAL_SOURCE_TAIL[source_types.index(best)]
-        sentences.append(one_of(rng, f"I get some of my politics from {slots(political)}{tail}.", f"Some of what I see about politics comes from {slots(political)}{tail}.", f"A bit of my political news reaches me via {slots(political)}{tail}."))
+        if follows_news:
+            sentences.append(one_of(rng, f"I get some of my politics from {slots(political)}{tail}.", f"Some of what I see about politics comes from {slots(political)}{tail}.", f"A bit of my political news reaches me via {slots(political)}{tail}."))
+        else:
+            sentences.append(one_of(rng, f"Even so, political posts do reach me on {slots(political)}{tail}.", f"Some political posts still find me on {slots(political)}{tail}.", f"All the same, I see the odd political post on {slots(political)}{tail}."))
         rest = not_political + just_used
         if rest:
             sentences.append(usage(rest, also=True))
@@ -870,6 +910,7 @@ def media_paragraph(row, country: int, rng: random.Random | None = None, shared_
     habit = news_habit(row, rng)
     if habit:
         sentences.append(habit + ".")
+    no_news = habit in (NO_NEWS,) + VARIANTS[NO_NEWS]
     paper = value(row, "p_paper_readW31")
     if paper is not None:
         paper = int(paper)
@@ -879,7 +920,7 @@ def media_paragraph(row, country: int, rng: random.Random | None = None, shared_
             name = codes.SCOTTISH_NEWSPAPER.get(paper, codes.NEWSPAPER[paper]) if country == codes.SCOTLAND else codes.NEWSPAPER[paper]
             bold["paper"] = "the " + name
             sentences.append(vary("The paper I read most is {paper}.", rng))
-    social = social_media(row, bold, rng)
+    social = social_media(row, bold, rng, follows_news=not no_news)
     if social:
         sentences.append(social)
     talk = talking_politics(row, rng)

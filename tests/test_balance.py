@@ -74,6 +74,26 @@ def test_tree_targets_take_the_top_shares_given_and_leaf_weights_within_a_topic(
     assert list(np.round(shares, 6)) == [0.1, 0.3, 0.4, 0.2]
 
 
+def test_a_subject_asked_about_years_ago_takes_less_than_one_asked_about_now():
+    """Weights used to count only within a topic, so a theme of questions last asked in 2021 kept a full share."""
+    paths = [("old", "a"), ("new", "b")]
+    shares = balance.tree_targets(["a", "b"], paths, [0.5, 1.0], {"old": 0.5, "new": 0.5})
+    assert shares[0] == pytest.approx(shares[1] / 2)
+
+
+def test_a_topic_of_lighter_questions_takes_less_of_its_theme_however_many_it_holds():
+    """Three half-weight trend questions on one topic, beside one full-weight view on another."""
+    paths = [("economy", "direction")] * 3 + [("economy", "blame")]
+    shares = balance.tree_targets(list("abcd"), paths, [0.5, 0.5, 0.5, 1.0])
+    assert shares[:3].sum() == pytest.approx(shares[3] / 2)
+
+
+def test_one_strong_question_keeps_its_topic_a_full_part_beside_weaker_ones():
+    paths = [("immigration", "levels")] * 4 + [("immigration", "direction")]
+    shares = balance.tree_targets(list("abcde"), paths, [1.0, 0.2, 0.2, 0.2, 1.0])
+    assert shares[:4].sum() == pytest.approx(shares[4])
+
+
 def test_a_theme_split_into_many_topics_gets_no_more_than_one_split_into_few():
     """The old draw evened out per topic, so a theme the library split nine ways got nine times the airtime."""
     paths = [("elections", f"t{i}") for i in range(9)] + [("monarchy", "monarchy")]

@@ -18,8 +18,8 @@ import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
-from . import codes
-from .data import fieldings, latest, value
+from . import codes, config
+from .data import fieldings, latest, newest_wave, value
 
 Phraser = Callable[[float], "str | tuple[str, ...] | None"]  # a tuple offers alternative wordings of the same answer
 ALL = (1, 2, 3)
@@ -36,6 +36,13 @@ class Item:
     weight: float = 1.0
     max_valid: float = 9000
     fallback: bool = True                  # fall back through every earlier fielding (wave 20 on) of the same question
+    kind: str = "view"                     # a view; a "trend", which way things are going (config.TREND_SHARE); a "record" of something they did
+    wave: int | None = None                # for a custom item whose columns are not listed: the wave its question was last asked in
+
+    @property
+    def asked(self) -> int:
+        """The last wave its question was asked in, which dates every answer to it (draw_weight)."""
+        return self.wave or max(newest_wave(c) for c in self.cols)
 
     def columns(self, row) -> tuple[str, ...]:
         """The listed columns, then every other fielding of the same questions, most recent first."""
@@ -146,8 +153,8 @@ def fair_share5(who: str, of_what: str = "from the Union") -> Phraser:
 def approve5(who: str) -> Phraser:
     return by_code({
         1: (f"I strongly disapprove of {who}'s record.", f"I think {who} is doing a very bad job."),
-        2: (f"I disapprove of how {who} is doing.", f"I'm not happy with how {who} is doing.", f"I don't think much of the job {who} is doing."),
-        4: (f"I approve of how {who} is doing.", f"I'm happy with how {who} is doing.", f"I think {who} is doing a decent job."),
+        2: (f"I disapprove of {who}.", f"I'm not happy with the job {who} is doing.", f"I don't think much of the job {who} is doing."),
+        4: (f"I approve of {who}.", f"I'm happy with the job {who} is doing.", f"I think {who} is doing a decent job."),
         5: (f"I strongly approve of {who}'s record.", f"I think {who} is doing a very good job."),
     })
 
@@ -157,7 +164,7 @@ def marry5(voter: str) -> Phraser:
         1: (f"I'd be very unhappy if my child married {voter}.", f"It would really upset me if my child married {voter}.",
             f"My child marrying {voter} would make me very unhappy."),
         2: (f"I'd be a bit unhappy if my child married {voter}.", f"I'd be a little put out if my child married {voter}.",
-            f"My child marrying {voter} wouldn't exactly please me."),
+            f"I wouldn't be too pleased if my child married {voter}."),
         4: (f"I'd be happy if my child married {voter}.", f"I'd be fairly pleased if my child married {voter}.",
             f"It would make me happy if my child married {voter}."),
         5: (f"I'd be delighted if my child married {voter}.", f"I'd be thrilled if my child married {voter}.",
@@ -165,20 +172,18 @@ def marry5(voter: str) -> Phraser:
     })
 
 
-def discrimination11(group: str, plural: bool = True) -> Phraser:
-    face = "face" if plural else "faces"
-    get = "get" if plural else "gets"
-    are = "are" if plural else "is"
+def discrimination11(group: str) -> Phraser:
+    """0 a lot of discrimination in favour of the group ... 10 a lot of discrimination against it."""
     cap = f"{group[0].upper()}{group[1:]}"
     return scale11(
-        (f"If anything, {group} {get} favoured in Britain these days.", f"{cap} {get} special treatment in Britain these days, if anything.",
-         f"These days, {group} {get} the easier ride in Britain, if anything."),
-        (f"{cap} {get} a slightly easier ride than other groups in Britain.", f"{cap} {are} treated a little better than other groups in Britain.",
-         f"If anything, {group} {get} slightly favoured in Britain."),
-        (f"{cap} still {face} some discrimination in Britain.", f"There's still some discrimination against {group} in Britain.",
-         f"{cap} still {get} a bit of a raw deal in Britain."),
-        (f"{cap} {face} a lot of discrimination in Britain today.", f"There's a great deal of discrimination against {group} in Britain today.",
-         f"{cap} {get} a very raw deal in Britain today."),
+        (f"There's a lot of discrimination in favour of {group} in Britain today.", f"{cap} get a lot of special treatment in Britain today.",
+         f"Britain today discriminates heavily in favour of {group}."),
+        (f"{cap} get a slightly easier ride than other groups in Britain.", f"{cap} are treated a little better than other groups in Britain.",
+         f"If anything, {group} get slightly favoured in Britain."),
+        (f"{cap} face some discrimination in Britain.", f"There's some discrimination against {group} in Britain.",
+         f"{cap} get a bit of a raw deal in Britain."),
+        (f"{cap} face a lot of discrimination in Britain today.", f"There's a great deal of discrimination against {group} in Britain today.",
+         f"{cap} get a very raw deal in Britain today."),
     )
 
 
@@ -496,17 +501,40 @@ def eu_regret(row, country: int) -> str | None:
 
 
 def social_circle_vote(row, country: int) -> str | None:
+    """Wave 28, in the 2024 campaign: who most people they know would vote for."""
     party = value(row, "normPartyVoteW28")
     if party is None:
         return None
     if int(party) == 0:
         return ("Most people I know weren't going to vote in 2024.", "Most of the people I know had no plans to vote in 2024.", "In 2024, most people I know weren't planning to vote at all.")
     if int(party) in codes.PARTIES:
-        return (f"Most people I know were voting {codes.PARTIES[int(party)]} in 2024.", f"Most of the people I know were backing {codes.PARTIES[int(party)]} in 2024.", f"Most people in my circle were going to vote {codes.PARTIES[int(party)]} in 2024.")
+        name, noun = codes.PARTIES[int(party)], _party_noun(int(party)) or codes.PARTIES[int(party)]
+        return (f"Most people I know were voting {name} in 2024.", f"Most of the people I know were backing {noun} in 2024.", f"Most people in my circle were going to vote {name} in 2024.")
     return None
 
 
+def best_on_issue(row, country: int) -> tuple[str, ...] | None:
+    """Wave 31: which party is best able to handle the issue they named as the most important.
 
+    Only where the card's top issue is that wave-31 answer (profile.top_issue falls back to earlier
+    waves), so "my top issue" is the one printed above the bubbles; and not when the party is the
+    one they would vote for today, which the band already says.
+    """
+    issue, best = value(row, "mii_cat_llmW31"), value(row, "bestOnMIIW31")
+    if issue is None or int(issue) not in codes.TOP_ISSUE or best is None:
+        return None
+    if int(best) == value(row, "generalElectionVoteW31"):
+        return None
+    if int(best) == 0:  # no party stands out: held back like any answer on the fence
+        return middling(("No party stands out as the best on my top issue.", "On my top issue, no party is any better than the rest.", "None of the parties is best placed to handle my top issue."))
+    if int(best) == 9:
+        return ("On my top issue, a smaller party would do the best job.", "A smaller party is best placed to handle my top issue.", "When it comes to my top issue, I'd back a smaller party to handle it best.")
+    party = codes.PARTY_NOUN.get(int(best))
+    if party is None:
+        return None
+    lead = party[0].upper() + party[1:]
+    return (f"On my top issue, {party} would do the best job.", f"{lead} are the party best able to handle my top issue.",
+            f"When it comes to my top issue, I'd back {party} to handle it best.")
 
 
 def warmth_item(group: str) -> Phraser:
@@ -604,11 +632,12 @@ ITEMS: list[Item] = [
                 ("Workplaces should end mandatory diversity training.", "I think it's time workplaces stopped making diversity training compulsory.", "Diversity training at work shouldn't be mandatory any more."),
                 ("I'd keep mandatory diversity training at work.", "I don't think workplaces should end mandatory diversity training.", "Mandatory diversity training at work should carry on."),
                 ("Mandatory diversity training at work should definitely stay.", "Workplaces should absolutely keep mandatory diversity training.", "There's no way workplaces should end mandatory diversity training."))),
+    # BES: "Curriculums should include fewer white male and more female/non-white authors"
     Item("cwAuthors", "curriculum", ("cwAuthorsW31", "cwAuthorsW26W27", "cwAuthorsW25"),
-         agree5(("School and university reading lists need far more female and non-white authors.", "Reading lists at schools and universities badly need more female and non-white authors.", "Schools and universities should be putting far more female and non-white authors on their reading lists."),
-                ("Reading lists should include more female and non-white authors.", "I'd like school and university reading lists to include more female and non-white authors.", "There should be more female and non-white authors on the curriculum."),
-                ("I don't see the need to change reading lists to add more female and non-white authors.", "I don't think reading lists need more female and non-white authors added to them.", "Reading lists are fine as they are without adding more female and non-white authors."),
-                ("I'm firmly against changing reading lists to add more female and non-white authors.", "I'm dead against rewriting school and university reading lists to add more female and non-white authors.", "There's no way reading lists should be changed to include more female and non-white authors."))),
+         agree5(("Reading lists should definitely have fewer white male authors and more female and non-white ones.", "I'm all for curriculums with fewer white male authors and more female and non-white ones.", "Reading lists really should feature fewer white men and more female and non-white writers."),
+                ("Reading lists should have fewer white male authors and more female and non-white ones.", "I'd like curriculums to include fewer white male authors and more female and non-white ones.", "There should be fewer white men and more female and non-white writers on reading lists."),
+                ("I don't think reading lists need fewer white male authors and more female and non-white ones.", "I wouldn't swap white male authors on reading lists for female and non-white ones.", "Curriculums don't need fewer white male authors to make room for female and non-white ones."),
+                ("Reading lists definitely shouldn't drop white male authors to make way for female and non-white ones.", "I'm firmly against cutting white male authors from reading lists to add female and non-white ones.", "There's no way curriculums should have fewer white male authors and more female and non-white ones."))),
     Item("cwTrans", "trans-sport", ("cwTransW31", "cwTransW26W27", "cwTransW25"),
          agree5(("Transgender women have every right to compete in women's sport.", "Transgender women absolutely should be allowed to compete in women's sport.", "Of course transgender women should be able to compete in women's sport."),
                 ("Transgender women should be allowed to compete in women's sport.", "I think transgender women should be able to take part in women's sport.", "Women's sport should be open to transgender women."),
@@ -688,7 +717,7 @@ ITEMS: list[Item] = [
          scale11(("Britain should unite fully with the European Union.", "I'd like Britain to be fully part of the European Union.", "Britain should go all the way and unite fully with the EU."), ("I'd like Britain much closer to the EU.", "I'd like to see Britain a lot closer to the EU than it is now.", "I lean towards Britain getting much closer to the European Union."),
                  ("I'd keep Britain at arm's length from the EU.", "I lean towards Britain keeping its distance from the European Union.", "I'd rather Britain kept a bit of distance from the EU."), ("Britain must protect its independence from the EU.", "Britain should guard its independence from the European Union.", "I want Britain to stay fully independent of the EU.")),
          weight=0.6),
-    Item("euRef", "europe", (), custom=eu_statement, weight=1.3),
+    Item("euRef", "europe", (), custom=eu_statement, weight=1.3, wave=31),
     # Democracy and politicians
     Item("strongLeader", "strong-leader", ("strongLeaderW31",),
          agree5(("Britain would be better run by a strong leader who ignores parliament and elections.", "The best way to run this country would be a strong leader who doesn't bother with parliament or elections.", "Britain definitely needs a strong leader who doesn't have to bother with parliament or elections."),
@@ -723,35 +752,35 @@ ITEMS: list[Item] = [
     Item("govtForeign", "government-handling", ("govtHandleForeignAW31", "govtHandleForeignBW31"), handling5("foreign affairs"), weight=0.5, fallback=False),
     Item("changeNHS", "nhs-direction", ("changeNHSW31", "changeNHSW30"),
          worse_better5(("The NHS is getting a lot worse.", "The NHS is getting much worse.", "The NHS is going downhill fast."), ("The NHS is getting a bit worse.", "The NHS is getting a little worse.", "The NHS is slipping a bit, I'd say."),
-                       ("The NHS is getting a bit better.", "The NHS is getting a little better.", "The NHS is improving a bit, I'd say."), ("The NHS is getting a lot better.", "The NHS is getting much better.", "The NHS is improving a great deal.")), fallback=False),
+                       ("The NHS is getting a bit better.", "The NHS is getting a little better.", "The NHS is improving a bit, I'd say."), ("The NHS is getting a lot better.", "The NHS is getting much better.", "The NHS is improving a great deal.")), fallback=False, kind="trend"),
     Item("changeEconomy", "economy-direction", ("changeEconomyW31", "changeEconomyW30"),
          worse_better5(("The economy is getting a lot worse.", "The economy is getting much worse.", "The economy is going downhill fast."), ("The economy is getting a bit worse.", "The economy is getting a little worse.", "The economy is slipping a bit, I'd say."),
-                       ("The economy is getting a bit better.", "The economy is getting a little better.", "The economy is picking up a bit, I'd say."), ("The economy is getting a lot better.", "The economy is getting much better.", "The economy is improving a great deal.")), weight=0.7, fallback=False),
+                       ("The economy is getting a bit better.", "The economy is getting a little better.", "The economy is picking up a bit, I'd say."), ("The economy is getting a lot better.", "The economy is getting much better.", "The economy is improving a great deal.")), weight=0.7, fallback=False, kind="trend"),
     Item("changeSchools", "schools", ("changeSchoolsW31", "changeSchoolsW30"),
          worse_better5(("Schools are getting a lot worse.", "Schools are getting much worse.", "Our schools are going downhill fast."), ("Schools are getting a bit worse.", "Schools are getting a little worse.", "Our schools are slipping a bit, I'd say."),
-                       ("Schools are getting a bit better.", "Schools are getting a little better.", "Our schools are improving a bit, I'd say."), ("Schools are getting a lot better.", "Schools are getting much better.", "Our schools are improving a great deal.")), weight=0.6, fallback=False),
+                       ("Schools are getting a bit better.", "Schools are getting a little better.", "Our schools are improving a bit, I'd say."), ("Schools are getting a lot better.", "Schools are getting much better.", "Our schools are improving a great deal.")), weight=0.6, fallback=False, kind="trend"),
     Item("changeCostLive", "cost-of-living", ("changeCostLiveW31", "changeCostLiveW30"),
          by_code({5: ("The cost of living is still going up a lot.", "The cost of living is getting a lot higher.", "Living costs are still rising sharply."), 4: ("The cost of living is still creeping up.", "The cost of living is getting a little higher.", "Living costs are still rising a bit."),
-                  2: ("The cost of living is starting to come down a little.", "The cost of living is getting a little lower.", "Living costs are easing off a bit."), 1: ("The cost of living is coming down a lot.", "The cost of living is getting a lot lower.", "Living costs are falling a lot.")}), fallback=False),
+                  2: ("The cost of living is starting to come down a little.", "The cost of living is getting a little lower.", "Living costs are easing off a bit."), 1: ("The cost of living is coming down a lot.", "The cost of living is getting a lot lower.", "Living costs are falling a lot.")}), fallback=False, kind="trend"),
     Item("changeImmig", "immigration-direction", ("changeImmigW31", "changeImmigW30"),
          by_code({5: ("Immigration is going up a lot.", "Immigration is getting a lot higher.", "The level of immigration is rising a lot."), 4: ("Immigration is going up a bit.", "Immigration is getting a little higher.", "The level of immigration is rising a bit."),
-                  2: ("Immigration is coming down a bit.", "Immigration is getting a little lower.", "The level of immigration is falling a bit."), 1: ("Immigration is coming down a lot.", "Immigration is getting a lot lower.", "The level of immigration is falling a lot.")}), weight=0.5, fallback=False),
+                  2: ("Immigration is coming down a bit.", "Immigration is getting a little lower.", "The level of immigration is falling a bit."), 1: ("Immigration is coming down a lot.", "Immigration is getting a lot lower.", "The level of immigration is falling a lot.")}), weight=0.5, fallback=False, kind="trend"),
     Item("changeCrime", "crime-direction", ("changeCrimeW31", "changeCrimeW30"),
          by_code({5: ("Crime is going up a lot.", "Crime is getting a lot higher.", "The level of crime is rising a lot."), 4: ("Crime is going up a bit.", "Crime is getting a little higher.", "The level of crime is rising a bit."),
-                  2: ("Crime is falling a bit.", "Crime is getting a little lower.", "The level of crime is coming down a bit."), 1: ("Crime is falling a lot.", "Crime is getting a lot lower.", "The level of crime is coming down a lot.")}), weight=0.6, fallback=False),
+                  2: ("Crime is falling a bit.", "Crime is getting a little lower.", "The level of crime is coming down a bit."), 1: ("Crime is falling a lot.", "Crime is getting a lot lower.", "The level of crime is coming down a lot.")}), weight=0.6, fallback=False, kind="trend"),
     Item("econGenRetro", "economy-direction", ("econGenRetroW31", "econGenRetroW30"),
          worse_better5(("The economy has got a lot worse over the past year.", "The economy has got much worse in the last twelve months.", "Over the last year, the economy has gone downhill a lot."), ("The economy has got a bit worse over the past year.", "The economy has got a little worse in the last twelve months.", "Over the last year, the economy has slipped a bit."),
                        ("The economy has got a bit better over the past year.", "The economy has got a little better in the last twelve months.", "Over the last year, the economy has picked up a bit."), ("The economy has got a lot better over the past year.", "The economy has got much better in the last twelve months.", "Over the last year, the economy has picked up a great deal.")),
-         weight=0.5, fallback=False),
+         weight=0.5, fallback=False, kind="trend"),
     Item("econGenProsp", "economy-outlook", ("econGenProspW31",),
          worse_better5(("The economy is going to get a lot worse over the next year.", "I expect the economy to get much worse over the next twelve months.", "Over the next year, I think the economy will go downhill a lot."), ("I expect the economy to get a bit worse next year.", "The economy is going to get a little worse over the next year.", "Over the next twelve months, I think the economy will slip a bit."),
                        ("I expect the economy to pick up a bit next year.", "The economy is going to get a little better over the next year.", "Over the next twelve months, I think the economy will improve a bit."), ("The economy is going to get a lot better over the next year.", "I expect the economy to get much better over the next twelve months.", "Over the next year, I think the economy will pick up a great deal.")),
-         weight=0.6, fallback=False),
+         weight=0.6, fallback=False, kind="trend"),
     # Nation, union and identity
-    Item("identity", "identity", (), custom=identity_statement, weight=1.0),
-    Item("european", "identity", (), custom=european_statement, weight=0.5),
-    Item("scotIndy", "independence", (), custom=scottish_independence, nations=(2,), weight=1.5),
-    Item("welshIndy", "independence", (), custom=welsh_independence, nations=(3,), weight=1.5),
+    Item("identity", "identity", (), custom=identity_statement, weight=1.0, wave=31),
+    Item("european", "identity", (), custom=european_statement, weight=0.5, wave=31),
+    Item("scotIndy", "independence", (), custom=scottish_independence, nations=(2,), weight=1.5, wave=31),
+    Item("welshIndy", "independence", (), custom=welsh_independence, nations=(3,), weight=1.5, wave=31),
     Item("engFairShare", "fair-share", ("engFairShareW31", "engFairShareW30"), fair_share5("England"), nations=(1,), weight=0.8),
     Item("scotFairShare", "fair-share", ("scotFairShareW31", "scotFairShareW30"), fair_share5("Scotland"), nations=(2,), weight=0.8),
     Item("walesFairShare", "fair-share", ("walesFairShareW31", "walesFairShareW30"), fair_share5("Wales"), nations=(3,), weight=0.8),
@@ -808,11 +837,11 @@ ITEMS: list[Item] = [
                 ("I'd back a year of national service for 18-year-olds.", "I support 18-year-olds doing a year of national service.", "I'm in favour of a year of national service for every 18-year-old."),
                 ("I'm against making 18-year-olds do a year of national service.", "I don't support a year of compulsory national service for 18-year-olds.", "I'd oppose requiring 18-year-olds to spend a year doing national service."),
                 ("I'm firmly against compulsory national service for 18-year-olds.", "I strongly oppose forcing every 18-year-old to do a year of national service.", "I'm dead against making 18-year-olds do compulsory national service."))),
-    Item("breakfastClub", "breakfast-clubs", ("breakfastClubW28",),
-         agree5(("Every primary school should have a free breakfast club.", "I strongly support free breakfast clubs for every primary school child.", "Every primary pupil should get a free breakfast club, no question about it."),
-                ("I'm in favour of free breakfast clubs in every primary school.", "I support free breakfast clubs for all primary pupils.", "I'd back giving every primary school a free breakfast club."),
-                ("I'm against free breakfast clubs for all primary pupils.", "I don't support free breakfast clubs for every primary school child.", "I'd oppose putting free breakfast clubs in every primary school."),
-                ("Free breakfast clubs for every primary pupil are a waste of money.", "I strongly oppose free breakfast clubs for every primary school child.", "I'm dead against giving every primary pupil a free breakfast club.")), weight=0.7),
+    Item("breakfastClub", "breakfast-clubs", ("breakfastClubW28",),  # BES: "... for all primary school children in England"
+         agree5(("Every primary school in England should have a free breakfast club.", "I strongly support free breakfast clubs for every primary school child in England.", "Every primary pupil in England should get a free breakfast club, no question about it."),
+                ("I'm in favour of free breakfast clubs in every primary school in England.", "I support free breakfast clubs for all primary pupils in England.", "I'd back giving every primary school in England a free breakfast club."),
+                ("I'm against free breakfast clubs for all primary pupils in England.", "I don't support free breakfast clubs for every primary school child in England.", "I'd oppose putting free breakfast clubs in every primary school in England."),
+                ("I'm firmly against free breakfast clubs for every primary pupil in England.", "I strongly oppose free breakfast clubs for every primary school child in England.", "I'm dead against giving every primary pupil in England a free breakfast club.")), weight=0.7),
     Item("inheritanceTax", "inheritance-tax", ("inheritanceTaxW28",),
          agree5(("Inheritance tax should be abolished altogether.", "I strongly support scrapping inheritance tax completely.", "I'd get rid of inheritance tax altogether."), ("I'd abolish inheritance tax.", "I support scrapping inheritance tax.", "I'm in favour of getting rid of inheritance tax."),
                 ("I'd keep inheritance tax.", "I don't support scrapping inheritance tax.", "I'm against abolishing inheritance tax."), ("Inheritance tax should stay - scrapping it would be wrong.", "I strongly oppose abolishing inheritance tax.", "Getting rid of inheritance tax would be a serious mistake, so it should stay."))),
@@ -832,11 +861,13 @@ ITEMS: list[Item] = [
                 ("I back the ban on selling cigarettes to anyone born after 2009.", "I support banning smoking for people born after 2009.", "I'm in favour of the smoking ban for anyone born after 2009."),
                 ("I'm against banning cigarette sales by year of birth.", "I don't support banning smoking for people born after 2009.", "I'd oppose a smoking ban for those born after 2009."),
                 ("A smoking ban by year of birth is the nanny state at its worst.", "I strongly oppose banning smoking for anyone born after 2009.", "I'm dead against a smoking ban based on when you were born.")), weight=0.7),
+    # BES (2024): "Creating a government-owned renewable energy company". It has been created since, so
+    # the bubble gives the view of such a company rather than of setting one up.
     Item("govtEnergy", "public-energy", ("govtEnergyW27",),
          agree5(("A publicly owned renewable energy company is exactly what we need.", "I strongly support a government-owned renewable energy company.", "We absolutely should have a publicly owned renewable energy company."),
-                ("I back a publicly owned renewable energy company.", "I support the government creating a renewable energy company.", "I'm in favour of a state-owned renewable energy company."),
-                ("I'm against a publicly owned energy company.", "I don't support a government-owned renewable energy company.", "I'd oppose the state creating its own energy company."),
-                ("The state has no business running an energy company.", "I strongly oppose a government-owned renewable energy company.", "I'm dead against the government setting up its own energy company.")), weight=0.7),
+                ("I back a publicly owned renewable energy company.", "I'm in favour of the government owning a renewable energy company.", "I'm in favour of a state-owned renewable energy company."),
+                ("I'm against a publicly owned renewable energy company.", "I don't support a government-owned renewable energy company.", "I'd rather the state didn't own a renewable energy company."),
+                ("The state has no business running an energy company.", "I strongly oppose a government-owned renewable energy company.", "I'm dead against the government owning a renewable energy company.")), weight=0.7),
     Item("newTown", "housing", ("newTownW27",),
          agree5(("We should be building new towns - we need the houses.", "I strongly support building new towns to provide more housing.", "Build the new towns, because we badly need the homes."),
                 ("I'm in favour of building new towns to get more houses built.", "I support building new towns to provide more homes.", "I'd back new towns as a way of getting more houses built."),
@@ -888,18 +919,18 @@ ITEMS: list[Item] = [
          by_code({4: ("Getting rid of the deficit is completely necessary.", "Eliminating the deficit is absolutely essential.", "We have to get rid of the deficit - it's completely necessary."), 3: ("Cutting the deficit matters, but it isn't everything.", "Eliminating the deficit is important, but not absolutely necessary.", "Getting the deficit down matters, but it's not an absolute must."),
                   2: ("Cutting the deficit would be nice but it isn't necessary.", "Getting rid of the deficit isn't necessary, though it would be desirable.", "I'd like to see the deficit gone, but it's not something we have to do."), 1: ("There's no need to eliminate the deficit at all.", "Eliminating the deficit is completely unnecessary.", "I don't think there's any need whatsoever to get rid of the deficit.")})),
     Item("howToReduceDeficit", "deficit", ("howToReduceDeficitW27",),
-         by_code({1: ("If the deficit has to come down, do it through taxes, not cuts.", "Cut the deficit purely through tax rises, with no spending cuts.", "If we're cutting the deficit, it should be done only by raising taxes."),
-                  2: ("Cut the deficit mainly with tax rises, with some spending cuts.", "Reduce the deficit mostly by raising taxes, with a few spending cuts too.", "I'd bring the deficit down mainly through higher taxes, plus some cuts."),
-                  3: ("Cut the deficit with an even mix of tax rises and spending cuts.", "Reduce the deficit with an equal balance of spending cuts and tax rises.", "I'd bring the deficit down half through tax rises and half through cuts."),
-                  4: ("Cut the deficit mainly through spending cuts, with a few tax rises.", "Reduce the deficit mostly by cutting spending, with some tax rises too.", "I'd bring the deficit down mainly through cuts, plus a bit of extra tax."),
-                  5: ("Cut the deficit through spending cuts alone - no tax rises.", "Reduce the deficit purely by cutting spending, not by raising taxes.", "If we're cutting the deficit, it should be done only through spending cuts.")}), weight=0.6),
+         by_code({1: ("If the deficit has to come down, do it through tax rises, not cuts.", "I'd tackle the deficit purely through tax rises, with no spending cuts.", "If we're cutting the deficit, it should be done only by raising taxes."),
+                  2: ("The deficit should come down mostly through tax rises, with some spending cuts.", "To bring the deficit down, I'd mostly raise taxes and make some cuts too.", "I'd bring the deficit down mainly through higher taxes, plus some cuts."),
+                  3: ("The deficit should come down through an even mix of tax rises and spending cuts.", "I'd tackle the deficit with tax rises and spending cuts in equal measure.", "I'd bring the deficit down half through tax rises and half through cuts."),
+                  4: ("The deficit should come down mostly through spending cuts, with some tax rises.", "To bring the deficit down, I'd mostly cut spending and raise some taxes too.", "I'd bring the deficit down mainly through cuts, plus some tax rises."),
+                  5: ("If the deficit has to come down, do it through spending cuts, not tax rises.", "I'd tackle the deficit purely by cutting spending, not by raising taxes.", "If we're cutting the deficit, it should be done only through spending cuts.")}), weight=0.6),
     Item("inequalityLevel", "inequality", ("inequalityLevelW25",),
          by_code({1: ("The gap between rich and poor is much too wide.", "The income gap between rich and poor is far too big.", "Income inequality in the UK is much too high."), 2: ("The gap between rich and poor is too wide.", "The income gap between rich and poor is too big.", "Income inequality in the UK is too high."),
                   3: middling(("The gap between rich and poor is about right.", "The income gap between rich and poor is about right as it is.", "I think the difference in incomes between rich and poor is about right.")), 4: ("The gap between rich and poor is too small.", "The income gap between rich and poor is too narrow.", "Income inequality in the UK is too low."),
                   5: ("The gap between rich and poor is far too small.", "The income gap between rich and poor is much too narrow.", "Income inequality in the UK is much too low.")})),
     Item("changeInequality", "inequality", ("changeInequalityW21",),
          by_code({5: ("The gap between rich and poor is getting much wider.", "Inequality in Britain is getting much higher.", "The gap between rich and poor is growing a lot."), 4: ("The gap between rich and poor is getting wider.", "Inequality in Britain is getting higher.", "The gap between rich and poor is growing."),
-                  2: ("The gap between rich and poor is getting smaller.", "Inequality in Britain is getting lower.", "The gap between rich and poor is narrowing."), 1: ("The gap between rich and poor is closing fast.", "Inequality in Britain is getting much lower.", "The gap between rich and poor is shrinking a lot.")}), weight=0.5),
+                  2: ("The gap between rich and poor is getting smaller.", "Inequality in Britain is getting lower.", "The gap between rich and poor is narrowing."), 1: ("The gap between rich and poor is closing fast.", "Inequality in Britain is getting much lower.", "The gap between rich and poor is shrinking a lot.")}), weight=0.5, kind="trend"),
     Item("climateChange", "climate", ("climateChangeW26",),
          by_code({1: ("Climate change is real and it's us causing it.", "The climate is changing and human activity is behind it.", "I think the world's climate is changing because of what humans are doing."),
                   2: ("The climate is changing, but I don't think humans are the cause.", "The world's climate is changing, but not because of human activity.", "I think the climate is changing, just not because of us."),
@@ -977,7 +1008,7 @@ ITEMS: list[Item] = [
                 ("Owning a home by 40 has nothing to do with success in life.", "Whether you own a home by 40 has nothing to do with success in life.", "Success in life has nothing to do with owning a home by 40.")), weight=0.6),
     Item("econSecurityFuture", "personal-outlook", ("EconSecurityFutureW25", "EconSecurityFutureW23"),
          by_code({1: ("I expect to be a lot better off in ten years' time.", "In ten years, I expect to be a lot better off.", "I think I'll be much better off ten years from now."), 2: ("I expect to be a little better off in ten years.", "In ten years' time, I expect to be a bit better off.", "I think I'll be slightly better off ten years from now."),
-                  4: ("I expect to be a little worse off in ten years.", "In ten years' time, I expect to be a bit worse off.", "I think I'll be slightly worse off ten years from now."), 5: ("I expect to be a lot worse off in ten years' time.", "In ten years, I expect to be a lot worse off.", "I think I'll be much worse off ten years from now.")}), weight=0.6),
+                  4: ("I expect to be a little worse off in ten years.", "In ten years' time, I expect to be a bit worse off.", "I think I'll be slightly worse off ten years from now."), 5: ("I expect to be a lot worse off in ten years' time.", "In ten years, I expect to be a lot worse off.", "I think I'll be much worse off ten years from now.")}), weight=0.6, kind="trend"),
     Item("statusLadder", "status", ("statusTopBottomW30", "statusTopBottomW21"),
          by_code({1: ("I'd put myself right at the bottom of the pile in society.", "In society's pecking order, I'm right at the bottom.", "I'm at the very bottom of the ladder in society."), 2: ("I'd put myself near the bottom of the pile in society.", "I'm near the bottom of the ladder in society.", "In society's pecking order, I'm close to the bottom."),
                   3: ("I'd put myself near the bottom of the pile in society.", "I'm near the bottom of the ladder in society.", "In society's pecking order, I'm close to the bottom."), 4: ("I'd put myself a bit below the middle of society.", "I'm a little below the middle of the ladder in society.", "In society's pecking order, I'm just below the middle."),
@@ -1023,7 +1054,7 @@ ITEMS: list[Item] = [
                  ("I'd let in more workers from the EU.", "Britain should let in more workers from the EU.", "I'd have more workers coming in from the EU."), ("Britain should let in many more workers from the EU.", "Far more workers from the EU should be let in.", "I'd let in many more EU workers.")), weight=0.4),
     Item("familiesMore", "immigration", ("familiesMoreW26", "familiesMoreW25"),
          scale11(("Far fewer relatives of people already here should be let in.", "Britain should let in far fewer relatives of people already settled here.", "The number of relatives joining people already here should be cut right back."), ("I'd let in fewer relatives of people already here.", "Britain should let in fewer relatives of people already settled here.", "I'd cut the number of relatives joining people already here."),
-                 ("I'd let in more relatives of people already settled here.", "Britain should let in more relatives of people already here.", "I'd have more relatives of people already settled here coming in."), ("Families of people already here should be welcomed in.", "Britain should let in many more relatives of people already settled here.", "I'd let in far more relatives of people already here.")), weight=0.4),
+                 ("I'd let in more relatives of people already settled here.", "Britain should let in more relatives of people already here.", "I'd have more relatives of people already settled here coming in."), ("I'd let in far more family members of people already living here.", "Britain should let in many more relatives of people already settled here.", "I'd let in far more relatives of people already here.")), weight=0.4),
     # Brexit, looking back
     Item("brexitEcon", "brexit-effects", ("effectsEUEconRetroW27",),
          by_code({1: ("Brexit has made the economy much worse.", "The economy is much worse off because of Brexit.", "Brexit has done the economy a lot of harm."), 2: ("Brexit has made the economy worse.", "The economy is worse off because of Brexit.", "Brexit has done the economy harm."),
@@ -1062,7 +1093,7 @@ ITEMS: list[Item] = [
     # America, free speech and the wider world
     Item("usTies", "usa", ("selfUSTie1W30",),
          scale11(("Britain should get much closer to the United States economically.", "Britain should build much closer economic ties with the United States.", "I'd get Britain much closer to the US economically."), ("I'd like closer economic ties with the US.", "Britain should get a bit closer to the United States economically.", "I'd build closer economic ties with the United States."),
-                 ("I'd keep the United States at arm's length.", "Britain should keep some distance from the United States economically.", "I'd protect Britain's independence from the US a bit more."), ("Britain must protect its independence from the United States.", "Britain should put its independence from the United States first.", "Protecting Britain's independence from the US matters more than close ties."))),
+                 ("I'd keep the United States at arm's length.", "Britain should keep some distance from the United States economically.", "I lean towards keeping Britain's independence from the US."), ("Britain must protect its independence from the United States.", "Britain should put its independence from the United States first.", "Protecting Britain's independence from the US matters more than close ties."))),
     Item("freeSpeechRacistTV", "free-speech", ("freeSpeechRacistTVW30",),
          by_code({1: ("Someone who thinks white people are superior should never be given airtime on TV.", "A white supremacist should definitely not be allowed on TV to put their case.", "There's no way someone who thinks white people are superior should get airtime on TV."),
                   2: ("A white supremacist probably shouldn't be given airtime on TV.", "Someone who thinks white people are superior probably shouldn't be allowed on TV.", "I'd probably not let a white supremacist on TV to put their case."),
@@ -1113,13 +1144,14 @@ ITEMS: list[Item] = [
                 ("People in Scotland should have the final say on how Scotland is governed.", "How Scotland is governed should be up to the people in Scotland.", "The final say on how Scotland is governed should rest with people in Scotland."),
                 ("I don't think Scotland alone should decide how it's governed.", "People in Scotland shouldn't be the only ones with a say in how Scotland is governed.", "I don't agree that the final say on how Scotland is governed belongs to Scotland alone."),
                 ("Scotland shouldn't decide alone how it's governed - we're part of the UK.", "As part of the UK, Scotland shouldn't have the final say on how it's governed on its own.", "I strongly disagree that people in Scotland alone should decide how Scotland is governed.")), nations=(2,), weight=0.6),
+    # "How likely is it that ...": very likely is not certain, and very unlikely is not impossible
     Item("scotIndepEconomy", "independence", ("scotIndepEconomyW25", "scotIndepEconomyW23"),
-         by_code({5: ("Scotland's economy would certainly be worse off under independence.", "I've no doubt independence would leave Scotland's economy worse off.", "Scotland's economy would definitely suffer if we went independent."), 4: ("Scotland's economy would probably be worse off under independence.", "I think independence would probably leave Scotland's economy worse off.", "Chances are Scotland's economy would suffer if we went independent."),
-                  2: ("I don't think independence would hurt Scotland's economy.", "Scotland's economy probably wouldn't be any worse off under independence.", "I doubt independence would do Scotland's economy any harm."), 1: ("Independence wouldn't hurt Scotland's economy at all.", "There's no chance independence would do Scotland's economy any harm.", "I really can't see independence doing Scotland's economy any harm at all.")}),
+         by_code({5: ("Scotland's economy would very likely be worse off under independence.", "I think independence would very likely leave Scotland's economy worse off.", "Independence would very probably hurt Scotland's economy."), 4: ("Scotland's economy would probably be worse off under independence.", "I think independence would probably leave Scotland's economy worse off.", "Chances are Scotland's economy would suffer if we went independent."),
+                  2: ("I doubt independence would leave Scotland's economy worse off.", "Scotland's economy probably wouldn't be any worse off under independence.", "I doubt independence would do Scotland's economy any harm."), 1: ("It's very unlikely independence would leave Scotland's economy worse off.", "I very much doubt independence would hurt Scotland's economy.", "Scotland's economy would very probably be no worse off under independence.")}),
          nations=(2,), weight=0.6),
     Item("scotIndepBetterOff", "independence", ("scotIndepMeBetterOffW25", "scotIndepMeBetterOffW23"),
-         by_code({5: ("I'd definitely be better off if Scotland were independent.", "I've no doubt I'd be better off personally if Scotland went independent.", "Independence would certainly leave me better off."), 4: ("I'd probably be better off if Scotland were independent.", "I reckon independence would probably leave me personally better off.", "Chances are I'd be better off under Scottish independence."),
-                  2: ("I probably wouldn't be better off under independence.", "I doubt independence would leave me personally any better off.", "I can't see myself being better off if Scotland went independent."), 1: ("I'd be worse off if Scotland went independent.", "Personally, I'd be worse off under Scottish independence.", "Personally, I'd lose out if Scotland went independent.")}),
+         by_code({5: ("I'd very likely be better off if Scotland were independent.", "I think independence would very likely leave me personally better off.", "Independence would very probably leave me better off."), 4: ("I'd probably be better off if Scotland were independent.", "I reckon independence would probably leave me personally better off.", "Chances are I'd be better off under Scottish independence."),
+                  2: ("I probably wouldn't be better off under independence.", "I doubt independence would leave me personally any better off.", "I can't see myself being better off if Scotland went independent."), 1: ("I very much doubt I'd be any better off if Scotland went independent.", "It's very unlikely independence would leave me personally better off.", "I'd very probably be no better off under Scottish independence.")}),
          nations=(2,), weight=0.6),
     Item("happyScotIndep", "independence", ("happyScotIndepResultW21",),
          scale11(("I'd be gutted if Scotland left the UK.", "It would break my heart to see Scotland leave the UK.", "I'd be absolutely devastated if Scotland left the UK."), ("I'd be disappointed if Scotland left the UK.", "I'd be sorry to see Scotland leave the UK.", "It'd be a shame if Scotland ended up leaving the UK."),
@@ -1134,9 +1166,9 @@ ITEMS: list[Item] = [
 
     # ------------------------------------------------------------------
     # What they actually did: the May 2026 elections and the 2024 general election
-    Item("localVote", "recent-vote", (), custom=local_vote, nations=(1,), weight=1.2),
-    Item("holyroodVote", "recent-vote", (), custom=holyrood_vote, nations=(2,), weight=1.6),
-    Item("seneddVote", "recent-vote", (), custom=senedd_vote, nations=(3,), weight=1.6),
+    Item("localVote", "recent-vote", (), custom=local_vote, nations=(1,), weight=1.2, kind="record", wave=31),
+    Item("holyroodVote", "recent-vote", (), custom=holyrood_vote, nations=(2,), weight=1.6, kind="record", wave=31),
+    Item("seneddVote", "recent-vote", (), custom=senedd_vote, nations=(3,), weight=1.6, kind="record", wave=31),
     Item("turnoutLikely", "turnout", ("turnoutUKGeneralW31",),
          by_code({1: ("If there were an election tomorrow, I very probably wouldn't vote.", "It's very unlikely I'd vote if there were a general election tomorrow.", "If a general election were held tomorrow, I almost certainly wouldn't turn out."),
                   2: ("If there were an election tomorrow, I probably wouldn't bother voting.", "I probably wouldn't turn out if there were a general election tomorrow.", "If a general election were held tomorrow, I doubt I'd vote."),
@@ -1158,47 +1190,47 @@ ITEMS: list[Item] = [
     Item("brexitEconImpact", "economy-blame", (), custom=impact_item(("brexitEconImpactW31", "brexitEconImpactW30"),
          ("Brexit has done the economy a lot of damage.", "Brexit has had a big negative impact on Britain's economy.", "Brexit has really hurt the economy."), ("Brexit has done the economy some damage.", "Brexit has had a fairly negative impact on Britain's economy.", "Brexit has hurt the economy somewhat."),
          ("Brexit has been good for the economy.", "Brexit has had a positive impact on Britain's economy.", "Brexit has helped the economy."), ("Brexit has been very good for the economy.", "Brexit has had a big positive impact on Britain's economy.", "Brexit has done the economy a lot of good."),
-         ("Brexit has had mixed effects on the economy.", "Brexit has done the economy about as much good as harm.", "Brexit hasn't had much impact on the economy either way.")), weight=0.8),
+         ("Brexit has had mixed effects on the economy.", "Brexit has done the economy about as much good as harm.", "Brexit hasn't had much impact on the economy either way.")), weight=0.8, wave=31),
     Item("worldEcon", "economy-blame", (), custom=impact_item(("globalEconomyEconImpactW31", "globalEconomyEconImpactW30"),
          ("The state of the world economy has hit Britain hard.", "The global economy has had a big negative impact on Britain.", "Britain has been badly hurt by the state of the global economy."), ("The state of the world economy has hurt Britain a bit.", "The global economy has had a fairly negative impact on Britain.", "Britain has suffered somewhat from the state of the global economy."),
          ("The world economy has been good for Britain.", "The global economy has had a positive impact on Britain.", "Britain has done well out of the state of the world economy."), ("The world economy has been very good for Britain.", "The global economy has had a big positive impact on Britain.", "Britain has done really well out of the state of the world economy."),
-         ("The state of the world economy has cut both ways for Britain.", "The global economy has done Britain about as much good as harm.", "The world economy hasn't had much impact on Britain either way.")), weight=0.5),
+         ("The state of the world economy has cut both ways for Britain.", "The global economy has done Britain about as much good as harm.", "The world economy hasn't had much impact on Britain either way.")), weight=0.5, wave=31),
     Item("conflictEcon", "economy-blame", (), custom=impact_item(("conflictEconImpactW31",),
          ("Global conflicts like Iran and Ukraine have hit the economy hard.", "Conflicts around the world, like Iran and Ukraine, have had a big negative impact on our economy.", "The economy has been badly hurt by global conflicts like Iran and Ukraine."), ("Global conflicts like Iran and Ukraine have hurt the economy a bit.", "Conflicts around the world, like Iran and Ukraine, have had a fairly negative impact on our economy.", "The economy has suffered somewhat because of global conflicts like Iran and Ukraine."),
          None, None,  # "conflicts have been good for the economy" stays unspoken: a high score is a signal against Ukraine, not a genuine economic view
-         ("Global conflicts like Iran and Ukraine haven't had much impact on our economy either way.", "Conflicts around the world, like Iran and Ukraine, have done our economy about as much good as harm.", "Global conflicts like Iran and Ukraine have had mixed effects on our economy.")), weight=0.7),
+         ("Global conflicts like Iran and Ukraine haven't had much impact on our economy either way.", "Conflicts around the world, like Iran and Ukraine, have done our economy about as much good as harm.", "Global conflicts like Iran and Ukraine have had mixed effects on our economy.")), weight=0.7, wave=31),
     Item("govtEconImpact", "economy-blame", (), custom=impact_item(("ukGovtEconImpactW31", "ukGovtEconImpactW30"),
          ("The UK government has done the economy a lot of damage.", "The current UK government has had a big negative impact on the economy.", "The UK government has really hurt the economy."), ("The UK government has done the economy some damage.", "The current UK government has had a fairly negative impact on the economy.", "The UK government has hurt the economy somewhat."),
          ("The UK government has been good for the economy.", "The current UK government has had a positive impact on the economy.", "The UK government has helped the economy."), ("The UK government has been very good for the economy.", "The current UK government has had a big positive impact on the economy.", "The UK government has done the economy a lot of good."),
-         ("The UK government has had mixed effects on the economy.", "The current UK government has done the economy about as much good as harm.", "The UK government hasn't had much impact on the economy either way.")), weight=0.7),
+         ("The UK government has had mixed effects on the economy.", "The current UK government has done the economy about as much good as harm.", "The UK government hasn't had much impact on the economy either way.")), weight=0.7, wave=31),
     Item("lastGovtEconImpact", "economy-blame", (), custom=impact_item(("ukLastGovtEconImpactW31", "ukLastGovtEconImpactW30"),
          ("The last UK government did the economy a lot of damage.", "The previous UK government had a big negative impact on the economy.", "The last UK government really hurt the economy."), ("The last UK government did the economy some damage.", "The previous UK government had a fairly negative impact on the economy.", "The last UK government hurt the economy somewhat."),
          ("The last UK government was good for the economy.", "The previous UK government had a positive impact on the economy.", "The last UK government helped the economy."), ("The last UK government was very good for the economy.", "The previous UK government had a big positive impact on the economy.", "The last UK government did the economy a lot of good."),
-         ("The last UK government had mixed effects on the economy.", "The previous UK government did the economy about as much good as harm.", "The last UK government didn't have much impact on the economy either way.")), weight=0.6),
+         ("The last UK government had mixed effects on the economy.", "The previous UK government did the economy about as much good as harm.", "The last UK government didn't have much impact on the economy either way.")), weight=0.6, wave=31),
     Item("brexitEconScot", "economy-blame", (), custom=impact_item(("brexitEconImpactScotW31", "brexitEconImpactScotW30"),
          ("Brexit has done Scotland's economy a lot of damage.", "Brexit has had a big negative impact on the Scottish economy.", "Brexit has really hurt Scotland's economy."), ("Brexit has done Scotland's economy some damage.", "Brexit has had a fairly negative impact on the Scottish economy.", "Brexit has hurt Scotland's economy somewhat."),
          ("Brexit has been good for Scotland's economy.", "Brexit has had a positive impact on the Scottish economy.", "Brexit has helped Scotland's economy."), ("Brexit has been very good for Scotland's economy.", "Brexit has had a big positive impact on the Scottish economy.", "Brexit has done Scotland's economy a lot of good."),
-         ("Brexit has had mixed effects on Scotland's economy.", "Brexit has done the Scottish economy about as much good as harm.", "Brexit hasn't had much impact on Scotland's economy either way.")), nations=(2,), weight=0.6),
+         ("Brexit has had mixed effects on Scotland's economy.", "Brexit has done the Scottish economy about as much good as harm.", "Brexit hasn't had much impact on Scotland's economy either way.")), nations=(2,), weight=0.6, wave=31),
     Item("scotGovtEcon", "scottish-government", (), custom=impact_item(("scotGovtEconImpactScotW31", "scotGovtEconImpactScotW30"),
          ("The Scottish Government has done Scotland's economy a lot of damage.", "The Scottish Government has had a big negative impact on Scotland's economy.", "The Scottish Government has really hurt the Scottish economy."), ("The Scottish Government has done Scotland's economy some damage.", "The Scottish Government has had a fairly negative impact on Scotland's economy.", "The Scottish Government has hurt the Scottish economy somewhat."),
          ("The Scottish Government has been good for Scotland's economy.", "The Scottish Government has had a positive impact on Scotland's economy.", "The Scottish Government has helped the Scottish economy."), ("The Scottish Government has been very good for Scotland's economy.", "The Scottish Government has had a big positive impact on Scotland's economy.", "The Scottish Government has done the Scottish economy a lot of good."),
-         ("The Scottish Government has had mixed effects on Scotland's economy.", "The Scottish Government has done Scotland's economy about as much good as harm.", "The Scottish Government hasn't had much impact on the Scottish economy either way.")), nations=(2,), weight=0.7),
+         ("The Scottish Government has had mixed effects on Scotland's economy.", "The Scottish Government has done Scotland's economy about as much good as harm.", "The Scottish Government hasn't had much impact on the Scottish economy either way.")), nations=(2,), weight=0.7, wave=31),
     Item("conflictEconScot", "economy-blame", (), custom=impact_item(("conflictEconImpactScotW31",),
          ("Global conflicts like Iran and Ukraine have hit Scotland's economy hard.", "Conflicts around the world, like Iran and Ukraine, have had a big negative impact on Scotland's economy.", "Scotland's economy has been badly hurt by global conflicts like Iran and Ukraine."), ("Global conflicts like Iran and Ukraine have hurt Scotland's economy a bit.", "Conflicts around the world, like Iran and Ukraine, have had a fairly negative impact on Scotland's economy.", "Scotland's economy has suffered somewhat because of global conflicts like Iran and Ukraine."),
          None, None,  # positive side unspoken, as on the GB conflicts item
-         ("Global conflicts like Iran and Ukraine haven't had much impact on Scotland's economy either way.", "Conflicts around the world, like Iran and Ukraine, have done Scotland's economy about as much good as harm.", "Global conflicts like Iran and Ukraine have had mixed effects on Scotland's economy.")), nations=(2,), weight=0.5),
+         ("Global conflicts like Iran and Ukraine haven't had much impact on Scotland's economy either way.", "Conflicts around the world, like Iran and Ukraine, have done Scotland's economy about as much good as harm.", "Global conflicts like Iran and Ukraine have had mixed effects on Scotland's economy.")), nations=(2,), weight=0.5, wave=31),
     Item("conflictEconWales", "economy-blame", (), custom=impact_item(("conflictEconImpactWalesW31",),
          ("Global conflicts like Iran and Ukraine have hit Wales's economy hard.", "Conflicts around the world, like Iran and Ukraine, have had a big negative impact on the Welsh economy.", "Wales's economy has been badly hurt by global conflicts like Iran and Ukraine."), ("Global conflicts like Iran and Ukraine have hurt Wales's economy a bit.", "Conflicts around the world, like Iran and Ukraine, have had a fairly negative impact on the Welsh economy.", "Wales's economy has suffered somewhat because of global conflicts like Iran and Ukraine."),
          None, None,  # positive side unspoken, as on the GB conflicts item
-         ("Global conflicts like Iran and Ukraine haven't had much impact on Wales's economy either way.", "Conflicts around the world, like Iran and Ukraine, have done the Welsh economy about as much good as harm.", "Global conflicts like Iran and Ukraine have had mixed effects on Wales's economy.")), nations=(3,), weight=0.5),
+         ("Global conflicts like Iran and Ukraine haven't had much impact on Wales's economy either way.", "Conflicts around the world, like Iran and Ukraine, have done the Welsh economy about as much good as harm.", "Global conflicts like Iran and Ukraine have had mixed effects on Wales's economy.")), nations=(3,), weight=0.5, wave=31),
     Item("brexitEconImpactWales", "economy-blame", (), custom=impact_item(("brexitEconImpactWalesW31", "brexitEconImpactWalesW30"),
          ("Brexit has done Wales's economy a lot of damage.", "Brexit has had a big negative impact on the Welsh economy.", "Brexit has really hurt Wales's economy."), ("Brexit has done Wales's economy some damage.", "Brexit has had a fairly negative impact on the Welsh economy.", "Brexit has hurt Wales's economy somewhat."),
          ("Brexit has been good for Wales's economy.", "Brexit has had a positive impact on the Welsh economy.", "Brexit has helped Wales's economy."), ("Brexit has been very good for Wales's economy.", "Brexit has had a big positive impact on the Welsh economy.", "Brexit has done Wales's economy a lot of good."),
-         ("Brexit has had mixed effects on Wales's economy.", "Brexit has done the Welsh economy about as much good as harm.", "Brexit hasn't had much impact on Wales's economy either way.")), nations=(3,), weight=0.6),
+         ("Brexit has had mixed effects on Wales's economy.", "Brexit has done the Welsh economy about as much good as harm.", "Brexit hasn't had much impact on Wales's economy either way.")), nations=(3,), weight=0.6, wave=31),
     Item("welshGovtEcon", "welsh-government", (), custom=impact_item(("welshGovtEconImpactWalesW31", "welshGovtEconImpactWalesW30"),
          ("The Welsh Government has done Wales's economy a lot of damage.", "The Welsh Government has had a big negative impact on Wales's economy.", "The Welsh Government has really hurt the Welsh economy."), ("The Welsh Government has done Wales's economy some damage.", "The Welsh Government has had a fairly negative impact on Wales's economy.", "The Welsh Government has hurt the Welsh economy somewhat."),
          ("The Welsh Government has been good for Wales's economy.", "The Welsh Government has had a positive impact on Wales's economy.", "The Welsh Government has helped the Welsh economy."), ("The Welsh Government has been very good for Wales's economy.", "The Welsh Government has had a big positive impact on Wales's economy.", "The Welsh Government has done the Welsh economy a lot of good."),
-         ("The Welsh Government has had mixed effects on Wales's economy.", "The Welsh Government has done Wales's economy about as much good as harm.", "The Welsh Government hasn't had much impact on the Welsh economy either way.")), nations=(3,), weight=0.7),
+         ("The Welsh Government has had mixed effects on Wales's economy.", "The Welsh Government has done Wales's economy about as much good as harm.", "The Welsh Government hasn't had much impact on the Welsh economy either way.")), nations=(3,), weight=0.7, wave=31),
     Item("freeSpeechRacistElection", "free-speech", ("freeSpeechRacistElectionW30",),
          by_code({1: ("A white supremacist should never be allowed to stand for election.", "I'd never let a white supremacist stand as a candidate in an election.", "There's no way a white supremacist should be allowed to stand for election."), 2: ("A white supremacist probably shouldn't be allowed to stand for election.", "I probably wouldn't let a white supremacist stand as a candidate in an election.", "On balance, a white supremacist shouldn't be allowed to stand for election."),
                   3: ("Even a white supremacist should probably be allowed to stand for election.", "I'd probably let even a white supremacist stand as a candidate in an election.", "On balance, even a white supremacist should be allowed to stand for election."), 4: ("Even a white supremacist should be free to stand for election.", "Even a white supremacist should definitely be allowed to stand as a candidate.", "A white supremacist has every right to stand for election, as far as I'm concerned.")}), weight=0.4),
@@ -1279,16 +1311,16 @@ ITEMS: list[Item] = [
     Item("sexismPedestal", "sexism", ("benevolentSexism3W27",),
          agree5(("A good woman should be set on a pedestal by her man.", "A good woman absolutely deserves to be put on a pedestal by her man.", "A man should always put a good woman on a pedestal."), ("A good woman deserves to be put on a pedestal by her man.", "A good woman ought to be put on a pedestal by her man.", "A man should put a good woman on a pedestal."),
                 ("No woman needs putting on a pedestal by her man.", "I don't think a man should put a good woman on a pedestal.", "A good woman doesn't need her man to put her on a pedestal."), ("Putting a woman on a pedestal is the last thing a good man should do.", "It's completely wrong to think a man should put a good woman on a pedestal.", "The idea that a good woman should be put on a pedestal by her man is nonsense.")), weight=0.3),
-    Item("scotRefBond", "independence", (), custom=scot_ref_bond, nations=(2,), weight=0.8),
+    Item("scotRefBond", "independence", (), custom=scot_ref_bond, nations=(2,), weight=0.8, wave=27),
     Item("scotRejoinEU", "independence", ("scotIndepRejoinEUW25", "scotIndepRejoinEUW23"),
-         by_code({1: ("An independent Scotland would have no chance of rejoining the EU.", "There's no way an independent Scotland would get back into the EU.", "It's very unlikely an independent Scotland could rejoin the EU."), 2: ("An independent Scotland probably couldn't rejoin the EU.", "I doubt an independent Scotland would be able to rejoin the EU.", "It's fairly unlikely an independent Scotland would get back into the EU."),
-                  4: ("An independent Scotland would probably be able to rejoin the EU.", "I think an independent Scotland would most likely be able to get back into the EU.", "It's fairly likely an independent Scotland could rejoin the EU."), 5: ("An independent Scotland would be able to rejoin the EU.", "I've no doubt an independent Scotland could rejoin the EU.", "It's very likely an independent Scotland would be able to get back into the EU.")}), nations=(2,), weight=0.6),
+         by_code({1: ("It's very unlikely an independent Scotland could rejoin the EU.", "I very much doubt an independent Scotland would get back into the EU.", "An independent Scotland would very probably not be able to rejoin the EU."), 2: ("An independent Scotland probably couldn't rejoin the EU.", "I doubt an independent Scotland would be able to rejoin the EU.", "It's fairly unlikely an independent Scotland would get back into the EU."),
+                  4: ("An independent Scotland would probably be able to rejoin the EU.", "I think an independent Scotland would most likely be able to get back into the EU.", "It's fairly likely an independent Scotland could rejoin the EU."), 5: ("An independent Scotland would very likely be able to rejoin the EU.", "I think an independent Scotland would very probably get back into the EU.", "It's very likely an independent Scotland would be able to get back into the EU.")}), nations=(2,), weight=0.6),
     Item("scotSovereignty", "europe", ("sovereignty2W29",),
          agree5(("The UK as a whole voted to leave the EU, and Scotland has to accept that.", "Most people across the UK voted to leave the EU, and Scotland simply has to accept that.", "The whole UK voted to leave, and Scotland absolutely has to accept the result."), ("The UK voted to leave, and Scotland should accept that.", "The majority across the UK voted for Brexit, so people in Scotland ought to accept it.", "Scotland should respect the UK-wide vote to leave the EU."),
                 ("Scotland shouldn't have to accept Brexit just because the UK as a whole voted for it.", "I don't think a UK-wide vote means people in Scotland have to accept leaving the EU.", "Just because the rest of the UK voted to leave doesn't mean Scotland should have to go along with it."), ("Scotland should never have been dragged out of the EU against its will.", "There's no way Scotland should have to accept Brexit just because the UK as a whole voted for it.", "Taking Scotland out of the EU against its will was completely wrong.")), nations=(2,), weight=0.6),
-    Item("euRefBond", "europe", (), custom=eu_ref_bond, weight=0.5),
-    Item("euRegret", "europe", (), custom=eu_regret, weight=0.6),
-    Item("socialCircle", "social-circle", (), custom=social_circle_vote, weight=0.5),
+    Item("euRefBond", "europe", (), custom=eu_ref_bond, weight=0.5, wave=24),
+    Item("euRegret", "europe", (), custom=eu_regret, weight=0.6, wave=26),
+    Item("socialCircle", "social-circle", (), custom=social_circle_vote, weight=0.5, kind="record", wave=28),
     Item("satDemEng", "democracy", ("satDemEngW29",),
          by_code({1: ("I'm very dissatisfied with how democracy works in England.", "I'm really unhappy with the way democracy works in England.", "The way democracy works in England leaves me very dissatisfied."), 2: ("I'm a little dissatisfied with how democracy works in England.", "I'm somewhat unhappy with the way democracy works in England.", "I'm a bit dissatisfied with the way democracy works in England."),
                   3: ("I'm fairly satisfied with how democracy works in England.", "On the whole, I'm reasonably happy with how democracy works in England.", "I'm pretty satisfied with the way democracy works in England."), 4: ("I'm very satisfied with how democracy works in England.", "I'm very happy with the way democracy works in England.", "As far as I'm concerned, democracy in England works very well.")}), nations=(1,), weight=0.4),
@@ -1300,19 +1332,19 @@ ITEMS: list[Item] = [
     Item("ukGovtEconScot", "economy-blame", (), custom=impact_item(("ukGovtEconImpactScotW31", "ukGovtEconImpactScotW30"),
          ("The UK government has done Scotland's economy a lot of damage.", "The UK government has been really bad for Scotland's economy.", "The UK government has done serious harm to Scotland's economy."), ("The UK government has done Scotland's economy some damage.", "The UK government has been fairly bad for Scotland's economy.", "The UK government has harmed Scotland's economy somewhat."),
          ("The UK government has been good for Scotland's economy.", "The UK government has had a positive effect on Scotland's economy.", "The UK government has helped Scotland's economy."), ("The UK government has been very good for Scotland's economy.", "The UK government has had a really positive effect on Scotland's economy.", "The UK government has done Scotland's economy a lot of good."),
-         ("The UK government has had mixed effects on Scotland's economy.", "The UK government has done Scotland's economy about as much good as harm.", "The UK government hasn't had much impact on Scotland's economy either way.")), nations=(2,), weight=0.6),
+         ("The UK government has had mixed effects on Scotland's economy.", "The UK government has done Scotland's economy about as much good as harm.", "The UK government hasn't had much impact on Scotland's economy either way.")), nations=(2,), weight=0.6, wave=31),
     Item("lastGovtEconScot", "economy-blame", (), custom=impact_item(("ukLastGovtEconImpactScotW31", "ukLastGovtEconImpactScotW30"),
          ("The last UK government did Scotland's economy a lot of damage.", "The last UK government was really bad for Scotland's economy.", "The last UK government did serious harm to Scotland's economy."), ("The last UK government did Scotland's economy some damage.", "The last UK government was fairly bad for Scotland's economy.", "The last UK government harmed Scotland's economy somewhat."),
          ("The last UK government was good for Scotland's economy.", "The last UK government had a positive effect on Scotland's economy.", "The last UK government helped Scotland's economy."), ("The last UK government was very good for Scotland's economy.", "The last UK government had a really positive effect on Scotland's economy.", "The last UK government did Scotland's economy a lot of good."),
-         ("The last UK government had mixed effects on Scotland's economy.", "The last UK government did Scotland's economy about as much good as harm.", "The last UK government didn't have much impact on Scotland's economy either way.")), nations=(2,), weight=0.5),
+         ("The last UK government had mixed effects on Scotland's economy.", "The last UK government did Scotland's economy about as much good as harm.", "The last UK government didn't have much impact on Scotland's economy either way.")), nations=(2,), weight=0.5, wave=31),
     Item("ukGovtEconWales", "economy-blame", (), custom=impact_item(("ukGovtEconImpactWalesW31", "ukGovtEconImpactWalesW30"),
          ("The UK government has done Wales's economy a lot of damage.", "The UK government has been really bad for Wales's economy.", "The UK government has done serious harm to Wales's economy."), ("The UK government has done Wales's economy some damage.", "The UK government has been fairly bad for Wales's economy.", "The UK government has harmed Wales's economy somewhat."),
          ("The UK government has been good for Wales's economy.", "The UK government has had a positive effect on Wales's economy.", "The UK government has helped Wales's economy."), ("The UK government has been very good for Wales's economy.", "The UK government has had a really positive effect on Wales's economy.", "The UK government has done Wales's economy a lot of good."),
-         ("The UK government has had mixed effects on Wales's economy.", "The UK government has done Wales's economy about as much good as harm.", "The UK government hasn't had much impact on Wales's economy either way.")), nations=(3,), weight=0.6),
+         ("The UK government has had mixed effects on Wales's economy.", "The UK government has done Wales's economy about as much good as harm.", "The UK government hasn't had much impact on Wales's economy either way.")), nations=(3,), weight=0.6, wave=31),
     Item("lastGovtEconWales", "economy-blame", (), custom=impact_item(("ukLastGovtEconImpactWalesW31", "ukLastGovtEconImpactWalesW30"),
          ("The last UK government did Wales's economy a lot of damage.", "The last UK government was really bad for Wales's economy.", "The last UK government did serious harm to Wales's economy."), ("The last UK government did Wales's economy some damage.", "The last UK government was fairly bad for Wales's economy.", "The last UK government harmed Wales's economy somewhat."),
          ("The last UK government was good for Wales's economy.", "The last UK government had a positive effect on Wales's economy.", "The last UK government helped Wales's economy."), ("The last UK government was very good for Wales's economy.", "The last UK government had a really positive effect on Wales's economy.", "The last UK government did Wales's economy a lot of good."),
-         ("The last UK government had mixed effects on Wales's economy.", "The last UK government did Wales's economy about as much good as harm.", "The last UK government didn't have much impact on Wales's economy either way.")), nations=(3,), weight=0.5),
+         ("The last UK government had mixed effects on Wales's economy.", "The last UK government did Wales's economy about as much good as harm.", "The last UK government didn't have much impact on Wales's economy either way.")), nations=(3,), weight=0.5, wave=31),
     Item("warmMuslim", "warmth", ("warmMuslimW26",), warmth_item("Muslims"), weight=0.4),
     Item("warmJewish", "warmth", ("warmJewishW26",), warmth_item("Jewish people"), weight=0.4),
     Item("warmChristian", "warmth", ("warmChristianW26",), warmth_item("Christians"), weight=0.4),
@@ -1321,9 +1353,9 @@ ITEMS: list[Item] = [
     Item("equalityWomen", "equality", ("femaleEqualityW27", "femaleEqualityW23"), gone_too_far_item("equal opportunities for women"), weight=0.5),
     Item("equalityGay", "equality", ("gayEqualityW27", "gayEqualityW23"), gone_too_far_item("equal opportunities for gay and lesbian people"), weight=0.5),
     # The 2024 vote, one step on from the band (wave 29): one bubble at most, since all three share a topic
-    Item("voteAgainst", "vote-2024", ("disapprovalVoteW29",), custom=vote_against, weight=0.8),
-    Item("partyPreferred", "vote-2024", ("partyPreferredW29",), custom=party_really_preferred, weight=0.8),
-    Item("votingWish", "vote-2024", ("votingWishW29",), custom=wished_vote, weight=0.8),
+    Item("voteAgainst", "vote-2024", ("disapprovalVoteW29",), custom=vote_against, weight=0.8, kind="record"),
+    Item("partyPreferred", "vote-2024", ("partyPreferredW29",), custom=party_really_preferred, weight=0.8, kind="record"),
+    Item("votingWish", "vote-2024", ("votingWishW29",), custom=wished_vote, weight=0.8, kind="record"),
     # Brexit's effects beyond the headline ones (wave 27, 2024), and what staying in would have meant (2021-23)
     Item("brexitWorkers", "brexit-effects", ("effectsEUWorkersRetroW27",), brexit_effect5("working conditions for British workers"), weight=0.8),
     Item("brexitTrade", "brexit-effects", ("effectsEUTradeRetroW27",), brexit_effect5("Britain's international trade"), weight=0.8),
@@ -1348,16 +1380,19 @@ ITEMS: list[Item] = [
     Item("globalTourism", "globalisation", ("globalTourismW21", "globalTourismW20"), globalisation5("global tourism"), weight=0.6),
     # Elections: whether a vote counts
     Item("voteDifference", "vote-difference", ("voteMakesDifferenceW27",), vote_difference, weight=0.8),
+    # Which party is best on the issue they named (wave 31): a candidate for the issue bubble on every card
+    Item("bestOnIssue", "issue-party", ("bestOnMIIW31",), custom=best_on_issue, fallback=False),
 ]
 
 
-# Top-issue category (codes.TOP_ISSUE) -> bubble topics on the same subject, so one bubble can speak to it
+# Top-issue category (codes.TOP_ISSUE) -> bubble topics on the same subject, so one bubble can speak to it.
+# These also carry the issue's weight when the build measures what voters say matters (salience).
 ISSUE_TOPICS: dict[int, set[str]] = {
     1: {"nhs-cuts", "nhs-direction", "private-healthcare", "private-health"},
-    2: {"schools", "curriculum", "private-schools", "breakfast-clubs", "local-area"},
-    3: {"elections", "party-difference", "tactical-voting", "electoral-system"},
+    2: {"schools", "curriculum", "private-schools", "breakfast-clubs"},
+    3: {"elections", "party-difference", "tactical-voting", "electoral-system", "turnout", "vote-difference"},
     4: {"politicians", "trust", "democracy", "populism", "party-difference", "strong-leader"},
-    5: {"party-difference", "politicians"},
+    5: {"party-difference", "politicians", "marrying"},
     6: {"social-trust", "discrimination", "identity", "free-speech", "offence"},
     7: {"young-people", "obey-authority", "censorship", "same-sex-parents", "gender-attitudes", "warmth"},
     8: {"identity", "immigration", "statues", "pride", "monarchy"},
@@ -1367,7 +1402,7 @@ ISSUE_TOPICS: dict[int, set[str]] = {
     12: {"immigration", "immigration-direction"},
     13: {"immigration", "immigration-direction"},
     14: {"crime-direction", "sentencing", "death-penalty"},
-    15: {"europe", "brexit-effects", "economy-blame", "globalisation"},
+    15: {"europe", "brexit-effects", "remain-effects", "economy-blame", "globalisation"},
     16: {"electoral-system", "monarchy", "voting-age", "democracy", "devolution"},
     17: {"globalisation", "europe", "brexit-effects", "usa", "trump"},
     18: {"devolution", "fair-share", "local-voice", "scottish-government", "welsh-government", "independence"},
@@ -1388,7 +1423,7 @@ ISSUE_TOPICS: dict[int, set[str]] = {
     34: {"spending-cuts", "local-cuts", "nhs-cuts", "tax-and-spend", "council"},
     35: {"inequality", "redistribution", "fair-share-wealth", "one-law", "big-business"},
     36: {"housing", "home-ownership"},
-    37: {"nhs-direction", "spending-cuts", "local-cuts"},
+    37: {"nhs-direction", "spending-cuts", "local-cuts", "tax-and-spend"},
     38: {"pensions"},
     39: {"privatisation", "nationalisation", "local-cuts"},
     40: {"climate", "green-rules", "growth-v-environment", "public-energy"},
@@ -1399,12 +1434,34 @@ ISSUE_TOPICS: dict[int, set[str]] = {
     49: {"economy-direction", "economy-blame"},
     50: {"trans-sport", "same-sex-parents", "gender-attitudes", "discrimination", "sexism", "equality"},
 }
+# Single questions that speak to an issue though the rest of their topic does not: the government's
+# handling of immigration, but not of the NHS, for someone whose top issue is immigration. They join
+# the issue bubble's draw without carrying the issue's salience to their whole theme.
+ISSUE_ITEMS: dict[int, set[str]] = {
+    1: {"govtNHS", "brexitNHS"},
+    2: {"localSchools"},
+    12: {"govtImmig", "brexitImmigration", "globalMigration"},
+    13: {"govtImmig", "brexitImmigration"},
+    14: {"govtCrime", "areaCrime"},
+    17: {"brexitTrade", "remainTrade", "globalTrade"},
+    21: {"govtForeign"}, 22: {"govtForeign"}, 24: {"govtForeign"},
+    26: {"govtEcon"}, 31: {"govtEcon", "taxSpend"}, 32: {"govtEcon", "taxSpend", "nationaliseUtilities", "conflictEcon"},
+    27: {"brexitFinance", "remainFinance", "taxSpend"},
+}
+ISSUE_PARTY = "issue-party"  # the topic of the bubble on which party is best on their top issue: it speaks to every issue
+
+
+def speaks_to(item: Item, issue_code: int | None) -> bool:
+    """Whether a bubble can be the one on the card's top issue."""
+    if not issue_code:
+        return False
+    return item.topic in ISSUE_TOPICS.get(issue_code, ()) or item.key in ISSUE_ITEMS.get(issue_code, ()) or item.topic == ISSUE_PARTY
 
 # Topics that are, in effect, the same issue. A card never carries two bubbles from one theme:
 # "it doesn't matter which party is in power" and "there's not much difference between Labour and
 # the Tories" are one thought, not two. Topics not listed here are themes of their own.
 THEMES: dict[str, set[str]] = {
-    "politicians": {"politicians", "party-difference", "populism", "trust", "strong-leader", "experts", "political-interest"},
+    "politicians": {"politicians", "party-difference", "populism", "trust", "strong-leader", "experts", "political-interest", "issue-party"},
     "elections": {"democracy", "elections", "electoral-system", "voter-id", "voting-duty", "tactical-voting", "turnout", "voting-age", "vote-difference"},
     "economy": {"economy-direction", "economy-outlook", "economy-blame", "cost-of-living", "personal-outlook"},
     "inequality": {"redistribution", "inequality", "fair-share-wealth", "one-law", "big-business", "management"},
@@ -1438,6 +1495,16 @@ def theme_of(topic: str) -> str:
 
 
 NATION_TOPICS = {"identity", "independence", "fair-share", "scottish-government", "welsh-government"}
+
+
+def draw_weight(item: Item) -> float:
+    """What an item weighs in the draw's targets (ProfileBuilder.solve_group): its own weight, less
+    the longer ago its question was last asked (config.VIEW_HALF_LIFE). A record of something they
+    did keeps its weight, however long ago."""
+    if item.kind == "record":
+        return item.weight
+    years = config.WAVE_YEARS[config.WAVE] - config.WAVE_YEARS[item.asked]
+    return item.weight * 0.5 ** (years / config.VIEW_HALF_LIFE)
 
 
 def is_neutral(text: str) -> bool:

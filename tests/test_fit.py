@@ -30,7 +30,7 @@ def with_life(sentences: int) -> dict:
     return card
 
 
-OVERLONG = with_life(12)
+OVERLONG = with_life(16)  # well past what closing up the gaps can give back
 
 
 @pytest.fixture

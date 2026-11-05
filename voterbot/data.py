@@ -12,6 +12,7 @@ import re
 import time
 from collections.abc import Iterable
 
+import numpy as np
 import pandas as pd
 
 from . import config
@@ -125,7 +126,8 @@ _WAVE_RE = re.compile(r"^(.*?)(W\d+(?:_?W\d+)*)$")
 _FIELDINGS: dict[tuple, dict[str, list[str]]] = {}  # (id, length, first and last name of a column set) -> stem -> fieldings
 
 
-def _max_wave(column: str) -> int:
+def newest_wave(column: str) -> int:
+    """The latest wave a column covers: 31 for "immigSelfW31", 27 for "cwLanguageW26W27"."""
     match = _WAVE_RE.match(column)
     return max((int(w) for w in re.findall(r"W(\d+)", match.group(2))), default=0) if match else 0
 
@@ -139,8 +141,12 @@ def fieldings(columns, stem: str, floor: int = 20) -> list[str]:
     # A row taken with .iloc carries a fresh Index object each time, but over the frame's own array
     # of names, which the frame keeps alive: that array is the key, one entry per frame. Holding on
     # to each row's Index instead filled the memory of a whole build. The length and the end columns
-    # guard against an array id that a freed frame has handed on to a different one.
+    # guard against an array id that a freed frame has handed on to a different one. Which attribute
+    # is that array depends on pandas: `.values` for names stored as a numpy array, `.array` for
+    # Arrow-backed strings, where pandas 3.1 hands out a fresh view from `.values` on every call.
     names = getattr(columns, "values", columns)
+    if not isinstance(names, np.ndarray):
+        names = getattr(columns, "array", names)
     key = (id(names), len(columns), columns[0] if len(columns) else None, columns[-1] if len(columns) else None)
     if key not in _FIELDINGS:
         registry: dict[str, list[str]] = {}
@@ -149,9 +155,9 @@ def fieldings(columns, stem: str, floor: int = 20) -> list[str]:
             if match:
                 registry.setdefault(match.group(1), []).append(column)
         for cols in registry.values():
-            cols.sort(key=_max_wave, reverse=True)
+            cols.sort(key=newest_wave, reverse=True)
         _FIELDINGS[key] = registry
-    return [c for c in _FIELDINGS[key].get(stem, []) if _max_wave(c) >= floor]
+    return [c for c in _FIELDINGS[key].get(stem, []) if newest_wave(c) >= floor]
 
 
 def latest_value(row, stem: str, max_valid: float = 9000, floor: int = 20) -> tuple[float | None, str | None]:

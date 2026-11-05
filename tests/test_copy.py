@@ -1,5 +1,6 @@
 """House-style checks on every piece of fixed copy: UK spelling, plain hyphens, sentences."""
 
+import random
 import re
 
 import pytest
@@ -33,6 +34,14 @@ def test_item_sentence_style(key, text):
     assert text.endswith((".", "?", "!")), f"{key}: sentence should end with a full stop"
     assert len(text) <= 110, f"{key}: too long for a bubble ({len(text)} chars)"
     assert "  " not in text
+
+
+@pytest.mark.parametrize("best", [0, 9, *codes.PARTY_NOUN])
+def test_which_party_is_best_on_their_issue_reads_in_house_style(monkeypatch, best):
+    answers = {"mii_cat_llmW31": 12, "bestOnMIIW31": best, "generalElectionVoteW31": 13}
+    monkeypatch.setattr(items, "value", lambda row, col, max_valid=9000: answers.get(col))
+    for text in items.best_on_issue(None, 1):
+        test_item_sentence_style("bestOnIssue", text)
 
 
 def test_topics_are_varied():
@@ -96,6 +105,21 @@ def test_the_generator_no_longer_writes_any_retired_wording():
         fragment = was.rstrip(".")
         if "{" not in fragment and not fragment.startswith(("member of the", "I'm a SNP")):  # those two are assembled at run time
             assert not re.search(re.escape(fragment) + r"(?!\w)", source), was  # "qualification" inside its own fix is fine
+
+
+@pytest.mark.parametrize("sector", sorted(codes.SECTOR))
+@pytest.mark.parametrize("size", [1, 3])
+def test_the_size_of_an_employer_is_worded_to_follow_its_sector(monkeypatch, sector, size):
+    """"A higher professional job for a charity for a small employer" said "for" twice, and a public
+    sector job is not "at a small firm"."""
+    answers = {"workingStatusW31": 1, "sectorW31": sector}
+    monkeypatch.setattr(persona, "value", lambda row, col, max_valid=9000: answers.get(col))
+    monkeypatch.setattr(persona, "latest", lambda row, cols, max_valid=9000: (31, cols[0]))
+    monkeypatch.setattr(persona, "lv", lambda row, stem: size if stem == "selfOccOrgSize" else None)
+    for seed in range(40):
+        text = persona.job_clause(None, random.Random(seed))
+        assert not re.search(r"\bfor a (charity|public corporation) (for|at)\b", text), text
+        assert sector == 1 or "firm" not in text, text
 
 
 def test_an_initialism_takes_its_article_by_sound():

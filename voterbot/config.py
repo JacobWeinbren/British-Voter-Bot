@@ -59,10 +59,14 @@ LIFE_DETAILS = 2  # human details drawn for the life paragraph besides home, mon
 # details - is solved for (voterbot/balance.py) so the feed follows the targets below rather than
 # whatever the BES happened to ask most people. These are the dials, and each is a stated choice:
 #
-# Half of the general bubbles follow what voters in each nation name as the most important issue
-# facing the country (the BES's own question, measured at build time); the other half are spread
-# evenly over every subject, so the ones nobody names still get a hearing.
-SALIENCE_SHARE = 0.5
+# Every card already gives one bubble to the subject its voter names as the most important issue
+# facing the country, whenever they hold a view on it (profile.pick_opinions). The other bubbles
+# lean on that same question by this share - what voters in each nation name, measured at build
+# time - and the rest is spread evenly over every subject, so the ones nobody names still get a
+# hearing. Together that puts about half the views on the feed on what voters say matters. At a
+# half here as well, the subjects named most were counted twice: in the issue bubble and again here.
+# (The issue bubble's own draw leans on nothing: what voters name has already chosen its subject.)
+SALIENCE_SHARE = 0.3
 # No view or fact appears on more than half the cards that could carry it: an answer only a
 # handful of people gave cannot be pushed further than that, or everyone who gave it would say it
 # every time they came round.
@@ -70,9 +74,25 @@ MAX_APPEARANCE = 0.5
 # A middling answer ("about right", "neither well nor badly") is drawn at a fifth of the weight of
 # a view either way: surveys nudge people towards the middle option, and a view says more.
 NEUTRAL_WEIGHT = 0.2
+# A sense of which way things are going - prices still rising, the NHS getting worse, immigration
+# going up - is the answer nearly everyone gives, and it says less about a voter than what they
+# want done or whom they blame. Within any subject, those trend questions (items.Item kind "trend")
+# take no more than this share of the draw, and the rest goes to the views. Left to an even split
+# by topic, they took most of the economy's share and half of immigration's.
+TREND_SHARE = 0.2
+# Views go stale. A question last asked some years ago is drawn at a discount that halves every
+# VIEW_HALF_LIFE years, by the fieldwork year of the wave it was last asked in: an answer from
+# 2024 at seven-tenths of this year's weight, one from 2020 at about a third. A subject last asked
+# about years ago takes less of the feed with it (balance.tree_targets). What someone did - how
+# they voted in 2016 or 2024 - does not go stale (items.Item kind "record").
+VIEW_HALF_LIFE = 4
+WAVE_YEARS = {20: 2020, 21: 2021, 22: 2021, 23: 2022, 24: 2022, 25: 2023, 26: 2023,
+              27: 2024, 28: 2024, 29: 2024, 30: 2025, 31: 2026}
 # How often a card's last bubble is about nation and identity. In Scotland and Wales the
-# constitutional question is the second axis of politics; in England it is less of a talking point.
-NATION_BUBBLE_CHANCE = {1: 0.45, 2: 0.85, 3: 0.85}
+# constitutional question is the second axis of politics; in England it is less of a talking
+# point, and at nearly half of English cards "I feel more English than British" and its kin were
+# among the commonest bubbles on the feed.
+NATION_BUBBLE_CHANCE = {1: 0.3, 2: 0.85, 3: 0.85}
 # A personality or risk trait is mentioned only for the outer tenth of the panel either side,
 # measured at build time: "I'm an extrovert" should mean more extrovert than most people.
 TRAIT_TAIL = 0.10
@@ -86,7 +106,7 @@ MEDIA_MAX_LINES, MEDIA_CHARS_PER_LINE = 3, 115
 # or the scale labels sit on the band: half the padding, kept on every card (the card's own fit
 # script and voterbot/fit.py both hold to it).
 BAND_CLEARANCE = 16
-GENERATOR = 4  # stamped on every built card; tests of build-time behaviour apply to queues built by this version
+GENERATOR = 5  # stamped on every built card; tests of build-time behaviour apply to queues built by this version
 REPEAT_GAP_CYCLES = 3  # a voter can come round again only after this many yearly cycles
 # How often one exact sentence may come round: at four cards a day, no more than twice a week. A
 # sentence family on many cards (class, the leader line) needs as many wordings as that takes; a

@@ -129,14 +129,30 @@ def strengths(options) -> dict[str, float]:
     return dict(offer)
 
 
+def hold_trends(keys: list[str], themes: list[str], targets: np.ndarray) -> np.ndarray:
+    """The targets with each theme's trend questions (which way things are going) held to
+    config.TREND_SHARE of the theme's share, and what they give up passed to the theme's views in
+    proportion to their own targets. A theme with nothing but trends keeps its share for them."""
+    targets = np.array(targets, dtype=float)
+    trend = np.array([ITEMS_BY_KEY[key].kind == "trend" for key in keys])
+    for theme in set(themes):
+        mine = np.array([t == theme for t in themes])
+        total, held, views = targets[mine].sum(), targets[mine & trend].sum(), targets[mine & ~trend].sum()
+        if views > 0 and held > config.TREND_SHARE * total:
+            targets[mine & trend] *= config.TREND_SHARE * total / held
+            targets[mine & ~trend] *= (1 - config.TREND_SHARE) * total / views
+    return targets
+
+
 def group_of(item: items.Item) -> str:
     """Which draw an opinion item belongs to: the card's closing nation-and-identity bubble, or the rest."""
     return "nation" if item.topic in items.NATION_TOPICS else "general"
 
 
 # How many draws each group makes on a card, which turns "appears on at most MAX_APPEARANCE of the
-# cards that could carry it" into a per-draw limit (balance.per_draw_rate).
-DRAWS = {"general": config.MAX_OPINIONS, "nation": 1, "money": 1, "details": config.LIFE_DETAILS}
+# cards that could carry it" into a per-draw limit (balance.per_draw_rate). The issue bubble's weights
+# are solved over the general draw's cards, so they keep its limit.
+DRAWS = {"general": config.MAX_OPINIONS, "issue": config.MAX_OPINIONS, "nation": 1, "money": 1, "details": config.LIFE_DETAILS}
 ITEMS_BY_KEY = {item.key: item for item in items.ITEMS}
 
 # What a card gives up, in order, when it would run past its canvas with every line of text at its
@@ -169,6 +185,7 @@ class ProfileBuilder:
         for country in sorted(pools):
             for group in ("general", "nation", "money", "details"):
                 self.solve_group(country, group, pools[country][group], salience.get(country, {}))
+            self.solve_group(country, "issue", pools[country]["general"], collections.Counter())
 
     def measure(self, panel: pd.DataFrame) -> tuple[dict, dict]:
         """For every respondent, what each draw could offer them, by nation; and how much weight each
@@ -205,15 +222,20 @@ class ProfileBuilder:
         for i, card in enumerate(cards):
             for key, strength in card.items():
                 presence[i, column[key]] = strength
-        if group in ("general", "nation"):
+        if group in ("general", "issue", "nation"):
             paths = [(items.theme_of(ITEMS_BY_KEY[key].topic), ITEMS_BY_KEY[key].topic) for key in keys]
             themes = sorted({path[0] for path in paths})
             top = None
-            if group == "general":  # half by what voters there say matters most, half evenly (config.SALIENCE_SHARE)
+            # the general draw partly by what voters there say matters most (config.SALIENCE_SHARE), the
+            # rest evenly; the issue bubble evenly, as what they say matters has already chosen its subject
+            if group == "general":
                 named = sum(salience.get(theme, 0.0) for theme in themes)
                 top = {theme: config.SALIENCE_SHARE * (salience.get(theme, 0.0) / named if named else 1 / len(themes))
                        + (1 - config.SALIENCE_SHARE) / len(themes) for theme in themes}
-            targets = balance.tree_targets(keys, paths, [ITEMS_BY_KEY[key].weight for key in keys], top)
+            # each item at its own weight, less for a question asked some years ago (items.draw_weight),
+            # and no subject's share going mostly on which way things are going (config.TREND_SHARE)
+            targets = balance.tree_targets(keys, paths, [items.draw_weight(ITEMS_BY_KEY[key]) for key in keys], top)
+            targets = hold_trends(keys, [path[0] for path in paths], targets)
         elif group == "money":  # an equal share per BES question, split evenly between the facts it gives
             targets = balance.tree_targets(keys, [(persona.MONEY_QUESTION[key],) for key in keys], [1.0] * len(keys))
         else:
@@ -234,6 +256,9 @@ class ProfileBuilder:
                 row[2] += flat
             for theme, (target, share, flat) in sorted(by_theme.items(), key=lambda kv: -kv[1][1])[:8]:
                 self.report.append(f"{'':>17}{theme:<24} {share:6.1%} of general draws (a flat draw would give {flat:5.1%})")
+            trend = [ITEMS_BY_KEY[key].kind == "trend" for key in keys]
+            self.report.append(f"{'':>17}{'which way things are going':<24} {result['shares'][trend].sum():6.1%} of general draws "
+                               f"(a flat draw would give {result['flat'][trend].sum():5.1%})")
 
     def weight(self, country: int, group: str, key: str) -> float:
         """The solved weight for one option; 1 (the solved weights' typical size) for one never measured."""
@@ -326,14 +351,18 @@ class ProfileBuilder:
     def pick_opinions(self, row, country: int, rng: random.Random, issue_code: int | None = None, count: int = 3) -> tuple[list[persona.Span], list[str]]:
         """Up to `count` opinion bubbles on different topics, with what kind each is (issue, general, nation).
 
-        When they named a top issue and hold a view on that subject, one bubble
-        always speaks to it; the last slot favours nation and identity
+        When they named a top issue and hold a view on that subject - or said which
+        party is best on it (items.speaks_to) - one bubble always speaks to it; the
+        last slot favours nation and identity
         (config.NATION_BUBBLE_CHANCE); no two bubbles come from the same issue theme
         (items.THEMES). The caller shuffles.
 
         Each item is drawn by the weight solved for it at build time, which is what
         makes the feed follow its targets rather than whatever the BES asked most
-        people (see ProfileBuilder.solve_group); a middling answer counts at
+        people (see ProfileBuilder.solve_group). The issue bubble has weights of its
+        own, solved with no lean towards the subjects voters name most: its subject
+        was chosen by that already, and with the lean the economy's questions took
+        most of the bubble for anyone whose issue touched it. A middling answer counts at
         config.NEUTRAL_WEIGHT, because surveys nudge people to the middle and a
         view either way says more.
         """
@@ -342,22 +371,21 @@ class ProfileBuilder:
         kinds: list[str] = []
         used_themes: set[str] = set()  # one bubble per issue theme (items.THEMES), not just per topic
 
-        def draw(pool):
+        def draw(pool, issue: bool = False):
             pool = [(i, t) for i, t in pool if items.theme_of(i.topic) not in used_themes]
             if not pool:
                 return None
-            weights = [self.weight(country, group_of(i), i.key) * (config.NEUTRAL_WEIGHT if items.is_neutral(t) else 1.0)
-                       for i, t in pool]
+            weights = [self.weight(country, "issue" if issue and group_of(i) == "general" else group_of(i), i.key)
+                       * (config.NEUTRAL_WEIGHT if items.is_neutral(t) else 1.0) for i, t in pool]
             item, text = rng.choices(pool, weights=weights, k=1)[0]
             used_themes.add(items.theme_of(item.topic))
             return persona.Span(str(text), key=item.key)
 
         nation_pool = [(i, t) for i, t in candidates if i.topic in items.NATION_TOPICS]
         general_pool = [(i, t) for i, t in candidates if i.topic not in items.NATION_TOPICS]
-        related = items.ISSUE_TOPICS.get(issue_code or 0, set())
-        issue_pool = [(i, t) for i, t in candidates if i.topic in related]
+        issue_pool = [(i, t) for i, t in candidates if items.speaks_to(i, issue_code)]
         if issue_pool:
-            span = draw(issue_pool)
+            span = draw(issue_pool, issue=True)
             if span:
                 chosen.append(span)
                 kinds.append("issue")

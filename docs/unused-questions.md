@@ -33,6 +33,7 @@
 | benevolentSexism1 | 27 | Women should be cherished and protected by men | Strongly disagree; Disagree; Neither agree nor disagree; Agree; Strongly agree |
 | benevolentSexism2 | 27 | Many women have a quality of purity that few men possess | Strongly disagree; Disagree; Neither agree nor disagree; Agree; Strongly agree |
 | benevolentSexism3 | 27 | A good woman should be set on a pedestal by her man | Strongly disagree; Disagree; Neither agree nor disagree; Agree; Strongly agree |
+| bestOnMII | 20,21,22,23,24,25,26,27,28,29,30,31 | Best party on most important issue | No party is best able to handle this issue / Conservative |
 | blackEquality | 23,27 | Gone too far: equal opportunities for ethnic minorities | Not gone nearly far enough; Not gone far enough; About right; Gone too far; Gone much too far |
 | borrowEssentials | 23,25,26,27,30,31 | Needed to borrow money for groceries/bills/day-to-day items | No; Yes |
 | breakfastClub | 28 | Introduce free breakfast clubs for all primary school children in England | Strongly oppose; Oppose; Neither support nor oppose; Support; Strongly support |
@@ -98,7 +99,6 @@
 | effectsEUFinanceRetro | 27 | Brexit effect: My personal financial situation better/worse | Much worse; Worse; About the same; Better; Much better |
 | effectsEUImmigrationRetro | 27 | Brexit effect: Immigration to UK better/worse | Much worse; Worse; About the same; Better; Much better |
 | effectsEUTradeRetro | 27 | Brexit effect: International Trade better/worse | Much worse; Worse; About the same; Better; Much better |
-| effectsEUUnemploymentRetro | 27 | Brexit effect: Unemployment better/worse | Much worse; Worse; About the same; Better; Much better |
 | effectsEUWorkersRetro | 27 | Brexit effect: Working conditions for British workers better/worse | Much worse; Worse; About the same; Better; Much better |
 | effectsNHSRetro | 27 | Brexit effect: the NHS better/worse | Much worse; Worse; About the same; Better; Much better |
 | effectsRemainEcon | 21,22,23 | Effects of remaining EU: general economic situation in the UK | Much worse; Worse; About the same; Better; Much better |
@@ -479,7 +479,7 @@
 | worryEconSecurity | 23,24,25,26,27,30,31 | How worried are you about your and your family's economic security? | Not at all worried / Very Worried |
 | zeroHourContract | 27 | Employers should be allowed to hire workers on zero-hour contracts | Should definitely be illegal; Should probably be illegal; Should probably be legal; Should definitely be legal |
 
-## A 2020-23 Brexit or globalisation sub-question; the card uses the overall versions and the wave-31 economic-impact items (23)
+## A 2020-23 Brexit or globalisation sub-question; the card uses the overall versions and the wave-31 economic-impact items (24)
 
 | Variable | Waves | Label | Answers |
 |---|---|---|---|
@@ -489,6 +489,7 @@
 | dealPriorityNIUKBorder | 20 | Deal priority: Keeping open border between NI and UK | Not important at all; Not very important; Somewhat important; Very important; Extremely important |
 | dealPriorityRedTape | 20 | Deal priority: Not having to follow EU rules/regulations | Not important at all; Not very important; Somewhat important; Very important; Extremely important |
 | dealPriorityTradeDeal | 20 | Deal priority: Allowing Britain to make trade deals with other countries | Not important at all; Not very important; Somewhat important; Very important; Extremely important |
+| effectsEUUnemploymentRetro | 27 | Brexit effect: Unemployment better/worse | Much worse; Worse; About the same; Better; Much better |
 | euPriorityBalance | 20 | Brexit priority: access to single market versus controlling immigration | Access to the single market / Control immigration |
 | responsibleEconBrexit | 21 | Responsible for economy: Brexit | No; Yes |
 | responsibleEconBusiness | 21 | Responsible for economy: British businesses | No; Yes |
@@ -1289,11 +1290,10 @@
 | voterIDpage4_6 | 25,26,27,30 | Which forms of photo ID do you hold: Voter Authority Cert/Anon Elector's Doc | No; Yes |
 | voterIDVote | 25 | Voter ID makes me less likely to vote | Strongly disagree; Disagree; Neither agree nor disagree; Agree; Strongly agree |
 
-## Opinions about parties and the 2024 vote (likes, unity, who they look after, best on the issue, party identity, regrets, tactics): left out deliberately - the vote band carries the preference and the leader line the personalities (120)
+## Opinions about parties and the 2024 vote (likes, unity, who they look after, party identity, regrets, tactics): left out deliberately - the vote band carries the preference and the leader line the personalities (119)
 
 | Variable | Waves | Label | Answers |
 |---|---|---|---|
-| bestOnMII | 20,21,22,23,24,25,26,27,28,29,30,31 | Best party on most important issue | No party is best able to handle this issue / Conservative |
 | brexitLookAfterBA | 29,31 | Reform UK look after Black and Asian people | Not at all closely; Not very closely; Fairly closely; Very closely |
 | brexitLookAfterMen | 30 | Reform UK look after men | Not at all closely; Not very closely; Fairly closely; Very closely |
 | brexitLookAfterRetired | 29,31 | Reform UK look after Retired people | Protect our independence from the European Union  10 / Don't know |
