@@ -106,7 +106,7 @@ MEDIA_MAX_LINES, MEDIA_CHARS_PER_LINE = 3, 115
 # or the scale labels sit on the band: half the padding, kept on every card (the card's own fit
 # script and voterbot/fit.py both hold to it).
 BAND_CLEARANCE = 16
-GENERATOR = 5  # stamped on every built card; tests of build-time behaviour apply to queues built by this version
+GENERATOR = 6  # stamped on every built card; tests of build-time behaviour apply to queues built by this version
 REPEAT_GAP_CYCLES = 3  # a voter can come round again only after this many yearly cycles
 # How often one exact sentence may come round: at four cards a day, no more than twice a week. A
 # sentence family on many cards (class, the leader line) needs as many wordings as that takes; a
